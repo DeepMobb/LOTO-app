@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LOTO Manager</title>
+  <style>
+    :root{
+      --bg:#f7f9fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --primary:#1d9bf0; /* twitter-like */
+      --accent:#e6eef9;
+      --radius:12px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#f1f5f9);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    header{
+      background:var(--card);
+      padding:16px 20px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      box-shadow:0 1px 0 rgba(15,23,42,0.04);
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo{
+      width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#4fb3ff);
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;
+    }
+    .title{font-size:1.1rem;font-weight:700}
+    main{
+      max-width:980px;margin:28px auto;padding:12px;
+    }
+    .card{
+      background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:16px;
+      box-shadow:0 6px 18px rgba(15,23,42,0.04);
+    }
+    .row{display:flex;gap:12px;align-items:center;}
+    .spacer{flex:1}
+    .muted{color:var(--muted);font-size:0.95rem}
+    .big{
+      font-size:1.2rem;font-weight:600;
+    }
+    .btn{
+      background:var(--primary);Color:#fff;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;
+      font-weight:600;
+    }
+    .btn.secondary{
+      background:transparent;color:var(--primary);border:1px solid rgba(29,155,240,0.12);
+    }
+    .list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .lock{
+      padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;justify-content:space-between;align-items:center;
+      border:1px solid rgba(15,23,42,0.04);
+    }
+    .lock .meta{display:flex;gap:12px;align-items:center}
+    .badge{
+      background:var(--accent);color:var(--primary);padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.9rem;
+    }
+    .small{font-size:0.9rem;color:var(--muted)}
+    .form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+    input[type="text"], input[type="password"], input[type="tel"]{
+      padding:10px;border-radius:8px;border:1px solid #e6edf3;background:#fff;
+    }
+    .center{display:flex;justify-content:center;align-items:center}
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal{width:90%;max-width:480px;background:var(--card);padding:18px;border-radius:12px}
+    .video-preview{width:100%;height:260px;background:#0b1220;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff}
+    .tiny{font-size:0.85rem;color:var(--muted)}
+    .linklike{background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600}
+    footer{padding:24px;text-align:center;color:var(--muted);font-size:0.9rem}
+    @media (min-width:800px){
+      main{padding:20px}
+      .video-preview{height:360px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">LO</div>
+      <div>
+        <div class="title">LOTO Manager</div>
+        <div class="tiny">Lock-Out Tag-Out — enkel og hurtig</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div id="user-area" style="display:none" class="center">
+      <div id="user-name" class="muted" style="margin-right:12px"></div>
+      <button id="signout-btn" class="linklike">Log ud</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Sign up / Login card -->
+    <div id="auth-card" class="card">
+      <div id="signup-view">
+        <div class="row">
+          <div>
+            <div class="big">Opret bruger</div>
+            <div class="muted">Indtast navn, kodeord og telefonnummer.</div>
+          </div>
+          <div class="spacer"></div>
+        </div>
+        <form id="signup-form" style="margin-top:12px">
+          <div class="form-row">
+            <label class="small">Navn</label>
+            <input id="input-name" type="text" required placeholder="Fuldtnavn" />
+          </div>
+          <div class="form-row">
+            <label class="small">Kode</label>
+            <input id="input-password" type="password" required placeholder="Kodeord" />
+          </div>
+          <div class="form-row">
+            <label class="small">Telefonnummer</label>
+            <input id="input-phone" type="tel" required placeholder="+45 12 34 56 78" />
+            <div class="tiny">Telefonnummer bruges til bruger-id (ingen SMS i denne demo).</div>
+          </div>
+          <div class="row">
+            <div class="spacer"></div>
+            <button class="btn" type="submit">Opret bruger og log ind</button>
+          </div>
+        </form>
+
+        <hr style="margin:18px 0;border:none;border-top:1px solid #eef2f6" />
+        <div class="muted">Har du allerede en konto?</div>
+        <form id="login-form" style="margin-top:12px">
+          <div class="form-row">
+            <label class="small">Telefonnummer</label>
+            <input id="login-phone" type="tel" required />
+          </div>
+          <div class="form-row">
+            <label class="small">Kode</label>
+            <input id="login-password" type="password" required />
+          </div>
+          <div class="row">
+            <div class="spacer"></div>
+            <button class="btn secondary" type="submit">Log ind</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main app (hidden until logged in) -->
+    <div id="app-view" style="display:none">
+      <div class="card">
+        <div class="row">
+          <div>
+            <div class="big">Aktive låse</div>
+            <div class="muted">Her vises kun låse som er aktive</div>
+          </div>
+          <div class="spacer"></div>
+          <button id="start-loto-btn" class="btn">Start LOTO</button>
+        </div>
+
+        <div id="locks-list" class="list" style="margin-top:12px">
+          <!-- dynamically filled -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: camera + scanning -->
+    <div id="modal" class="modal-backdrop">
+      <div class="modal">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="font-weight:700">Scan mærkat</div>
+          <div class="spacer"></div>
+          <button id="close-modal" class="linklike">Luk</button>
+        </div>
+        <div id="camera-area">
+          <div class="video-preview" id="video-preview">
+            <video id="video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <div id="video-fallback" class="tiny">Kamera ikke tilgængeligt</div>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
+            <button id="flip-camera" class="btn secondary">Skift kamera</button>
+            <button id="take-photo" class="btn">Scan</button>
+          </div>
+        </div>
+
+        <!-- After scan: form -->
+        <div id="scan-result" style="display:none;margin-top:12px">
+          <div class="small">Data fra mærkat (scannet)</div>
+          <pre id="scanned-data" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;"></pre>
+
+          <form id="save-lock-form">
+            <div class="form-row">
+              <label class="small">Navn (påkrævet)</label>
+              <input id="operator-name" type="text" required />
+            </div>
+            <div class="form-row">
+              <label class="small">Lås nummer (påkrævet)</label>
+              <input id="lock-number" type="text" required />
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+              <button id="cancel-save" type="button" class="btn secondary">Annuller</button>
+              <button type="submit" class="btn">Gem</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    Demo LOTO-app — husk at konfigurere Firebase og sikkerhedsregler i produktion.
+  </footer>
+
+  <!-- Libraries: Firebase modular SDK + jsQR fallback -->
+  <script type="module">
+    // Din Firebase config (indsat)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZ1l12BC2ZowpgTgyOFX7QsuD9__0omFk",
+      authDomain: "loto-app-ffa5a.firebaseapp.com",
+      projectId: "loto-app-ffa5a",
+      storageBucket: "loto-app-ffa5a.firebasestorage.app",
+      messagingSenderId: "90362528781",
+      appId: "1:90362528781:web:e9809bbeb6b12160ea8144"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      addDoc,
+      collection,
+      serverTimestamp,
+      query,
+      where,
+      onSnapshot,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // UI element refs
+    const authCard = document.getElementById('auth-card');
+    const appView = document.getElementById('app-view');
+    const userArea = document.getElementById('user-area');
+    const userNameElem = document.getElementById('user-name');
+    const signoutBtn = document.getElementById('signout-btn');
+
+    const signupForm = document.getElementById('signup-form');
+    const inputName = document.getElementById('input-name');
+    const inputPassword = document.getElementById('input-password');
+    const inputPhone = document.getElementById('input-phone');
+
+    const loginForm = document.getElementById('login-form');
+    const loginPhone = document.getElementById('login-phone');
+    const loginPassword = document.getElementById('login-password');
+
+    const startBtn = document.getElementById('start-loto-btn');
+    const modal = document.getElementById('modal');
+    const closeModal = document.getElementById('close-modal');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const videoFallback = document.getElementById('video-fallback');
+    const takePhotoBtn = document.getElementById('take-photo');
+    const flipBtn = document.getElementById('flip-camera');
+    const scanResult = document.getElementById('scan-result');
+    const scannedDataElem = document.getElementById('scanned-data');
+    const operatorName = document.getElementById('operator-name');
+    const lockNumber = document.getElementById('lock-number');
+    const saveLockForm = document.getElementById('save-lock-form');
+    const cancelSave = document.getElementById('cancel-save');
+    const locksList = document.getElementById('locks-list');
+
+    let currentUser = null;
+
+    // Camera state
+    let stream = null;
+    let usingFront = false;
+    let scanInterval = null;
+
+    // jsQR fallback loader
+    let jsQRLoaded = false;
+    async function loadJsQR(){
+      if(jsQRLoaded) return;
+      await import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js');
+      jsQRLoaded = true;
+    }
+
+    function phoneToEmail(phone){
+      // convert phone to a stable "local" email to allow Firebase email/password auth
+      // NOTE: Ensure phone is normalized by removing spaces
+      const cleaned = phone.replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,'');
+      return `${cleaned}@loto.local`;
+    }
+
+    // AUTH flows
+    signupForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const name = inputName.value.trim();
+      const pwd = inputPassword.value;
+      const phone = inputPhone.value.trim();
+      if(!name || !pwd || !phone){ alert('Udfyld alle felter'); return; }
+
+      const email = phoneToEmail(phone);
+      try{
+        const userCred = await createUserWithEmailAndPassword(auth, email, pwd);
+        const u = userCred.user;
+        // set displayName
+        await updateProfile(u, { displayName: name });
+        // store user metadata in Firestore
+        await setDoc(doc(db,'users',u.uid), {
+          name,
+          phone,
+          createdAt: serverTimestamp()
+        });
+        // onAuthStateChanged will handle UI update (auto logged in)
+      }catch(err){
+        alert('Fejl ved oprettelse: ' + err.message);
+      }
+    });
+
+    loginForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const phone = loginPhone.value.trim();
+      const pwd = loginPassword.value;
+      if(!phone || !pwd){ alert('Udfyld alle felter'); return; }
+      const email = phoneToEmail(phone);
+      try{
+        await signInWithEmailAndPassword(auth, email, pwd);
+      }catch(err){
+        alert('Login fejlede: ' + err.message);
+      }
+    });
+
+    signoutBtn.addEventListener('click', async ()=>{
+      await signOut(auth);
+    });
+
+    // Auth observer
+    onAuthStateChanged(auth, user => {
+      if(user){
+        currentUser = user;
+        userNameElem.textContent = user.displayName || user.email;
+        userArea.style.display = 'flex';
+        authCard.style.display = 'none';
+        appView.style.display = 'block';
+        startListeningActiveLocks();
+      } else {
+        currentUser = null;
+        userArea.style.display = 'none';
+        authCard.style.display = 'block';
+        appView.style.display = 'none';
+        stopListeningActiveLocks();
+      }
+    });
+
+    // Active locks listener
+    let unsubscribeLocks = null;
+    function startListeningActiveLocks(){
+      const locksRef = collection(db,'activeLocks');
+      const q = query(locksRef, where('status','==','active'));
+      unsubscribeLocks = onSnapshot(q, snapshot => {
+        locksList.innerHTML = '';
+        if(snapshot.empty){
+          locksList.innerHTML = '<div class="muted">Ingen aktive låse.</div>';
+          return;
+        }
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          const id = docSnap.id;
+          const el = document.createElement('div');
+          el.className = 'lock';
+          el.innerHTML = `
+            <div class="meta">
+              <div>
+                <div style="font-weight:700">${data.lockNumber || '—'}</div>
+                <div class="small">${data.stickerData || ''}</div>
+              </div>
+              <div style="margin-left:12px">
+                <div class="small">Registreret af</div>
+                <div style="font-weight:700">${data.operatorName || ''}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="badge">AKTIV</div>
+              <button data-id="${id}" class="btn secondary release-btn">Frigiv</button>
+            </div>
+          `;
+          locksList.appendChild(el);
+        });
+        // attach release handlers
+        document.querySelectorAll('.release-btn').forEach(btn=>{
+          btn.addEventListener('click', async (ev)=>{
+            const id = ev.currentTarget.getAttribute('data-id');
+            if(!confirm('Vil du frigive denne lås?')) return;
+            const dRef = doc(db,'activeLocks',id);
+            await updateDoc(dRef, {
+              status: 'released',
+              releasedBy: currentUser.uid,
+              releasedAt: serverTimestamp()
+            });
+          });
+        });
+      });
+    }
+    function stopListeningActiveLocks(){
+      if(unsubscribeLocks) unsubscribeLocks();
+      unsubscribeLocks = null;
+      locksList.innerHTML = '';
+    }
+
+    // Modal / camera
+    startBtn.addEventListener('click', openModal);
+    closeModal.addEventListener('click', closeModalFunc);
+    cancelSave.addEventListener('click', ()=>{
+      showScanUI();
+    });
+
+    function openModal(){
+      modal.style.display = 'flex';
+      scanResult.style.display = 'none';
+      scannedDataElem.textContent = '';
+      operatorName.value = currentUser.displayName || '';
+      lockNumber.value = '';
+      startCamera();
+    }
+    async function closeModalFunc(){
+      modal.style.display = 'none';
+      stopCamera();
+    }
+
+    async function startCamera(){
+      if(stream){ stopCamera(); }
+      const constraints = {
+        video: {
+          facingMode: usingFront ? 'user' : 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      };
+      try{
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+        videoFallback.style.display = 'none';
+        // start continuous scanning via interval
+        if(scanInterval) clearInterval(scanInterval);
+        scanInterval = setInterval(doScanFrame, 800);
+      }catch(err){
+        console.warn('Camera error', err);
+        videoFallback.style.display = 'block';
+      }
+    }
+
+    function stopCamera(){
+      if(scanInterval){ clearInterval(scanInterval); scanInterval = null; }
+      if(stream){
+        stream.getTracks().forEach(t=>t.stop());
+        stream = null;
+      }
+      video.srcObject = null;
+    }
+
+    flipBtn.addEventListener('click', async ()=>{
+      usingFront = !usingFront;
+      await startCamera();
+    });
+
+    takePhotoBtn.addEventListener('click', async ()=>{
+      // one-shot scan
+      await doScanFrame(true);
+    });
+
+    // scanning function: use BarcodeDetector if available else jsQR for QR
+    async function doScanFrame(oneShot=false){
+      if(!stream) return;
+      const videoTrack = stream.getVideoTracks()[0];
+      if(!videoTrack) return;
+      // draw frame to canvas
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      if(vw === 0 || vh === 0) return;
+      canvas.width = vw;
+      canvas.height = vh;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, vw, vh);
+
+      // try BarcodeDetector API
+      if(window.BarcodeDetector){
+        try{
+          const detector = new BarcodeDetector({formats: ['qr_code','code_128','ean_13','ean_8']});
+          const imageBitmap = await createImageBitmap(canvas);
+          const barcodes = await detector.detect(imageBitmap);
+          if(barcodes && barcodes.length){
+            handleScanSuccess(barcodes[0].rawValue);
+            if(oneShot){ /* nothing */ }
+            return;
+          }
+        }catch(e){
+          // ignore
+        }
+      }
+
+      // fallback to jsQR (QR codes)
+      try{
+        await loadJsQR();
+        const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        // jsQR is available as global jsQR
+        const code = window.jsQR(imageData.data, imageData.width, imageData.height);
+        if(code && code.data){
+          handleScanSuccess(code.data);
+          return;
+        }
+      }catch(e){
+        // ignore
+      }
+    }
+
+    function showScanUI(){
+      scanResult.style.display = 'none';
+      document.getElementById('camera-area').style.display = 'block';
+    }
+
+    function handleScanSuccess(data){
+      // show modal form with scanned data
+      scannedDataElem.textContent = data;
+      document.getElementById('camera-area').style.display = 'none';
+      scanResult.style.display = 'block';
+      // fill default operator name (current user)
+      operatorName.value = currentUser.displayName || '';
+      // optionally prefill lockNumber if sticker contains a key like "lock:123"
+      const m = data.match(/lock[:#\-\s]*([A-Za-z0-9_-]+)/i);
+      if(m){
+        lockNumber.value = m[1];
+      }
+    }
+
+    // Save lock
+    saveLockForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const op = operatorName.value.trim();
+      const ln = lockNumber.value.trim();
+      const sticker = scannedDataElem.textContent || '';
+      if(!op || !ln){
+        alert('Navn og lås nummer skal udfyldes');
+        return;
+      }
+      try{
+        await addDoc(collection(db,'activeLocks'), {
+          operatorName: op,
+          lockNumber: ln,
+          stickerData: sticker,
+          createdBy: currentUser.uid,
+          createdAt: serverTimestamp(),
+          status: 'active'
+        });
+        // close modal and refresh UI (listener reacts automatically)
+        closeModalFunc();
+      }catch(err){
+        alert('Fejl ved gem: ' + err.message);
+      }
+    });
+
+    // small helper: try to close modal on outside click
+    modal.addEventListener('click', (e)=>{
+      if(e.target === modal){
+        closeModalFunc();
+      }
+    });
+
+    // Prevent leaving camera on when closing tab
+    window.addEventListener('beforeunload', ()=>{ stopCamera(); });
+
+  </script>
+</body>
+</html>
