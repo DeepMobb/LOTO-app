@@ -9,85 +9,41 @@
       --bg:#f7f9fb;
       --card:#ffffff;
       --muted:#6b7280;
-      --primary:#1d9bf0; /* twitter-like */
+      --primary:#1d9bf0;
       --accent:#e6eef9;
       --radius:12px;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-    body{
-      margin:0;
-      background:linear-gradient(180deg,var(--bg),#f1f5f9);
-      color:#0f172a;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
-    header{
-      background:var(--card);
-      padding:16px 20px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      box-shadow:0 1px 0 rgba(15,23,42,0.04);
-      position:sticky;
-      top:0;
-      z-index:20;
-    }
-    .brand{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .logo{
-      width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#4fb3ff);
-      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;
-    }
+    body{ margin:0; background:linear-gradient(180deg,var(--bg),#f1f5f9); color:#0f172a; }
+    header{ background:var(--card); padding:16px 20px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 0 rgba(0,0,0,0.04); position:sticky; top:0; z-index:20; }
+    .brand{ display:flex; gap:12px; align-items:center; }
+    .logo{ width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#4fb3ff); display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700; }
     .title{font-size:1.1rem;font-weight:700}
-    main{
-      max-width:980px;margin:28px auto;padding:12px;
-    }
-    .card{
-      background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:16px;
-      box-shadow:0 6px 18px rgba(15,23,42,0.04);
-    }
+    main{ max-width:980px;margin:28px auto;padding:12px; }
+    .card{ background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:16px; box-shadow:0 6px 18px rgba(15,23,42,0.04); }
     .row{display:flex;gap:12px;align-items:center;}
     .spacer{flex:1}
     .muted{color:var(--muted);font-size:0.95rem}
-    .big{
-      font-size:1.2rem;font-weight:600;
-    }
-    .btn{
-      background:var(--primary);Color:#fff;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;
-      font-weight:600;
-    }
-    .btn.secondary{
-      background:transparent;color:var(--primary);border:1px solid rgba(29,155,240,0.12);
-    }
+    .big{ font-size:1.2rem;font-weight:600; }
+    .btn{ background:var(--primary); color:#fff; padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:600; }
+    .btn.secondary{ background:transparent; color:var(--primary); border:1px solid rgba(29,155,240,0.12); }
     .list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-    .lock{
-      padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;justify-content:space-between;align-items:center;
-      border:1px solid rgba(15,23,42,0.04);
-    }
+    .lock{ padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;justify-content:space-between;align-items:center; border:1px solid rgba(15,23,42,0.04); }
     .lock .meta{display:flex;gap:12px;align-items:center}
-    .badge{
-      background:var(--accent);color:var(--primary);padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.9rem;
-    }
+    .badge{ background:var(--accent);color:var(--primary);padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.9rem; }
     .small{font-size:0.9rem;color:var(--muted)}
     .form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-    input[type="text"], input[type="password"], input[type="tel"]{
-      padding:10px;border-radius:8px;border:1px solid #e6edf3;background:#fff;
-    }
+    input[type="text"], input[type="password"], input[type="tel"]{ padding:10px;border-radius:8px;border:1px solid #e6edf3;background:#fff; }
     .center{display:flex;justify-content:center;align-items:center}
-    /* modal */
     .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
-    .modal{width:90%;max-width:480px;background:var(--card);padding:18px;border-radius:12px}
+    .modal{width:90%;max-width:560px;background:var(--card);padding:18px;border-radius:12px}
     .video-preview{width:100%;height:260px;background:#0b1220;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff}
     .tiny{font-size:0.85rem;color:var(--muted)}
     .linklike{background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600}
     footer{padding:24px;text-align:center;color:var(--muted);font-size:0.9rem}
-    @media (min-width:800px){
-      main{padding:20px}
-      .video-preview{height:360px}
-    }
+    #capture-preview { width:100%; max-height:320px; object-fit:contain; border-radius:8px; background:#f4f7fb; display:block; margin-top:8px; }
+    #ocr-progress { font-size:0.9rem; color:var(--muted); margin-top:8px; }
+    @media (min-width:800px){ main{padding:20px} .video-preview{height:360px} }
   </style>
 </head>
 <body>
@@ -107,7 +63,6 @@
   </header>
 
   <main>
-    <!-- Sign up / Login card -->
     <div id="auth-card" class="card">
       <div id="signup-view">
         <div class="row">
@@ -118,45 +73,22 @@
           <div class="spacer"></div>
         </div>
         <form id="signup-form" style="margin-top:12px">
-          <div class="form-row">
-            <label class="small">Navn</label>
-            <input id="input-name" type="text" required placeholder="Fuldtnavn" />
-          </div>
-          <div class="form-row">
-            <label class="small">Kode</label>
-            <input id="input-password" type="password" required placeholder="Kodeord" />
-          </div>
-          <div class="form-row">
-            <label class="small">Telefonnummer</label>
-            <input id="input-phone" type="tel" required placeholder="+45 12 34 56 78" />
-            <div class="tiny">Telefonnummer bruges til bruger-id (ingen SMS i denne demo).</div>
-          </div>
-          <div class="row">
-            <div class="spacer"></div>
-            <button class="btn" type="submit">Opret bruger og log ind</button>
-          </div>
+          <div class="form-row"><label class="small">Navn</label><input id="input-name" type="text" required placeholder="Fuldtnavn" /></div>
+          <div class="form-row"><label class="small">Kode</label><input id="input-password" type="password" required placeholder="Kodeord" /></div>
+          <div class="form-row"><label class="small">Telefonnummer</label><input id="input-phone" type="tel" required placeholder="+45 12 34 56 78" /><div class="tiny">Telefonnummer bruges til bruger-id (ingen SMS i denne demo).</div></div>
+          <div class="row"><div class="spacer"></div><button class="btn" type="submit">Opret bruger og log ind</button></div>
         </form>
 
         <hr style="margin:18px 0;border:none;border-top:1px solid #eef2f6" />
         <div class="muted">Har du allerede en konto?</div>
         <form id="login-form" style="margin-top:12px">
-          <div class="form-row">
-            <label class="small">Telefonnummer</label>
-            <input id="login-phone" type="tel" required />
-          </div>
-          <div class="form-row">
-            <label class="small">Kode</label>
-            <input id="login-password" type="password" required />
-          </div>
-          <div class="row">
-            <div class="spacer"></div>
-            <button class="btn secondary" type="submit">Log ind</button>
-          </div>
+          <div class="form-row"><label class="small">Telefonnummer</label><input id="login-phone" type="tel" required /></div>
+          <div class="form-row"><label class="small">Kode</label><input id="login-password" type="password" required /></div>
+          <div class="row"><div class="spacer"></div><button class="btn secondary" type="submit">Log ind</button></div>
         </form>
       </div>
     </div>
 
-    <!-- Main app (hidden until logged in) -->
     <div id="app-view" style="display:none">
       <div class="card">
         <div class="row">
@@ -167,14 +99,10 @@
           <div class="spacer"></div>
           <button id="start-loto-btn" class="btn">Start LOTO</button>
         </div>
-
-        <div id="locks-list" class="list" style="margin-top:12px">
-          <!-- dynamically filled -->
-        </div>
+        <div id="locks-list" class="list" style="margin-top:12px"></div>
       </div>
     </div>
 
-    <!-- Modal: camera + scanning -->
     <div id="modal" class="modal-backdrop">
       <div class="modal">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
@@ -188,26 +116,24 @@
             <canvas id="canvas" style="display:none;"></canvas>
             <div id="video-fallback" class="tiny">Kamera ikke tilgængeligt</div>
           </div>
+
           <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
             <button id="flip-camera" class="btn secondary">Skift kamera</button>
-            <button id="take-photo" class="btn">Scan</button>
+            <button id="scan-barcode" class="btn secondary">Scan barcode</button>
+            <button id="capture-ocr" class="btn">Tag billede (OCR)</button>
           </div>
         </div>
 
-        <!-- After scan: form -->
         <div id="scan-result" style="display:none;margin-top:12px">
-          <div class="small">Data fra mærkat (scannet)</div>
-          <pre id="scanned-data" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;"></pre>
+          <div class="small">Data fra mærkat</div>
+          <pre id="scanned-data" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;white-space:pre-wrap;"></pre>
+          <img id="capture-preview" style="display:none" alt="capture preview" />
+
+          <div id="ocr-progress" style="display:none">OCR: <span id="ocr-percent">0</span>% (<span id="ocr-status">venter</span>)</div>
 
           <form id="save-lock-form">
-            <div class="form-row">
-              <label class="small">Navn (påkrævet)</label>
-              <input id="operator-name" type="text" required />
-            </div>
-            <div class="form-row">
-              <label class="small">Lås nummer (påkrævet)</label>
-              <input id="lock-number" type="text" required />
-            </div>
+            <div class="form-row"><label class="small">Navn (påkrævet)</label><input id="operator-name" type="text" required /></div>
+            <div class="form-row"><label class="small">Lås nummer (påkrævet)</label><input id="lock-number" type="text" required /></div>
             <div style="display:flex;gap:8px;justify-content:flex-end">
               <button id="cancel-save" type="button" class="btn secondary">Annuller</button>
               <button type="submit" class="btn">Gem</button>
@@ -220,11 +146,11 @@
 
   </main>
 
-  <footer>
-    Demo LOTO-app — husk at konfigurere Firebase og sikkerhedsregler i produktion.
-  </footer>
+  <footer>Demo LOTO-app — husk at konfigurere Firebase og sikkerhedsregler i produktion.</footer>
 
-  <!-- Libraries: Firebase modular SDK + jsQR fallback -->
+  <!-- Tesseract for OCR (global "Tesseract") -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+
   <script type="module">
     // Din Firebase config (indsat)
     const firebaseConfig = {
@@ -262,7 +188,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // UI element refs
+    // UI refs
     const authCard = document.getElementById('auth-card');
     const appView = document.getElementById('app-view');
     const userArea = document.getElementById('user-area');
@@ -284,10 +210,16 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const videoFallback = document.getElementById('video-fallback');
-    const takePhotoBtn = document.getElementById('take-photo');
+    const scanBarcodeBtn = document.getElementById('scan-barcode');
+    const takePhotoBtn = document.getElementById('capture-ocr');
     const flipBtn = document.getElementById('flip-camera');
     const scanResult = document.getElementById('scan-result');
     const scannedDataElem = document.getElementById('scanned-data');
+    const capturePreview = document.getElementById('capture-preview');
+    const ocrProgress = document.getElementById('ocr-progress');
+    const ocrPercent = document.getElementById('ocr-percent');
+    const ocrStatus = document.getElementById('ocr-status');
+
     const operatorName = document.getElementById('operator-name');
     const lockNumber = document.getElementById('lock-number');
     const saveLockForm = document.getElementById('save-lock-form');
@@ -295,14 +227,36 @@
     const locksList = document.getElementById('locks-list');
 
     let currentUser = null;
-
-    // Camera state
     let stream = null;
     let usingFront = false;
     let scanInterval = null;
-
-    // jsQR fallback loader
     let jsQRLoaded = false;
+
+    // OCR worker (Tesseract)
+    let ocrWorker = null;
+    let ocrWorkerLoading = false;
+    async function ensureOCRWorker(){
+      if(ocrWorker) return;
+      if(ocrWorkerLoading) return;
+      ocrWorkerLoading = true;
+      ocrWorker = Tesseract.createWorker({
+        logger: m => {
+          if(m.status === 'recognizing text' && m.progress != null){
+            const p = Math.round(m.progress * 100);
+            ocrPercent.textContent = p;
+            ocrStatus.textContent = m.status;
+          } else {
+            ocrStatus.textContent = m.status || 'venter';
+          }
+        }
+      });
+      await ocrWorker.load();
+      await ocrWorker.loadLanguage('eng');
+      await ocrWorker.initialize('eng');
+      ocrWorkerLoading = false;
+    }
+
+    // load jsQR fallback
     async function loadJsQR(){
       if(jsQRLoaded) return;
       await import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js');
@@ -310,8 +264,6 @@
     }
 
     function phoneToEmail(phone){
-      // convert phone to a stable "local" email to allow Firebase email/password auth
-      // NOTE: Ensure phone is normalized by removing spaces
       const cleaned = phone.replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,'');
       return `${cleaned}@loto.local`;
     }
@@ -323,20 +275,12 @@
       const pwd = inputPassword.value;
       const phone = inputPhone.value.trim();
       if(!name || !pwd || !phone){ alert('Udfyld alle felter'); return; }
-
       const email = phoneToEmail(phone);
       try{
         const userCred = await createUserWithEmailAndPassword(auth, email, pwd);
         const u = userCred.user;
-        // set displayName
         await updateProfile(u, { displayName: name });
-        // store user metadata in Firestore
-        await setDoc(doc(db,'users',u.uid), {
-          name,
-          phone,
-          createdAt: serverTimestamp()
-        });
-        // onAuthStateChanged will handle UI update (auto logged in)
+        await setDoc(doc(db,'users',u.uid), { name, phone, createdAt: serverTimestamp() });
       }catch(err){
         alert('Fejl ved oprettelse: ' + err.message);
       }
@@ -348,18 +292,11 @@
       const pwd = loginPassword.value;
       if(!phone || !pwd){ alert('Udfyld alle felter'); return; }
       const email = phoneToEmail(phone);
-      try{
-        await signInWithEmailAndPassword(auth, email, pwd);
-      }catch(err){
-        alert('Login fejlede: ' + err.message);
-      }
+      try{ await signInWithEmailAndPassword(auth, email, pwd); }catch(err){ alert('Login fejlede: ' + err.message); }
     });
 
-    signoutBtn.addEventListener('click', async ()=>{
-      await signOut(auth);
-    });
+    signoutBtn.addEventListener('click', async ()=>{ await signOut(auth); });
 
-    // Auth observer
     onAuthStateChanged(auth, user => {
       if(user){
         currentUser = user;
@@ -377,7 +314,7 @@
       }
     });
 
-    // Active locks listener
+    // active locks listener
     let unsubscribeLocks = null;
     function startListeningActiveLocks(){
       const locksRef = collection(db,'activeLocks');
@@ -411,7 +348,6 @@
           `;
           locksList.appendChild(el);
         });
-        // attach release handlers
         document.querySelectorAll('.release-btn').forEach(btn=>{
           btn.addEventListener('click', async (ev)=>{
             const id = ev.currentTarget.getAttribute('data-id');
@@ -426,136 +362,163 @@
         });
       });
     }
-    function stopListeningActiveLocks(){
-      if(unsubscribeLocks) unsubscribeLocks();
-      unsubscribeLocks = null;
-      locksList.innerHTML = '';
-    }
+    function stopListeningActiveLocks(){ if(unsubscribeLocks) unsubscribeLocks(); unsubscribeLocks = null; locksList.innerHTML = ''; }
 
-    // Modal / camera
+    // Modal & camera
     startBtn.addEventListener('click', openModal);
     closeModal.addEventListener('click', closeModalFunc);
-    cancelSave.addEventListener('click', ()=>{
-      showScanUI();
-    });
+    cancelSave.addEventListener('click', ()=>{ showScanUI(); });
 
     function openModal(){
       modal.style.display = 'flex';
       scanResult.style.display = 'none';
       scannedDataElem.textContent = '';
+      capturePreview.style.display = 'none';
+      ocrProgress.style.display = 'none';
       operatorName.value = currentUser.displayName || '';
       lockNumber.value = '';
       startCamera();
     }
-    async function closeModalFunc(){
-      modal.style.display = 'none';
-      stopCamera();
-    }
+    async function closeModalFunc(){ modal.style.display = 'none'; stopCamera(); }
 
     async function startCamera(){
       if(stream){ stopCamera(); }
-      const constraints = {
-        video: {
-          facingMode: usingFront ? 'user' : 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: false
-      };
+      const constraints = { video: { facingMode: usingFront ? 'user' : 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
       try{
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
         videoFallback.style.display = 'none';
-        // start continuous scanning via interval
         if(scanInterval) clearInterval(scanInterval);
-        scanInterval = setInterval(doScanFrame, 800);
+        scanInterval = setInterval(doScanFrame, 900);
       }catch(err){
         console.warn('Camera error', err);
         videoFallback.style.display = 'block';
       }
     }
-
     function stopCamera(){
       if(scanInterval){ clearInterval(scanInterval); scanInterval = null; }
-      if(stream){
-        stream.getTracks().forEach(t=>t.stop());
-        stream = null;
-      }
+      if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
       video.srcObject = null;
     }
+    flipBtn.addEventListener('click', async ()=>{ usingFront = !usingFront; await startCamera(); });
 
-    flipBtn.addEventListener('click', async ()=>{
-      usingFront = !usingFront;
-      await startCamera();
-    });
+    // Barcode scan (try BarcodeDetector then jsQR)
+    scanBarcodeBtn.addEventListener('click', async ()=>{ await doScanFrame(true); });
 
-    takePhotoBtn.addEventListener('click', async ()=>{
-      // one-shot scan
-      await doScanFrame(true);
-    });
-
-    // scanning function: use BarcodeDetector if available else jsQR for QR
     async function doScanFrame(oneShot=false){
       if(!stream) return;
-      const videoTrack = stream.getVideoTracks()[0];
-      if(!videoTrack) return;
-      // draw frame to canvas
-      const vw = video.videoWidth;
-      const vh = video.videoHeight;
-      if(vw === 0 || vh === 0) return;
-      canvas.width = vw;
-      canvas.height = vh;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, vw, vh);
+      const vw = video.videoWidth, vh = video.videoHeight; if(vw===0||vh===0) return;
+      canvas.width = vw; canvas.height = vh;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(video,0,0,vw,vh);
 
-      // try BarcodeDetector API
+      // BarcodeDetector
       if(window.BarcodeDetector){
         try{
           const detector = new BarcodeDetector({formats: ['qr_code','code_128','ean_13','ean_8']});
           const imageBitmap = await createImageBitmap(canvas);
           const barcodes = await detector.detect(imageBitmap);
-          if(barcodes && barcodes.length){
-            handleScanSuccess(barcodes[0].rawValue);
-            if(oneShot){ /* nothing */ }
-            return;
-          }
-        }catch(e){
-          // ignore
-        }
+          if(barcodes && barcodes.length){ handleScanSuccess(barcodes[0].rawValue); return; }
+        }catch(e){ /* ignore */ }
       }
 
-      // fallback to jsQR (QR codes)
-      try{
-        await loadJsQR();
-        const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
-        // jsQR is available as global jsQR
-        const code = window.jsQR(imageData.data, imageData.width, imageData.height);
-        if(code && code.data){
-          handleScanSuccess(code.data);
-          return;
-        }
-      }catch(e){
-        // ignore
-      }
+      // jsQR fallback
+      try{ await loadJsQR(); const imageData = ctx.getImageData(0,0,canvas.width,canvas.height); const code = window.jsQR(imageData.data,imageData.width,imageData.height); if(code && code.data){ handleScanSuccess(code.data); return; } }catch(e){}
     }
 
-    function showScanUI(){
-      scanResult.style.display = 'none';
-      document.getElementById('camera-area').style.display = 'block';
-    }
+    function showScanUI(){ scanResult.style.display = 'none'; document.getElementById('camera-area').style.display = 'block'; }
 
     function handleScanSuccess(data){
-      // show modal form with scanned data
       scannedDataElem.textContent = data;
+      capturePreview.style.display = 'none';
       document.getElementById('camera-area').style.display = 'none';
       scanResult.style.display = 'block';
-      // fill default operator name (current user)
       operatorName.value = currentUser.displayName || '';
-      // optionally prefill lockNumber if sticker contains a key like "lock:123"
-      const m = data.match(/lock[:#\-\s]*([A-Za-z0-9_-]+)/i);
-      if(m){
-        lockNumber.value = m[1];
+      const m = data.match(/lock[:#\-\s]*([A-Za-z0-9_-]+)/i) || data.match(/(?:id|nr|no)[:#\-\s]*([A-Za-z0-9_-]+)/i);
+      if(m) lockNumber.value = m[1];
+    }
+
+    // Capture photo & OCR
+    takePhotoBtn.addEventListener('click', async ()=>{
+      if(!stream) { alert('Kamera ikke aktivt'); return; }
+      const vw = video.videoWidth, vh = video.videoHeight; if(vw===0||vh===0) return;
+      canvas.width = vw; canvas.height = vh; const ctx = canvas.getContext('2d');
+      // draw and preprocess
+      ctx.drawImage(video,0,0,vw,vh);
+      preprocessCanvas(ctx, canvas);
+      // show preview
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      capturePreview.src = dataUrl; capturePreview.style.display = 'block';
+      // show OCR progress UI
+      ocrProgress.style.display = 'block'; ocrPercent.textContent = '0'; ocrStatus.textContent = 'starter';
+      // stop camera while OCR runs to save CPU
+      stopCamera();
+      // ensure worker
+      await ensureOCRWorker();
+      // run recognition
+      try{
+        const res = await ocrWorker.recognize(dataUrl);
+        const text = res.data.text || '';
+        scannedDataElem.textContent = text.trim();
+        // attempt to parse lock number from OCR result
+        const parsed = parseLockFromText(text);
+        if(parsed) lockNumber.value = parsed;
+        else lockNumber.value = '';
+        operatorName.value = currentUser.displayName || '';
+        scanResult.style.display = 'block';
+      }catch(err){
+        alert('OCR fejlede: ' + err.message);
+      }finally{
+        ocrStatus.textContent = 'færdig';
+        ocrPercent.textContent = '100';
       }
+    });
+
+    // simple preprocessing to increase contrast (rudimentær)
+    function preprocessCanvas(ctx, cvs){
+      try{
+        const w = cvs.width, h = cvs.height;
+        let img = ctx.getImageData(0,0,w,h);
+        let d = img.data;
+        // convert to grayscale + increase contrast
+        for(let i=0;i<d.length;i+=4){
+          const r=d[i], g=d[i+1], b=d[i+2];
+          const lum = 0.2126*r + 0.7152*g + 0.0722*b;
+          // contrast stretch
+          let val = (lum - 128) * 1.5 + 128;
+          val = Math.max(0, Math.min(255, val));
+          d[i]=d[i+1]=d[i+2]=val;
+        }
+        ctx.putImageData(img,0,0);
+      }catch(e){ console.warn('Preprocess failed', e); }
+    }
+
+    // Try to parse lock number from OCR text with several heuristics
+    function parseLockFromText(text){
+      if(!text) return null;
+      // common patterns: lock: 1234, LÅS 123, nr. 123, ID-XYZ
+      const patterns = [
+        /(?:lock|lås|laas|lås)[:#\-\s]*([A-Za-z0-9\-]+)/i,
+        /(?:id|ID)[:#\-\s]*([A-Za-z0-9\-]+)/i,
+        /(?:nr|nr\.)[:#\-\s]*([A-Za-z0-9\-]+)/i,
+        /([A-Z0-9\-]{3,})/g
+      ];
+      for(let i=0;i<patterns.length;i++){
+        const p = patterns[i];
+        if(i < patterns.length -1){
+          const m = text.match(p);
+          if(m) return m[1];
+        } else {
+          // last fallback: find first alnum token length>=3
+          const all = text.match(p);
+          if(all && all.length){
+            // pick first reasonably long token (exclude words like LOTO etc.)
+            for(const tok of all){
+              if(tok && tok.length>=3 && !/LOTO|LOCK|LÅS|LAA?S|DEMO/i.test(tok)) return tok;
+            }
+          }
+        }
+      }
+      return null;
     }
 
     // Save lock
@@ -564,10 +527,7 @@
       const op = operatorName.value.trim();
       const ln = lockNumber.value.trim();
       const sticker = scannedDataElem.textContent || '';
-      if(!op || !ln){
-        alert('Navn og lås nummer skal udfyldes');
-        return;
-      }
+      if(!op || !ln){ alert('Navn og lås nummer skal udfyldes'); return; }
       try{
         await addDoc(collection(db,'activeLocks'), {
           operatorName: op,
@@ -577,23 +537,15 @@
           createdAt: serverTimestamp(),
           status: 'active'
         });
-        // close modal and refresh UI (listener reacts automatically)
         closeModalFunc();
-      }catch(err){
-        alert('Fejl ved gem: ' + err.message);
-      }
+      }catch(err){ alert('Fejl ved gem: ' + err.message); }
     });
 
-    // small helper: try to close modal on outside click
-    modal.addEventListener('click', (e)=>{
-      if(e.target === modal){
-        closeModalFunc();
-      }
-    });
-
-    // Prevent leaving camera on when closing tab
+    // close modal on backdrop click
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModalFunc(); });
     window.addEventListener('beforeunload', ()=>{ stopCamera(); });
 
+    // END
   </script>
 </body>
 </html>
