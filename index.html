@@ -6,16 +6,11 @@
   <title>LOTO Manager</title>
   <style>
     :root{
-      --bg:#f7f9fb;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --primary:#1d9bf0;
-      --accent:#e6eef9;
-      --radius:12px;
+      --bg:#f7f9fb; --card:#ffffff; --muted:#6b7280; --primary:#1d9bf0; --accent:#e6eef9; --radius:12px;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-    body{ margin:0; background:linear-gradient(180deg,var(--bg),#f1f5f9); color:#0f172a; }
-    header{ background:var(--card); padding:16px 20px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 0 rgba(0,0,0,0.04); position:sticky; top:0; z-index:20; }
+    body{ margin:0; background:linear-gradient(180deg,var(--bg),#f1f5f9); color:#0f172a; -webkit-font-smoothing:antialiased;}
+    header{ background:var(--card); padding:16px 20px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 0 rgba(15,23,42,0.04); position:sticky; top:0; z-index:20; }
     .brand{ display:flex; gap:12px; align-items:center; }
     .logo{ width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#4fb3ff); display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700; }
     .title{font-size:1.1rem;font-weight:700}
@@ -35,15 +30,21 @@
     .form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
     input[type="text"], input[type="password"], input[type="tel"]{ padding:10px;border-radius:8px;border:1px solid #e6edf3;background:#fff; }
     .center{display:flex;justify-content:center;align-items:center}
-    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
-    .modal{width:90%;max-width:560px;background:var(--card);padding:18px;border-radius:12px}
-    .video-preview{width:100%;height:260px;background:#0b1220;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff}
+
+    /* modal - mobile friendly */
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(2,6,23,0.45); display:none; align-items:flex-start; justify-content:center; z-index:60; overflow:auto; padding:6vh 12px; -webkit-overflow-scrolling:touch; }
+    .modal{ width:100%; max-width:560px; background:var(--card); padding:16px; border-radius:12px; box-shadow:0 12px 40px rgba(2,6,23,0.25); max-height:88vh; overflow:auto; }
+    .video-preview{ width:100%; height:260px; background:#0b1220; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#fff; position:relative; }
     .tiny{font-size:0.85rem;color:var(--muted)}
-    .linklike{background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600}
-    footer{padding:24px;text-align:center;color:var(--muted);font-size:0.9rem}
+    .linklike{ background:none; border:none; color:var(--primary); cursor:pointer; font-weight:600 }
+    footer{ padding:24px; text-align:center; color:var(--muted); font-size:0.9rem }
+
     #capture-preview { width:100%; max-height:320px; object-fit:contain; border-radius:8px; background:#f4f7fb; display:block; margin-top:8px; }
     #ocr-progress { font-size:0.9rem; color:var(--muted); margin-top:8px; }
-    @media (min-width:800px){ main{padding:20px} .video-preview{height:360px} }
+
+    /* make sure the save buttons are visible on small screens */
+    .form-actions{ display:flex; gap:8px; justify-content:flex-end; padding-bottom:12px; }
+    @media (min-width:800px){ .video-preview{height:360px} .modal{padding:18px} }
   </style>
 </head>
 <body>
@@ -66,10 +67,7 @@
     <div id="auth-card" class="card">
       <div id="signup-view">
         <div class="row">
-          <div>
-            <div class="big">Opret bruger</div>
-            <div class="muted">Indtast navn, kodeord og telefonnummer.</div>
-          </div>
+          <div><div class="big">Opret bruger</div><div class="muted">Indtast navn, kodeord og telefonnummer.</div></div>
           <div class="spacer"></div>
         </div>
         <form id="signup-form" style="margin-top:12px">
@@ -92,10 +90,7 @@
     <div id="app-view" style="display:none">
       <div class="card">
         <div class="row">
-          <div>
-            <div class="big">Aktive låse</div>
-            <div class="muted">Her vises kun låse som er aktive</div>
-          </div>
+          <div><div class="big">Aktive låse</div><div class="muted">Her vises kun låse som er aktive</div></div>
           <div class="spacer"></div>
           <button id="start-loto-btn" class="btn">Start LOTO</button>
         </div>
@@ -104,17 +99,19 @@
     </div>
 
     <div id="modal" class="modal-backdrop">
-      <div class="modal">
+      <div class="modal" role="dialog" aria-modal="true">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
           <div style="font-weight:700">Scan mærkat</div>
           <div class="spacer"></div>
           <button id="close-modal" class="linklike">Luk</button>
         </div>
+
         <div id="camera-area">
           <div class="video-preview" id="video-preview">
             <video id="video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
             <canvas id="canvas" style="display:none;"></canvas>
             <div id="video-fallback" class="tiny">Kamera ikke tilgængeligt</div>
+            <div id="focus-ring" style="position:absolute; width:80px; height:80px; border-radius:50%; border:2px solid rgba(255,255,255,0.85); pointer-events:none; display:none; transform:translate(-50%,-50%);"></div>
           </div>
 
           <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
@@ -128,13 +125,12 @@
           <div class="small">Data fra mærkat</div>
           <pre id="scanned-data" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;white-space:pre-wrap;"></pre>
           <img id="capture-preview" style="display:none" alt="capture preview" />
-
           <div id="ocr-progress" style="display:none">OCR: <span id="ocr-percent">0</span>% (<span id="ocr-status">venter</span>)</div>
 
           <form id="save-lock-form">
             <div class="form-row"><label class="small">Navn (påkrævet)</label><input id="operator-name" type="text" required /></div>
             <div class="form-row"><label class="small">Lås nummer (påkrævet)</label><input id="lock-number" type="text" required /></div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
+            <div class="form-actions">
               <button id="cancel-save" type="button" class="btn secondary">Annuller</button>
               <button type="submit" class="btn">Gem</button>
             </div>
@@ -148,11 +144,9 @@
 
   <footer>Demo LOTO-app — husk at konfigurere Firebase og sikkerhedsregler i produktion.</footer>
 
-  <!-- Tesseract for OCR (global "Tesseract") -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
   <script type="module">
-    // Din Firebase config (indsat)
     const firebaseConfig = {
       apiKey: "AIzaSyCZ1l12BC2ZowpgTgyOFX7QsuD9__0omFk",
       authDomain: "loto-app-ffa5a.firebaseapp.com",
@@ -164,24 +158,12 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut,
-      updateProfile
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      onAuthStateChanged, signOut, updateProfile
     } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
     import {
-      getFirestore,
-      doc,
-      setDoc,
-      addDoc,
-      collection,
-      serverTimestamp,
-      query,
-      where,
-      onSnapshot,
-      updateDoc
+      getFirestore, doc, setDoc, addDoc, collection, serverTimestamp,
+      query, where, onSnapshot, updateDoc
     } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
@@ -219,6 +201,7 @@
     const ocrProgress = document.getElementById('ocr-progress');
     const ocrPercent = document.getElementById('ocr-percent');
     const ocrStatus = document.getElementById('ocr-status');
+    const focusRing = document.getElementById('focus-ring');
 
     const operatorName = document.getElementById('operator-name');
     const lockNumber = document.getElementById('lock-number');
@@ -232,7 +215,7 @@
     let scanInterval = null;
     let jsQRLoaded = false;
 
-    // OCR worker (Tesseract)
+    // OCR worker
     let ocrWorker = null;
     let ocrWorkerLoading = false;
     async function ensureOCRWorker(){
@@ -245,9 +228,7 @@
             const p = Math.round(m.progress * 100);
             ocrPercent.textContent = p;
             ocrStatus.textContent = m.status;
-          } else {
-            ocrStatus.textContent = m.status || 'venter';
-          }
+          } else { ocrStatus.textContent = m.status || 'venter'; }
         }
       });
       await ocrWorker.load();
@@ -256,44 +237,14 @@
       ocrWorkerLoading = false;
     }
 
-    // load jsQR fallback
-    async function loadJsQR(){
-      if(jsQRLoaded) return;
-      await import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js');
-      jsQRLoaded = true;
-    }
+    async function loadJsQR(){ if(jsQRLoaded) return; await import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'); jsQRLoaded = true; }
 
-    function phoneToEmail(phone){
-      const cleaned = phone.replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,'');
-      return `${cleaned}@loto.local`;
-    }
+    function phoneToEmail(phone){ const cleaned = phone.replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,''); return `${cleaned}@loto.local`; }
 
-    // AUTH flows
-    signupForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const name = inputName.value.trim();
-      const pwd = inputPassword.value;
-      const phone = inputPhone.value.trim();
-      if(!name || !pwd || !phone){ alert('Udfyld alle felter'); return; }
-      const email = phoneToEmail(phone);
-      try{
-        const userCred = await createUserWithEmailAndPassword(auth, email, pwd);
-        const u = userCred.user;
-        await updateProfile(u, { displayName: name });
-        await setDoc(doc(db,'users',u.uid), { name, phone, createdAt: serverTimestamp() });
-      }catch(err){
-        alert('Fejl ved oprettelse: ' + err.message);
-      }
-    });
+    // AUTH
+    signupForm.addEventListener('submit', async (e)=>{ e.preventDefault(); const name = inputName.value.trim(); const pwd = inputPassword.value; const phone = inputPhone.value.trim(); if(!name||!pwd||!phone){ alert('Udfyld alle felter'); return; } const email = phoneToEmail(phone); try{ const userCred = await createUserWithEmailAndPassword(auth,email,pwd); const u = userCred.user; await updateProfile(u,{displayName:name}); await setDoc(doc(db,'users',u.uid),{name,phone,createdAt: serverTimestamp()}); }catch(err){ alert('Fejl ved oprettelse: '+err.message); } });
 
-    loginForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const phone = loginPhone.value.trim();
-      const pwd = loginPassword.value;
-      if(!phone || !pwd){ alert('Udfyld alle felter'); return; }
-      const email = phoneToEmail(phone);
-      try{ await signInWithEmailAndPassword(auth, email, pwd); }catch(err){ alert('Login fejlede: ' + err.message); }
-    });
+    loginForm.addEventListener('submit', async (e)=>{ e.preventDefault(); const phone = loginPhone.value.trim(); const pwd = loginPassword.value; if(!phone||!pwd){ alert('Udfyld alle felter'); return; } const email = phoneToEmail(phone); try{ await signInWithEmailAndPassword(auth,email,pwd); }catch(err){ alert('Login fejlede: '+err.message); } });
 
     signoutBtn.addEventListener('click', async ()=>{ await signOut(auth); });
 
@@ -321,25 +272,14 @@
       const q = query(locksRef, where('status','==','active'));
       unsubscribeLocks = onSnapshot(q, snapshot => {
         locksList.innerHTML = '';
-        if(snapshot.empty){
-          locksList.innerHTML = '<div class="muted">Ingen aktive låse.</div>';
-          return;
-        }
+        if(snapshot.empty){ locksList.innerHTML = '<div class="muted">Ingen aktive låse.</div>'; return; }
         snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const id = docSnap.id;
-          const el = document.createElement('div');
-          el.className = 'lock';
+          const data = docSnap.data(); const id = docSnap.id;
+          const el = document.createElement('div'); el.className = 'lock';
           el.innerHTML = `
             <div class="meta">
-              <div>
-                <div style="font-weight:700">${data.lockNumber || '—'}</div>
-                <div class="small">${data.stickerData || ''}</div>
-              </div>
-              <div style="margin-left:12px">
-                <div class="small">Registreret af</div>
-                <div style="font-weight:700">${data.operatorName || ''}</div>
-              </div>
+              <div><div style="font-weight:700">${data.lockNumber || '—'}</div><div class="small">${data.stickerData || ''}</div></div>
+              <div style="margin-left:12px"><div class="small">Registreret af</div><div style="font-weight:700">${data.operatorName || ''}</div></div>
             </div>
             <div style="display:flex;align-items:center;gap:8px">
               <div class="badge">AKTIV</div>
@@ -353,11 +293,7 @@
             const id = ev.currentTarget.getAttribute('data-id');
             if(!confirm('Vil du frigive denne lås?')) return;
             const dRef = doc(db,'activeLocks',id);
-            await updateDoc(dRef, {
-              status: 'released',
-              releasedBy: currentUser.uid,
-              releasedAt: serverTimestamp()
-            });
+            await updateDoc(dRef, { status:'released', releasedBy: currentUser.uid, releasedAt: serverTimestamp() });
           });
         });
       });
@@ -390,19 +326,20 @@
         videoFallback.style.display = 'none';
         if(scanInterval) clearInterval(scanInterval);
         scanInterval = setInterval(doScanFrame, 900);
+
+        // try to set continuous focus if possible
+        const track = stream.getVideoTracks()[0];
+        attemptEnableContinuousFocus(track).catch(()=>{});
       }catch(err){
         console.warn('Camera error', err);
         videoFallback.style.display = 'block';
       }
     }
-    function stopCamera(){
-      if(scanInterval){ clearInterval(scanInterval); scanInterval = null; }
-      if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
-      video.srcObject = null;
-    }
+    function stopCamera(){ if(scanInterval){ clearInterval(scanInterval); scanInterval = null; } if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; } video.srcObject = null; }
+
     flipBtn.addEventListener('click', async ()=>{ usingFront = !usingFront; await startCamera(); });
 
-    // Barcode scan (try BarcodeDetector then jsQR)
+    // barcode scan
     scanBarcodeBtn.addEventListener('click', async ()=>{ await doScanFrame(true); });
 
     async function doScanFrame(oneShot=false){
@@ -411,17 +348,14 @@
       canvas.width = vw; canvas.height = vh;
       const ctx = canvas.getContext('2d'); ctx.drawImage(video,0,0,vw,vh);
 
-      // BarcodeDetector
       if(window.BarcodeDetector){
         try{
-          const detector = new BarcodeDetector({formats: ['qr_code','code_128','ean_13','ean_8']});
+          const detector = new BarcodeDetector({formats:['qr_code','code_128','ean_13','ean_8']});
           const imageBitmap = await createImageBitmap(canvas);
           const barcodes = await detector.detect(imageBitmap);
           if(barcodes && barcodes.length){ handleScanSuccess(barcodes[0].rawValue); return; }
-        }catch(e){ /* ignore */ }
+        }catch(e){}
       }
-
-      // jsQR fallback
       try{ await loadJsQR(); const imageData = ctx.getImageData(0,0,canvas.width,canvas.height); const code = window.jsQR(imageData.data,imageData.width,imageData.height); if(code && code.data){ handleScanSuccess(code.data); return; } }catch(e){}
     }
 
@@ -435,36 +369,95 @@
       operatorName.value = currentUser.displayName || '';
       const m = data.match(/lock[:#\-\s]*([A-Za-z0-9_-]+)/i) || data.match(/(?:id|nr|no)[:#\-\s]*([A-Za-z0-9_-]+)/i);
       if(m) lockNumber.value = m[1];
+      // scroll result into view (mobile)
+      setTimeout(()=>{ document.querySelector('.modal').scrollIntoView({behavior:'smooth', block:'center'}); }, 150);
     }
 
-    // Capture photo & OCR
+    // Tap-to-focus support: show focus ring and attempt to apply constraints
+    video.addEventListener('click', async (ev)=>{
+      if(!stream) return;
+      const rect = video.getBoundingClientRect();
+      const x = (ev.clientX - rect.left) / rect.width;
+      const y = (ev.clientY - rect.top) / rect.height;
+      showFocusRing(ev.clientX - rect.left, ev.clientY - rect.top);
+      tryFocus(x, y);
+    });
+
+    function showFocusRing(px, py){
+      focusRing.style.left = px + 'px';
+      focusRing.style.top = py + 'px';
+      focusRing.style.display = 'block';
+      focusRing.style.opacity = '1';
+      setTimeout(()=>{ focusRing.style.display = 'none'; }, 1000);
+    }
+
+    async function attemptEnableContinuousFocus(track){
+      try{
+        if(!track || !track.getCapabilities) return;
+        const caps = track.getCapabilities();
+        if(caps.focusMode && caps.focusMode.includes('continuous')){
+          await track.applyConstraints({ advanced:[{ focusMode:'continuous' }] });
+        } else if(caps.focusMode && caps.focusMode.includes('single-shot')){
+          await track.applyConstraints({ advanced:[{ focusMode:'single-shot' }] });
+        }
+      }catch(e){ /* ignore */ }
+    }
+
+    async function tryFocus(normX=0.5, normY=0.5){
+      if(!stream) return;
+      const track = stream.getVideoTracks()[0];
+      if(!track) return;
+      try{
+        const caps = track.getCapabilities ? track.getCapabilities() : {};
+        // try pointsOfInterest (if supported)
+        if(caps.pointsOfInterest){
+          const poi = [{ x: normX, y: normY }];
+          try{ await track.applyConstraints({ advanced:[{ pointsOfInterest: poi }] }); }catch(e){}
+        }
+        // try focusMode single-shot
+        if(caps.focusMode && caps.focusMode.includes('single-shot')){
+          try{ await track.applyConstraints({ advanced:[{ focusMode:'single-shot' }] }); }catch(e){}
+        }
+        // try a manual focusDistance if available (set to mid)
+        if(caps.focusDistance){
+          const min = caps.focusDistance.min || 0;
+          const max = caps.focusDistance.max || 1;
+          const val = Math.min(max, Math.max(min, (min+max)/2));
+          try{ await track.applyConstraints({ advanced:[{ focusDistance: val }] }); }catch(e){}
+        }
+      }catch(err){
+        // mange browsere kaster her — ignorer
+        console.debug('Focus not supported:', err);
+      }
+    }
+
+    // Capture photo & OCR — attempt focus first, wait a bit
     takePhotoBtn.addEventListener('click', async ()=>{
-      if(!stream) { alert('Kamera ikke aktivt'); return; }
+      if(!stream){ alert('Kamera ikke aktivt'); return; }
+      // attempt center focus
+      try{ await tryFocus(0.5,0.5); }catch(){}
+      // small delay to let focus settle
+      await new Promise(r=>setTimeout(r, 400));
       const vw = video.videoWidth, vh = video.videoHeight; if(vw===0||vh===0) return;
       canvas.width = vw; canvas.height = vh; const ctx = canvas.getContext('2d');
-      // draw and preprocess
       ctx.drawImage(video,0,0,vw,vh);
       preprocessCanvas(ctx, canvas);
-      // show preview
       const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
       capturePreview.src = dataUrl; capturePreview.style.display = 'block';
-      // show OCR progress UI
       ocrProgress.style.display = 'block'; ocrPercent.textContent = '0'; ocrStatus.textContent = 'starter';
-      // stop camera while OCR runs to save CPU
       stopCamera();
-      // ensure worker
       await ensureOCRWorker();
-      // run recognition
       try{
         const res = await ocrWorker.recognize(dataUrl);
         const text = res.data.text || '';
         scannedDataElem.textContent = text.trim();
-        // attempt to parse lock number from OCR result
         const parsed = parseLockFromText(text);
         if(parsed) lockNumber.value = parsed;
         else lockNumber.value = '';
         operatorName.value = currentUser.displayName || '';
         scanResult.style.display = 'block';
+        // ensure modal scrolls so form is visible
+        setTimeout(()=>{ document.querySelector('.modal').scrollIntoView({behavior:'smooth', block:'center'}); }, 150);
       }catch(err){
         alert('OCR fejlede: ' + err.message);
       }finally{
@@ -473,18 +466,15 @@
       }
     });
 
-    // simple preprocessing to increase contrast (rudimentær)
     function preprocessCanvas(ctx, cvs){
       try{
         const w = cvs.width, h = cvs.height;
         let img = ctx.getImageData(0,0,w,h);
         let d = img.data;
-        // convert to grayscale + increase contrast
         for(let i=0;i<d.length;i+=4){
           const r=d[i], g=d[i+1], b=d[i+2];
           const lum = 0.2126*r + 0.7152*g + 0.0722*b;
-          // contrast stretch
-          let val = (lum - 128) * 1.5 + 128;
+          let val = (lum - 128) * 1.6 + 128;
           val = Math.max(0, Math.min(255, val));
           d[i]=d[i+1]=d[i+2]=val;
         }
@@ -492,12 +482,10 @@
       }catch(e){ console.warn('Preprocess failed', e); }
     }
 
-    // Try to parse lock number from OCR text with several heuristics
     function parseLockFromText(text){
       if(!text) return null;
-      // common patterns: lock: 1234, LÅS 123, nr. 123, ID-XYZ
       const patterns = [
-        /(?:lock|lås|laas|lås)[:#\-\s]*([A-Za-z0-9\-]+)/i,
+        /(?:lock|lås|laas|laå?s?)[:#\-\s]*([A-Za-z0-9\-]+)/i,
         /(?:id|ID)[:#\-\s]*([A-Za-z0-9\-]+)/i,
         /(?:nr|nr\.)[:#\-\s]*([A-Za-z0-9\-]+)/i,
         /([A-Z0-9\-]{3,})/g
@@ -508,10 +496,8 @@
           const m = text.match(p);
           if(m) return m[1];
         } else {
-          // last fallback: find first alnum token length>=3
           const all = text.match(p);
           if(all && all.length){
-            // pick first reasonably long token (exclude words like LOTO etc.)
             for(const tok of all){
               if(tok && tok.length>=3 && !/LOTO|LOCK|LÅS|LAA?S|DEMO/i.test(tok)) return tok;
             }
@@ -545,7 +531,6 @@
     modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModalFunc(); });
     window.addEventListener('beforeunload', ()=>{ stopCamera(); });
 
-    // END
   </script>
 </body>
 </html>
