@@ -3,634 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LOTO Manager</title>
+  <title>LOTO Manager - QR + Photo (Blob upload)</title>
   <style>
     :root{
-      --bg:#f7f9fb;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --primary:#1d9bf0;
-      --accent:#e6eef9;
-      --radius:12px;
+      --bg:#f7f9fb; --card:#ffffff; --muted:#6b7280; --primary:#1d9bf0; --accent:#e6eef9; --radius:12px;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-    body{ margin:0; background:linear-gradient(180deg,var(--bg),#f1f5f9); color:#0f172a; }
-    header{ background:var(--card); padding:16px 20px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 0 rgba(0,0,0,0.04); position:sticky; top:0; z-index:20; }
-    .brand{ display:flex; gap:12px; align-items:center; }
-    .logo{ width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#4fb3ff); display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700; }
-    .title{font-size:1.1rem;font-weight:700}
-    main{ max-width:980px;margin:28px auto;padding:12px; }
-    .card{ background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:16px; box-shadow:0 6px 18px rgba(15,23,42,0.04); }
-    .row{display:flex;gap:12px;align-items:center;}
-    .spacer{flex:1}
-    .muted{color:var(--muted);font-size:0.95rem}
-    .big{ font-size:1.2rem;font-weight:600; }
-    .btn{ background:var(--primary); color:#fff; padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:600; }
-    .btn.secondary{ background:transparent; color:var(--primary); border:1px solid rgba(29,155,240,0.12); }
-    .list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-    .lock{ padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;justify-content:space-between;align-items:center; border:1px solid rgba(15,23,42,0.04); }
-    .lock .meta{display:flex;gap:12px;align-items:center}
-    .badge{ background:var(--accent);color:var(--primary);padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.9rem; }
-    .small{font-size:0.9rem;color:var(--muted)}
-    .form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-    input[type="text"], input[type="password"], input[type="tel"]{ padding:10px;border-radius:8px;border:1px solid #e6edf3;background:#fff; }
-    .center{display:flex;justify-content:center;align-items:center}
-
-    /* modal - mobile friendly */
-    .modal-backdrop{
-      position:fixed; inset:0; background:rgba(2,6,23,0.45);
-      display:none;
-      align-items:flex-start; /* start on small screens so modal can scroll */
-      justify-content:center;
-      z-index:60;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      padding:4vh 12px;
-    }
-    .modal{
-      width:100%;
-      max-width:560px;
-      background:var(--card);
-      padding:18px;
-      border-radius:12px;
-      box-shadow:0 12px 40px rgba(2,6,23,0.25);
-      max-height: calc(100vh - 8vh);
-      overflow:auto;
-    }
-
-    /* center modal on larger screens */
-    @media(min-width:800px){
-      .modal-backdrop{ align-items:center; padding:6vh 12px; }
-    }
-
-    .video-preview{width:100%;height:260px;background:#0b1220;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff}
-    .tiny{font-size:0.85rem;color:var(--muted)}
-    .linklike{background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600}
-    footer{padding:24px;text-align:center;color:var(--muted);font-size:0.9rem}
-    #capture-preview { width:100%; max-height:320px; object-fit:contain; border-radius:8px; background:#f4f7fb; display:block; margin-top:8px; }
-    #ocr-progress { font-size:0.9rem; color:var(--muted); margin-top:8px; }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="brand">
-      <div class="logo">LO</div>
-      <div>
-        <div class="title">LOTO Manager</div>
-        <div class="tiny">Lock-Out Tag-Out — enkel og hurtig</div>
-      </div>
-    </div>
-    <div class="spacer"></div>
-    <div id="user-area" style="display:none" class="center">
-      <div id="user-name" class="muted" style="margin-right:12px"></div>
-      <button id="signout-btn" class="linklike">Log ud</button>
-    </div>
-  </header>
-
-  <main>
-    <div id="auth-card" class="card">
-      <div id="signup-view">
-        <div class="row">
-          <div>
-            <div class="big">Opret bruger</div>
-            <div class="muted">Indtast navn, kodeord og telefonnummer.</div>
-          </div>
-          <div class="spacer"></div>
-        </div>
-        <form id="signup-form" style="margin-top:12px">
-          <div class="form-row"><label class="small">Navn</label><input id="input-name" type="text" required placeholder="Fuldtnavn" /></div>
-          <div class="form-row"><label class="small">Kode</label><input id="input-password" type="password" required placeholder="Kodeord" /></div>
-          <div class="form-row"><label class="small">Telefonnummer</label><input id="input-phone" type="tel" required placeholder="+45 12 34 56 78" /><div class="tiny">Telefonnummer bruges til bruger-id (ingen SMS i denne demo).</div></div>
-          <div class="row"><div class="spacer"></div><button class="btn" type="submit">Opret bruger og log ind</button></div>
-        </form>
-
-        <hr style="margin:18px 0;border:none;border-top:1px solid #eef2f6" />
-        <div class="muted">Har du allerede en konto?</div>
-        <form id="login-form" style="margin-top:12px">
-          <div class="form-row"><label class="small">Telefonnummer</label><input id="login-phone" type="tel" required /></div>
-          <div class="form-row"><label class="small">Kode</label><input id="login-password" type="password" required /></div>
-          <div class="row"><div class="spacer"></div><button class="btn secondary" type="submit">Log ind</button></div>
-        </form>
-      </div>
-    </div>
-
-    <div id="app-view" style="display:none">
-      <div class="card">
-        <div class="row">
-          <div>
-            <div class="big">Aktive låse</div>
-            <div class="muted">Her vises kun låse som er aktive</div>
-          </div>
-          <div class="spacer"></div>
-          <button id="start-loto-btn" class="btn">Start LOTO</button>
-        </div>
-        <div id="locks-list" class="list" style="margin-top:12px"></div>
-      </div>
-    </div>
-
-    <div id="modal" class="modal-backdrop" aria-hidden="true">
-      <div class="modal" role="dialog" aria-modal="true">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-          <div style="font-weight:700">Scan mærkat</div>
-          <div class="spacer"></div>
-          <button id="close-modal" class="linklike">Luk</button>
-        </div>
-        <div id="camera-area">
-          <div class="video-preview" id="video-preview">
-            <video id="video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
-            <canvas id="canvas" style="display:none;"></canvas>
-            <div id="video-fallback" class="tiny">Kamera ikke tilgængeligt</div>
-          </div>
-
-          <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
-            <button id="flip-camera" class="btn secondary">Skift kamera</button>
-            <button id="scan-barcode" class="btn secondary">Scan barcode</button>
-            <button id="capture-ocr" class="btn">Tag billede (OCR)</button>
-          </div>
-        </div>
-
-        <div id="scan-result" style="display:none;margin-top:12px">
-          <div class="small">Data fra mærkat</div>
-          <pre id="scanned-data" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;white-space:pre-wrap;"></pre>
-          <img id="capture-preview" style="display:none" alt="capture preview" />
-
-          <div id="ocr-progress" style="display:none">OCR: <span id="ocr-percent">0</span>% (<span id="ocr-status">venter</span>)</div>
-
-          <form id="save-lock-form">
-            <div class="form-row"><label class="small">Navn (påkrævet)</label><input id="operator-name" type="text" required /></div>
-            <div class="form-row"><label class="small">Lås nummer (påkrævet)</label><input id="lock-number" type="text" required /></div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
-              <button id="cancel-save" type="button" class="btn secondary">Annuller</button>
-              <button type="submit" class="btn">Gem</button>
-            </div>
-          </form>
-        </div>
-
-      </div>
-    </div>
-
-  </main>
-
-  <footer>Demo LOTO-app — husk at konfigurere Firebase og sikkerhedsregler i produktion.</footer>
-
-  <!-- Tesseract for OCR (global "Tesseract") -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-
-  <script type="module">
-    // Din Firebase config (indsat)
-    const firebaseConfig = {
-      apiKey: "AIzaSyCZ1l12BC2ZowpgTgyOFX7QsuD9__0omFk",
-      authDomain: "loto-app-ffa5a.firebaseapp.com",
-      projectId: "loto-app-ffa5a",
-      storageBucket: "loto-app-ffa5a.firebasestorage.app",
-      messagingSenderId: "90362528781",
-      appId: "1:90362528781:web:e9809bbeb6b12160ea8144"
-    };
-
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut,
-      updateProfile
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      addDoc,
-      collection,
-      serverTimestamp,
-      query,
-      where,
-      onSnapshot,
-      updateDoc
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // UI refs
-    const authCard = document.getElementById('auth-card');
-    const appView = document.getElementById('app-view');
-    const userArea = document.getElementById('user-area');
-    const userNameElem = document.getElementById('user-name');
-    const signoutBtn = document.getElementById('signout-btn');
-
-    const signupForm = document.getElementById('signup-form');
-    const inputName = document.getElementById('input-name');
-    const inputPassword = document.getElementById('input-password');
-    const inputPhone = document.getElementById('input-phone');
-
-    const loginForm = document.getElementById('login-form');
-    const loginPhone = document.getElementById('login-phone');
-    const loginPassword = document.getElementById('login-password');
-
-    const startBtn = document.getElementById('start-loto-btn');
-    const modal = document.getElementById('modal');
-    const closeModal = document.getElementById('close-modal');
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const videoFallback = document.getElementById('video-fallback');
-    const scanBarcodeBtn = document.getElementById('scan-barcode');
-    const takePhotoBtn = document.getElementById('capture-ocr');
-    const flipBtn = document.getElementById('flip-camera');
-    const scanResult = document.getElementById('scan-result');
-    const scannedDataElem = document.getElementById('scanned-data');
-    const capturePreview = document.getElementById('capture-preview');
-    const ocrProgress = document.getElementById('ocr-progress');
-    const ocrPercent = document.getElementById('ocr-percent');
-    const ocrStatus = document.getElementById('ocr-status');
-
-    const operatorName = document.getElementById('operator-name');
-    const lockNumber = document.getElementById('lock-number');
-    const saveLockForm = document.getElementById('save-lock-form');
-    const cancelSave = document.getElementById('cancel-save');
-    const locksList = document.getElementById('locks-list');
-
-    let currentUser = null;
-    let stream = null;
-    let usingFront = false;
-    let scanInterval = null;
-    let jsQRLoaded = false;
-
-    // OCR worker (Tesseract)
-    let ocrWorker = null;
-    let ocrWorkerLoading = false;
-    async function ensureOCRWorker(){
-      if(ocrWorker) return;
-      if(ocrWorkerLoading) return;
-      ocrWorkerLoading = true;
-      ocrWorker = Tesseract.createWorker({
-        logger: m => {
-          if(m.status === 'recognizing text' && m.progress != null){
-            const p = Math.round(m.progress * 100);
-            ocrPercent.textContent = p;
-            ocrStatus.textContent = m.status;
-          } else {
-            ocrStatus.textContent = m.status || 'venter';
-          }
-        }
-      });
-      await ocrWorker.load();
-      // load english by default; add languages if you want (e.g. 'dan')
-      await ocrWorker.loadLanguage('eng');
-      await ocrWorker.initialize('eng');
-      ocrWorkerLoading = false;
-    }
-
-    // load jsQR fallback
-    async function loadJsQR(){
-      if(jsQRLoaded) return;
-      await import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js');
-      jsQRLoaded = true;
-    }
-
-    function phoneToEmail(phone){
-      const cleaned = phone.replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,'');
-      return `${cleaned}@loto.local`;
-    }
-
-    // AUTH flows
-    signupForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const name = inputName.value.trim();
-      const pwd = inputPassword.value;
-      const phone = inputPhone.value.trim();
-      if(!name || !pwd || !phone){ alert('Udfyld alle felter'); return; }
-      const email = phoneToEmail(phone);
-      try{
-        const userCred = await createUserWithEmailAndPassword(auth, email, pwd);
-        const u = userCred.user;
-        await updateProfile(u, { displayName: name });
-        await setDoc(doc(db,'users',u.uid), { name, phone, createdAt: serverTimestamp() });
-      }catch(err){
-        alert('Fejl ved oprettelse: ' + err.message);
-      }
-    });
-
-    loginForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const phone = loginPhone.value.trim();
-      const pwd = loginPassword.value;
-      if(!phone || !pwd){ alert('Udfyld alle felter'); return; }
-      const email = phoneToEmail(phone);
-      try{ await signInWithEmailAndPassword(auth, email, pwd); }catch(err){ alert('Login fejlede: ' + err.message); }
-    });
-
-    signoutBtn.addEventListener('click', async ()=>{ await signOut(auth); });
-
-    onAuthStateChanged(auth, user => {
-      if(user){
-        currentUser = user;
-        userNameElem.textContent = user.displayName || user.email;
-        userArea.style.display = 'flex';
-        authCard.style.display = 'none';
-        appView.style.display = 'block';
-        startListeningActiveLocks();
-      } else {
-        currentUser = null;
-        userArea.style.display = 'none';
-        authCard.style.display = 'block';
-        appView.style.display = 'none';
-        stopListeningActiveLocks();
-      }
-    });
-
-    // active locks listener
-    let unsubscribeLocks = null;
-    function startListeningActiveLocks(){
-      const locksRef = collection(db,'activeLocks');
-      const q = query(locksRef, where('status','==','active'));
-      unsubscribeLocks = onSnapshot(q, snapshot => {
-        locksList.innerHTML = '';
-        if(snapshot.empty){
-          locksList.innerHTML = '<div class="muted">Ingen aktive låse.</div>';
-          return;
-        }
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const id = docSnap.id;
-          const el = document.createElement('div');
-          el.className = 'lock';
-          el.innerHTML = `
-            <div class="meta">
-              <div>
-                <div style="font-weight:700">${data.lockNumber || '—'}</div>
-                <div class="small">${data.stickerData || ''}</div>
-              </div>
-              <div style="margin-left:12px">
-                <div class="small">Registreret af</div>
-                <div style="font-weight:700">${data.operatorName || ''}</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="badge">AKTIV</div>
-              <button data-id="${id}" class="btn secondary release-btn">Frigiv</button>
-            </div>
-          `;
-          locksList.appendChild(el);
-        });
-        document.querySelectorAll('.release-btn').forEach(btn=>{
-          btn.addEventListener('click', async (ev)=>{
-            const id = ev.currentTarget.getAttribute('data-id');
-            if(!confirm('Vil du frigive denne lås?')) return;
-            const dRef = doc(db,'activeLocks',id);
-            await updateDoc(dRef, {
-              status: 'released',
-              releasedBy: currentUser.uid,
-              releasedAt: serverTimestamp()
-            });
-          });
-        });
-      });
-    }
-    function stopListeningActiveLocks(){ if(unsubscribeLocks) unsubscribeLocks(); unsubscribeLocks = null; locksList.innerHTML = ''; }
-
-    // Modal & camera
-    startBtn.addEventListener('click', openModal);
-    closeModal.addEventListener('click', closeModalFunc);
-    cancelSave.addEventListener('click', ()=>{ showScanUI(); });
-
-    function openModal(){
-      modal.style.display = 'flex';
-      modal.setAttribute('aria-hidden', 'false');
-      // prevent background scrolling (but allow modal/backdrop scrolling)
-      document.body.style.overflow = 'hidden';
-      scanResult.style.display = 'none';
-      scannedDataElem.textContent = '';
-      capturePreview.style.display = 'none';
-      ocrProgress.style.display = 'none';
-      operatorName.value = currentUser ? (currentUser.displayName || '') : '';
-      lockNumber.value = '';
-      startCamera();
-    }
-    async function closeModalFunc(){
-      modal.style.display = 'none';
-      modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = ''; // restore
-      stopCamera();
-    }
-
-    async function startCamera(){
-      if(stream){ stopCamera(); }
-      const constraints = { video: { facingMode: usingFront ? 'user' : 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
-      try{
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = stream;
-        videoFallback.style.display = 'none';
-        if(scanInterval) clearInterval(scanInterval);
-        scanInterval = setInterval(doScanFrame, 900);
-      }catch(err){
-        console.warn('Camera error', err);
-        videoFallback.style.display = 'block';
-      }
-    }
-    function stopCamera(){
-      if(scanInterval){ clearInterval(scanInterval); scanInterval = null; }
-      if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
-      video.srcObject = null;
-    }
-    flipBtn.addEventListener('click', async ()=>{ usingFront = !usingFront; await startCamera(); });
-
-    // Barcode scan (try BarcodeDetector then jsQR)
-    scanBarcodeBtn.addEventListener('click', async ()=>{ await doScanFrame(true); });
-
-    async function doScanFrame(oneShot=false){
-      if(!stream) return;
-      const vw = video.videoWidth, vh = video.videoHeight; if(vw===0||vh===0) return;
-      canvas.width = vw; canvas.height = vh;
-      const ctx = canvas.getContext('2d'); ctx.drawImage(video,0,0,vw,vh);
-
-      // BarcodeDetector
-      if(window.BarcodeDetector){
-        try{
-          const detector = new BarcodeDetector({formats: ['qr_code','code_128','ean_13','ean_8']});
-          const imageBitmap = await createImageBitmap(canvas);
-          const barcodes = await detector.detect(imageBitmap);
-          if(barcodes && barcodes.length){ handleScanSuccess(barcodes[0].rawValue); return; }
-        }catch(e){ /* ignore */ }
-      }
-
-      // jsQR fallback
-      try{ await loadJsQR(); const imageData = ctx.getImageData(0,0,canvas.width,canvas.height); const code = window.jsQR(imageData.data,imageData.width,imageData.height); if(code && code.data){ handleScanSuccess(code.data); return; } }catch(e){}
-    }
-
-    function showScanUI(){ scanResult.style.display = 'none'; document.getElementById('camera-area').style.display = 'block'; }
-
-    function handleScanSuccess(data){
-      scannedDataElem.textContent = data;
-      capturePreview.style.display = 'none';
-      document.getElementById('camera-area').style.display = 'none';
-      scanResult.style.display = 'block';
-      operatorName.value = currentUser ? (currentUser.displayName || '') : '';
-      const m = data.match(/lock[:#\-\s]*([A-Za-z0-9_-]+)/i) || data.match(/(?:id|nr|no)[:#\-\s]*([A-Za-z0-9_-]+)/i);
-      if(m) lockNumber.value = m[1];
-      // scroll the modal so form is visible (works on mobile)
-      setTimeout(()=> {
-        const modalEl = document.querySelector('.modal');
-        if(modalEl && modalEl.scrollTo) modalEl.scrollTo({ top: modalEl.scrollHeight, behavior: 'smooth' });
-      }, 120);
-    }
-
-    // Capture photo & OCR
-    takePhotoBtn.addEventListener('click', async ()=>{
-      if(!stream) { alert('Kamera ikke aktivt'); return; }
-      const vw = video.videoWidth, vh = video.videoHeight; if(vw===0||vh===0) return;
-      canvas.width = vw; canvas.height = vh; const ctx = canvas.getContext('2d');
-      // draw and preprocess
-      ctx.drawImage(video,0,0,vw,vh);
-      preprocessCanvas(ctx, canvas);
-      // show preview
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      capturePreview.src = dataUrl; capturePreview.style.display = 'block';
-      // show OCR progress UI
-      ocrProgress.style.display = 'block'; ocrPercent.textContent = '0'; ocrStatus.textContent = 'starter';
-      // stop camera while OCR runs to save CPU
-      stopCamera();
-      // ensure worker
-      await ensureOCRWorker();
-      // run recognition
-      try{
-        const res = await ocrWorker.recognize(dataUrl);
-        const text = res.data.text || '';
-        scannedDataElem.textContent = text.trim();
-        // attempt to parse lock number from OCR result
-        const parsed = parseLockFromText(text);
-        if(parsed) lockNumber.value = parsed;
-        else lockNumber.value = '';
-        operatorName.value = currentUser ? (currentUser.displayName || '') : '';
-        scanResult.style.display = 'block';
-        // scroll modal so the form and Save button are visible
-        setTimeout(()=> {
-          const modalEl = document.querySelector('.modal');
-          if(modalEl && modalEl.scrollTo) modalEl.scrollTo({ top: modalEl.scrollHeight, behavior: 'smooth' });
-          // ensure mobile viewport focuses on form
-          const saveBtn = document.querySelector('#save-lock-form button[type="submit"]');
-          if(saveBtn) saveBtn.scrollIntoView({ behavior:'smooth', block:'center' });
-        }, 150);
-      }catch(err){
-        alert('OCR fejlede: ' + err.message);
-      }finally{
-        ocrStatus.textContent = 'færdig';
-        ocrPercent.textContent = '100';
-      }
-    });
-
-    // simple preprocessing to increase contrast (rudimentær)
-    function preprocessCanvas(ctx, cvs){
-      try{
-        const w = cvs.width, h = cvs.height;
-        let img = ctx.getImageData(0,0,w,h);
-        let d = img.data;
-        // convert to grayscale + increase contrast
-        for(let i=0;i<d.length;i+=4){
-          const r=d[i], g=d[i+1], b=d[i+2];
-          const lum = 0.2126*r + 0.7152*g + 0.0722*b;
-          // contrast stretch
-          let val = (lum - 128) * 1.5 + 128;
-          val = Math.max(0, Math.min(255, val));
-          d[i]=d[i+1]=d[i+2]=val;
-        }
-        ctx.putImageData(img,0,0);
-      }catch(e){ console.warn('Preprocess failed', e); }
-    }
-
-    // Try to parse lock number from OCR text with several heuristics
-    function parseLockFromText(text){
-      if(!text) return null;
-      // common patterns: lock: 1234, LÅS 123, nr. 123, ID-XYZ
-      const patterns = [
-        /(?:lock|lås|laas|lås)[:#\-\s]*([A-Za-z0-9\-]+)/i,
-        /(?:id|ID)[:#\-\s]*([A-Za-z0-9\-]+)/i,
-        /(?:nr|nr\.)[:#\-\s]*([A-Za-z0-9\-]+)/i,
-        /([A-Z0-9\-]{3,})/g
-      ];
-      for(let i=0;i<patterns.length;i++){
-        const p = patterns[i];
-        if(i < patterns.length -1){
-          const m = text.match(p);
-          if(m) return m[1];
-        } else {
-          // last fallback: find first alnum token length>=3
-          const all = text.match(p);
-          if(all && all.length){
-            // pick first reasonably long token (exclude words like LOTO etc.)
-            for(const tok of all){
-              if(tok && tok.length>=3 && !/LOTO|LOCK|LÅS|LAA?S|DEMO/i.test(tok)) return tok;
-            }
-          }
-        }
-      }
-      return null;
-    }
-
-    // Save lock
-    saveLockForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const op = operatorName.value.trim();
-      const ln = lockNumber.value.trim();
-      const sticker = scannedDataElem.textContent || '';
-      if(!op || !ln){ alert('Navn og lås nummer skal udfyldes'); return; }
-      try{
-        await addDoc(collection(db,'activeLocks'), {
-          operatorName: op,
-          lockNumber: ln,
-          stickerData: sticker,
-          createdBy: currentUser.uid,
-          createdAt: serverTimestamp(),
-          status: 'active'
-        });
-        closeModalFunc();
-      }catch(err){ alert('Fejl ved gem: ' + err.message); }
-    });
-
-    // close modal on backdrop click
-    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModalFunc(); });
-    window.addEventListener('beforeunload', ()=>{ stopCamera(); });
-
-    // END
-  </script>
-</body>
-</html>
-Kort usage-noter:
-
-Husk at køre fra localhost eller HTTPS (kamera kræver secure context).
-Efter OCR: scrolles modal automatisk så formularen/Gem-knappen bliver synlig. Hvis du stadig ikke kan se Gem, så giv mig model/OS/browser (fx iPhone Safari, Android Chrome) — så finjusterer jeg for netop dét tilfælde.
-Hvis OCR-nøjagtighed skal forbedres, kan jeg:
-Tilføje dansk sprogmodel til Tesseract (kræver at hente 'dan' og indlæse),
-Gemme billedet til Firebase Storage og eventuelt køre Google Cloud Vision for bedre resultater.
-Vil du have at jeg tilføjer upload af billedet til Firebase Storage når du gemmer låsen?
-
-HH
-Fedt! Kan du inkludere, således at aktive låse, kun kan frigives af den person som har oprettet den? Og er det muligt at få timestamp med i oversigten over aktive låse? Altså hvornår det der registreret, så tidspunkt og dd/mm/yyyy?
-Message Author Icon
-Hej Hans — god idé. Jeg har opdateret din app så:
-
-Kun den bruger, der oprettede en lås (createdBy), får vist og kan trykke "Frigiv".
-Sikkerhedsregler til Firestore er medfølgende (kopi‑paste) så kun skaberen kan opdatere status til 'released' — det er vigtigt at deploye disse regler i Firestore.
-Oversigten viser nu oprettelsestidspunkt (dd/mm/yyyy HH:MM) for hver aktiv lås.
-Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at opdatere Firestore-rules (snippet følger under koden) og test fra localhost eller HTTPS.
-
-<!doctype html>
-<html lang="da">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LOTO Manager</title>
-  <style>
-    :root{
-      --bg:#f7f9fb;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --primary:#1d9bf0;
-      --accent:#e6eef9;
-      --radius:12px;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
+    *{box-sizing:border-box}
     body{ margin:0; background:linear-gradient(180deg,var(--bg),#f1f5f9); color:#0f172a; -webkit-font-smoothing:antialiased; }
     header{ background:var(--card); padding:16px 20px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 0 rgba(15,23,42,0.04); position:sticky; top:0; z-index:20; }
     .brand{ display:flex; gap:12px; align-items:center; }
@@ -645,7 +24,7 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
     .btn{ background:var(--primary); color:#fff; padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:600; }
     .btn.secondary{ background:transparent; color:var(--primary); border:1px solid rgba(29,155,240,0.12); }
     .list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-    .lock{ padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;justify-content:space-between;align-items:center; border:1px solid rgba(15,23,42,0.04); }
+    .lock{ padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;justify-content:space-between;align-items:center; border:1px solid rgba(15,23,42,0.04); cursor:pointer; transition: box-shadow 0.18s ease; }
     .lock .meta{display:flex;gap:12px;align-items:center}
     .lock .meta .details{display:flex;flex-direction:column}
     .badge{ background:var(--accent);color:var(--primary);padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.9rem; }
@@ -655,19 +34,55 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
     .center{display:flex;justify-content:center;align-items:center}
 
     /* modal - mobile friendly */
-    .modal-backdrop{ position:fixed; inset:0; background:rgba(2,6,23,0.45); display:none; align-items:flex-start; justify-content:center; z-index:60; overflow:auto; -webkit-overflow-scrolling:touch; padding:4vh 12px; }
-    .modal{ width:100%; max-width:560px; background:var(--card); padding:18px; border-radius:12px; box-shadow:0 12px 40px rgba(2,6,23,0.25); max-height: calc(100vh - 8vh); overflow:auto; }
-    @media(min-width:800px){ .modal-backdrop{ align-items:center; padding:6vh 12px; } }
-    .video-preview{width:100%;height:260px;background:#0b1220;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff}
-    .tiny{font-size:0.85rem;color:var(--muted)}
-    .linklike{background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600}
-    footer{padding:24px;text-align:center;color:var(--muted);font-size:0.9rem}
-    #capture-preview { width:100%; max-height:320px; object-fit:contain; border-radius:8px; background:#f4f7fb; display:block; margin-top:8px; }
-    #ocr-progress { font-size:0.9rem; color:var(--muted); margin-top:8px; }
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(2,6,23,0.45); display:none; align-items:flex-start; justify-content:center; z-index:70; overflow:auto; -webkit-overflow-scrolling:touch; padding:4vh 12px; }
+    .modal{ width:100%; max-width:640px; background:var(--card); padding:16px; border-radius:12px; box-shadow:0 12px 40px rgba(2,6,23,0.25); max-height: calc(100vh - 8vh); overflow:auto; }
+    @media(min-width:800px){ .modal-backdrop{ align-items:center; padding:6vh 12px; } .modal{ padding:20px; } }
+    .video-preview{ width:100%; height:320px; background:#000; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#fff; position:relative; }
+    .tiny{ font-size:0.85rem; color:var(--muted) }
+    .linklike{ background:none; border:none; color:var(--primary); cursor:pointer; font-weight:600 }
+    footer{ padding:24px; text-align:center; color:var(--muted); font-size:0.9rem }
+    #capture-preview{ width:100%; max-height:320px; object-fit:contain; border-radius:8px; background:#f4f7fb; display:block; margin-top:8px; }
+    #details-photo{ width:100%; max-height:420px; object-fit:contain; border-radius:8px; background:#f4f7fb; display:none; margin-top:8px; }
+    .detail-row{ display:flex; gap:8px; align-items:center; margin-top:6px; }
+    .locked-note{ font-size:0.9rem; color:var(--muted); }
+    .meta-click-hint{ font-size:0.85rem; color:var(--muted); margin-top:6px; }
 
-    /* small helpers */
-    .locked-by-you { color: #065f46; font-weight:700; }
-    .locked-by-other { color: var(--muted); }
+    /* helper overlay for QR guidance */
+    .qr-guide {
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .qr-box {
+      width:60%;
+      max-width:320px;
+      aspect-ratio:1.0;
+      border: 2px dashed rgba(255,255,255,0.85);
+      border-radius:8px;
+      box-shadow: 0 0 0 8px rgba(0,0,0,0.25) inset;
+      position:relative;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .qr-corner {
+      position:absolute;
+      width:22px;height:22px;border:3px solid #1d9bf0;border-radius:6px;
+    }
+    .qr-corner.tl{ left:-11px; top:-11px; border-right:none; border-bottom:none; background:transparent;}
+    .qr-corner.tr{ right:-11px; top:-11px; border-left:none; border-bottom:none;}
+    .qr-corner.bl{ left:-11px; bottom:-11px; border-right:none; border-top:none;}
+    .qr-corner.br{ right:-11px; bottom:-11px; border-left:none; border-top:none;}
+    .qr-hint { position:absolute; bottom:-28px; color:#fff; font-size:0.85rem; background:rgba(0,0,0,0.35); padding:4px 8px; border-radius:6px; }
+
+    /* highlight newly created lock */
+    .highlight {
+      box-shadow: 0 0 0 3px rgba(29,155,240,0.18);
+      transition: box-shadow 0.4s ease;
+    }
+
+    /* details modal styling: make name/phone prominent and clickable */
+    #detail-operator { font-size:1.1rem; font-weight:800; }
+    #detail-phone a { font-size:1.05rem; font-weight:700; color:var(--primary); text-decoration:none; }
   </style>
 </head>
 <body>
@@ -676,7 +91,7 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
       <div class="logo">LO</div>
       <div>
         <div class="title">LOTO Manager</div>
-        <div class="tiny">Lock-Out Tag-Out — enkel og hurtig</div>
+        <div class="tiny">QR-scanner • foto (Blob) • detaljer</div>
       </div>
     </div>
     <div class="spacer"></div>
@@ -687,6 +102,7 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
   </header>
 
   <main>
+    <!-- auth / UI (same as before) -->
     <div id="auth-card" class="card">
       <div id="signup-view">
         <div class="row">
@@ -702,7 +118,6 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
           <div class="form-row"><label class="small">Telefonnummer</label><input id="input-phone" type="tel" required placeholder="+45 12 34 56 78" /><div class="tiny">Telefonnummer bruges til bruger-id (ingen SMS i denne demo).</div></div>
           <div class="row"><div class="spacer"></div><button class="btn" type="submit">Opret bruger og log ind</button></div>
         </form>
-
         <hr style="margin:18px 0;border:none;border-top:1px solid #eef2f6" />
         <div class="muted">Har du allerede en konto?</div>
         <form id="login-form" style="margin-top:12px">
@@ -718,62 +133,114 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
         <div class="row">
           <div>
             <div class="big">Aktive låse</div>
-            <div class="muted">Her vises kun låse som er aktive</div>
+            <div class="muted">Tryk på en registrering for detaljer</div>
           </div>
           <div class="spacer"></div>
-          <button id="start-loto-btn" class="btn">Start LOTO</button>
+          <button id="start-loto-btn" class="btn">Start LOTO (QR)</button>
         </div>
         <div id="locks-list" class="list" style="margin-top:12px"></div>
       </div>
     </div>
 
+    <!-- QR modal (with guide overlay) -->
     <div id="modal" class="modal-backdrop" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-          <div style="font-weight:700">Scan mærkat</div>
+          <div style="font-weight:700">Scan QR-kode</div>
           <div class="spacer"></div>
           <button id="close-modal" class="linklike">Luk</button>
         </div>
+
         <div id="camera-area">
           <div class="video-preview" id="video-preview">
             <video id="video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
             <canvas id="canvas" style="display:none;"></canvas>
             <div id="video-fallback" class="tiny">Kamera ikke tilgængeligt</div>
+
+            <!-- QR guidance overlay -->
+            <div class="qr-guide" aria-hidden="true">
+              <div class="qr-box">
+                <div class="qr-corner tl"></div>
+                <div class="qr-corner tr"></div>
+                <div class="qr-corner bl"></div>
+                <div class="qr-corner br"></div>
+                <div class="qr-hint">Placer QR i rammen</div>
+              </div>
+            </div>
           </div>
 
           <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
             <button id="flip-camera" class="btn secondary">Skift kamera</button>
-            <button id="scan-barcode" class="btn secondary">Scan barcode</button>
-            <button id="capture-ocr" class="btn">Tag billede (OCR)</button>
+            <button id="enable-camera" class="btn secondary">Start kamera</button>
+            <div id="camera-status" class="tiny" style="align-self:center;margin-left:6px"></div>
           </div>
         </div>
 
         <div id="scan-result" style="display:none;margin-top:12px">
-          <div class="small">Data fra mærkat</div>
+          <div class="small">Scannet QR-data</div>
           <pre id="scanned-data" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;white-space:pre-wrap;"></pre>
-          <img id="capture-preview" style="display:none" alt="capture preview" />
 
-          <div id="ocr-progress" style="display:none">OCR: <span id="ocr-percent">0</span>% (<span id="ocr-status">venter</span>)</div>
-
-          <form id="save-lock-form">
+          <form id="qr-save-form">
             <div class="form-row"><label class="small">Navn (påkrævet)</label><input id="operator-name" type="text" required /></div>
             <div class="form-row"><label class="small">Lås nummer (påkrævet)</label><input id="lock-number" type="text" required /></div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
+
+            <div style="margin-top:8px">
+              <div class="small">Tag et foto af låsen (påkrævet)</div>
+              <img id="capture-preview" style="display:none" alt="capture preview" />
+              <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+                <button id="retake-photo" type="button" class="btn secondary" style="display:none">Tag igen</button>
+                <button id="take-photo-btn" type="button" class="btn">Tag billede</button>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
               <button id="cancel-save" type="button" class="btn secondary">Annuller</button>
-              <button type="submit" class="btn">Gem</button>
+              <button id="final-save-btn" type="submit" class="btn">Gem</button>
             </div>
           </form>
+
+          <div id="upload-status" class="tiny" style="margin-top:8px;display:none"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details modal -->
+    <div id="details-modal" class="modal-backdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" id="details-modal-box">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="font-weight:700">Registrering — detaljer</div>
+          <div class="spacer"></div>
+          <button id="close-details" class="linklike">Luk</button>
         </div>
 
+        <div id="details-content">
+          <div class="small">Lås nummer</div>
+          <div id="detail-lock-number" style="font-weight:700;margin-top:6px">—</div>
+
+          <div class="small" style="margin-top:10px">QR / sticker data</div>
+          <pre id="detail-sticker" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;white-space:pre-wrap;"></pre>
+
+          <div class="small">Registreret af</div>
+          <div id="detail-operator" style="font-weight:800;margin-top:6px">—</div>
+          <div id="detail-phone" class="tiny" style="margin-top:6px;color:var(--muted)"></div>
+
+          <div class="small" style="margin-top:10px">Tidspunkt</div>
+          <div id="detail-createdAt" style="margin-top:6px">—</div>
+
+          <div class="small" style="margin-top:10px">Foto</div>
+          <img id="details-photo" alt="Billede fra registrering" style="display:none" />
+          <div id="details-photo-fallback" class="tiny" style="display:none;margin-top:6px;color:var(--muted)"></div>
+
+          <div class="detail-row" id="details-actions" style="margin-top:12px"></div>
+
+          <div class="meta-click-hint">Tryk udenfor modal for at lukke</div>
+        </div>
       </div>
     </div>
 
   </main>
 
   <footer>Demo LOTO-app — husk at konfigurere Firebase og sikkerhedsregler i produktion.</footer>
-
-  <!-- Tesseract for OCR -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
   <script type="module">
     // Din Firebase config (indsat)
@@ -788,29 +255,25 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut,
-      updateProfile
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      onAuthStateChanged, signOut, updateProfile
     } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
     import {
-      getFirestore,
-      doc,
-      setDoc,
-      addDoc,
-      collection,
-      serverTimestamp,
-      query,
-      where,
-      onSnapshot,
-      updateDoc
+      getFirestore, doc, setDoc, addDoc, collection, serverTimestamp,
+      query, where, onSnapshot, updateDoc, getDoc
     } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import {
+      getStorage, ref as storageRef, uploadBytes, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+
+    // jsQR fallback loader
+    let jsQRLoaded = false;
+    async function loadJsQR(){ if(jsQRLoaded) return; await import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'); jsQRLoaded = true; }
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const storage = getStorage(app);
 
     // UI refs
     const authCard = document.getElementById('auth-card');
@@ -829,70 +292,62 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
     const loginPassword = document.getElementById('login-password');
 
     const startBtn = document.getElementById('start-loto-btn');
+
+    // QR modal controls
     const modal = document.getElementById('modal');
     const closeModal = document.getElementById('close-modal');
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const videoFallback = document.getElementById('video-fallback');
-    const scanBarcodeBtn = document.getElementById('scan-barcode');
-    const takePhotoBtn = document.getElementById('capture-ocr');
     const flipBtn = document.getElementById('flip-camera');
+    const enableCameraBtn = document.getElementById('enable-camera');
+    const cameraStatus = document.getElementById('camera-status');
+
     const scanResult = document.getElementById('scan-result');
     const scannedDataElem = document.getElementById('scanned-data');
-    const capturePreview = document.getElementById('capture-preview');
-    const ocrProgress = document.getElementById('ocr-progress');
-    const ocrPercent = document.getElementById('ocr-percent');
-    const ocrStatus = document.getElementById('ocr-status');
 
     const operatorName = document.getElementById('operator-name');
     const lockNumber = document.getElementById('lock-number');
-    const saveLockForm = document.getElementById('save-lock-form');
+    const qrSaveForm = document.getElementById('qr-save-form');
     const cancelSave = document.getElementById('cancel-save');
+    const takePhotoBtn = document.getElementById('take-photo-btn');
+    const retakePhotoBtn = document.getElementById('retake-photo');
+    const capturePreview = document.getElementById('capture-preview');
+    const finalSaveBtn = document.getElementById('final-save-btn');
+    const uploadStatus = document.getElementById('upload-status');
+
     const locksList = document.getElementById('locks-list');
 
+    // Details modal refs
+    const detailsModal = document.getElementById('details-modal');
+    const closeDetails = document.getElementById('close-details');
+    const detailLockNumber = document.getElementById('detail-lock-number');
+    const detailSticker = document.getElementById('detail-sticker');
+    const detailOperator = document.getElementById('detail-operator');
+    const detailPhone = document.getElementById('detail-phone');
+    const detailCreatedAt = document.getElementById('detail-createdAt');
+    const detailsPhoto = document.getElementById('details-photo');
+    const detailsPhotoFallback = document.getElementById('details-photo-fallback');
+    const detailsActions = document.getElementById('details-actions');
+
+    // state
     let currentUser = null;
     let stream = null;
     let usingFront = false;
     let scanInterval = null;
-    let jsQRLoaded = false;
+    let scanningActive = false;
+    let lastScannedValue = null;
+    let pendingPhotoDataUrl = null;
+    let unsubscribeLocks = null;
+    let lastCreatedId = null;
 
-    // OCR worker (Tesseract)
-    let ocrWorker = null;
-    let ocrWorkerLoading = false;
-    async function ensureOCRWorker(){
-      if(ocrWorker) return;
-      if(ocrWorkerLoading) return;
-      ocrWorkerLoading = true;
-      ocrWorker = Tesseract.createWorker({
-        logger: m => {
-          if(m.status === 'recognizing text' && m.progress != null){
-            const p = Math.round(m.progress * 100);
-            ocrPercent.textContent = p;
-            ocrStatus.textContent = m.status;
-          } else {
-            ocrStatus.textContent = m.status || 'venter';
-          }
-        }
-      });
-      await ocrWorker.load();
-      await ocrWorker.loadLanguage('eng');
-      await ocrWorker.initialize('eng');
-      ocrWorkerLoading = false;
-    }
-
-    // load jsQR fallback
-    async function loadJsQR(){
-      if(jsQRLoaded) return;
-      await import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js');
-      jsQRLoaded = true;
-    }
-
+    // helper: phone->local email mapping
     function phoneToEmail(phone){
       const cleaned = phone.replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,'');
       return `${cleaned}@loto.local`;
     }
 
-    // AUTH flows (unchanged)
+    // --- AUTH ---
     signupForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const name = inputName.value.trim();
@@ -921,7 +376,6 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
 
     signoutBtn.addEventListener('click', async ()=>{ await signOut(auth); });
 
-    // Auth observer
     onAuthStateChanged(auth, user => {
       if(user){
         currentUser = user;
@@ -939,8 +393,7 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
       }
     });
 
-    // Active locks listener: only active, render timestamp and ownership
-    let unsubscribeLocks = null;
+    // --- Active locks listener ---
     function formatTimestamp(ts){
       if(!ts) return '';
       try{
@@ -965,8 +418,17 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
           const id = docSnap.id;
           const createdAtText = formatTimestamp(data.createdAt);
           const isOwner = currentUser && data.createdBy === currentUser.uid;
+
           const el = document.createElement('div');
           el.className = 'lock';
+          el.dataset.lockId = id;
+          el.dataset.createdBy = data.createdBy || '';
+          el.dataset.lockNumber = data.lockNumber || '';
+          el.dataset.photoUrl = data.photoURL || '';
+          el.dataset.sticker = data.stickerData || '';
+          el.dataset.operatorName = data.operatorName || '';
+          el.dataset.createdAt = data.createdAt ? (data.createdAt.seconds || '') : '';
+
           el.innerHTML = `
             <div class="meta">
               <div class="details">
@@ -981,228 +443,389 @@ Kopier hele filen nedenfor (gem fx app.html) og erstat din eksisterende. Husk at
             </div>
             <div style="display:flex;align-items:center;gap:8px">
               <div class="badge">AKTIV</div>
-              ${isOwner ? `<button data-id="${id}" class="btn secondary release-btn">Frigiv</button>` : `<div class="small locked-by-other">Kun skaberen kan frigive</div>`}
+              ${isOwner ? `<div class="small locked-by-you">Du kan frigive</div>` : `<div class="small locked-by-other">Kun skaberen kan frigive</div>`}
             </div>
           `;
+          // highlight newly created item if applicable
+          if(lastCreatedId && lastCreatedId === id){
+            el.classList.add('highlight');
+            setTimeout(()=> el.classList.remove('highlight'), 3000);
+            // keep id for focusing after DOM update
+            lastCreatedId = null;
+          }
           locksList.appendChild(el);
         });
-
-        // attach release handlers (only exists for owners)
-        document.querySelectorAll('.release-btn').forEach(btn=>{
-          btn.addEventListener('click', async (ev)=>{
-            const id = ev.currentTarget.getAttribute('data-id');
-            if(!confirm('Vil du frigive denne lås?')) return;
-            const dRef = doc(db,'activeLocks',id);
-            try{
-              await updateDoc(dRef, {
-                status: 'released',
-                releasedBy: currentUser.uid,
-                releasedAt: serverTimestamp()
-              });
-            }catch(err){
-              alert('Fejl ved frigivelse: ' + err.message);
-            }
-          });
-        });
-      }, err => {
-        console.error('Fejl i locks snapshot', err);
-      });
+      }, err => { console.error('Fejl i locks snapshot', err); });
     }
 
     function stopListeningActiveLocks(){ if(unsubscribeLocks) unsubscribeLocks(); unsubscribeLocks = null; locksList.innerHTML = ''; }
 
-    // Modal & camera (same as before)
+    // Open details when clicking a lock (delegation)
+    locksList.addEventListener('click', async (e) => {
+      const lockEl = e.target.closest('.lock');
+      if(!lockEl) return;
+      const lockId = lockEl.dataset.lockId;
+      const createdBy = lockEl.dataset.createdBy;
+      const lockNumber = lockEl.dataset.lockNumber;
+      const sticker = lockEl.dataset.sticker;
+      const operatorNameLocal = lockEl.dataset.operatorName;
+      const photoUrlAttr = lockEl.dataset.photoUrl;
+
+      // populate basics
+      detailLockNumber.textContent = lockNumber || '—';
+      detailSticker.textContent = sticker || '—';
+      detailOperator.textContent = operatorNameLocal || '—';
+      detailPhone.textContent = '';
+      detailCreatedAt.textContent = '—';
+      detailsPhoto.style.display = 'none';
+      detailsPhoto.src = '';
+      detailsPhotoFallback.style.display = 'none';
+      detailsActions.innerHTML = '';
+
+      try{
+        const lockDocRef = doc(db, 'activeLocks', lockId);
+        const lockSnap = await getDoc(lockDocRef);
+        if(lockSnap.exists()){
+          const data = lockSnap.data();
+          detailCreatedAt.textContent = formatTimestamp(data.createdAt) || '—';
+          const photoURL = data.photoURL || photoUrlAttr || '';
+          if(photoURL){
+            detailsPhoto.src = photoURL;
+            detailsPhoto.style.display = 'block';
+            detailsPhotoFallback.style.display = 'none';
+          } else {
+            detailsPhoto.style.display = 'none';
+            detailsPhotoFallback.style.display = 'block';
+            detailsPhotoFallback.textContent = 'Ingen foto tilgængeligt';
+          }
+        } else {
+          if(photoUrlAttr){
+            detailsPhoto.src = photoUrlAttr;
+            detailsPhoto.style.display = 'block';
+            detailsPhotoFallback.style.display = 'none';
+          } else {
+            detailsPhoto.style.display = 'none';
+            detailsPhotoFallback.style.display = 'block';
+            detailsPhotoFallback.textContent = 'Ingen foto tilgængeligt';
+          }
+        }
+      }catch(err){
+        console.warn('Kunne ikke hente lock-doc:', err);
+        if(photoUrlAttr){
+          detailsPhoto.src = photoUrlAttr;
+          detailsPhoto.style.display = 'block';
+          detailsPhotoFallback.style.display = 'none';
+        } else {
+          detailsPhoto.style.display = 'none';
+          detailsPhotoFallback.style.display = 'block';
+          detailsPhotoFallback.textContent = 'Ingen foto tilgængeligt';
+        }
+      }
+
+      // fetch user info
+      try{
+        if(createdBy){
+          const userDoc = await getDoc(doc(db, 'users', createdBy));
+          if(userDoc.exists()){
+            const ud = userDoc.data();
+            detailOperator.textContent = ud.name || operatorNameLocal || '—';
+            if(ud.phone){
+              detailPhone.innerHTML = `<a href="tel:${ud.phone}">${ud.phone}</a>`;
+            } else {
+              detailPhone.textContent = '';
+            }
+          } else {
+            detailPhone.textContent = '';
+          }
+        }
+      }catch(err){ console.warn('Fejl ved hent af brugerinfo:', err); }
+
+      // release button if owner
+      if(currentUser && createdBy && currentUser.uid === createdBy){
+        const releaseBtn = document.createElement('button');
+        releaseBtn.className = 'btn secondary';
+        releaseBtn.textContent = 'Frigiv';
+        releaseBtn.addEventListener('click', async ()=>{
+          if(!confirm('Vil du frigive denne lås?')) return;
+          try{
+            await updateDoc(doc(db,'activeLocks',lockId), {
+              status: 'released',
+              releasedBy: currentUser.uid,
+              releasedAt: serverTimestamp()
+            });
+            closeDetailsModal();
+          }catch(err){
+            alert('Fejl ved frigivelse: ' + err.message);
+          }
+        });
+        detailsActions.appendChild(releaseBtn);
+      } else {
+        detailsActions.innerHTML = '<div class="locked-note">Kun skaberen kan frigive denne lås</div>';
+      }
+
+      // show detail modal
+      detailsModal.style.display = 'flex';
+      detailsModal.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+    });
+
+    function closeDetailsModal(){
+      detailsModal.style.display = 'none';
+      detailsModal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+    }
+    closeDetails.addEventListener('click', closeDetailsModal);
+    detailsModal.addEventListener('click', (e)=>{ if(e.target === detailsModal) closeDetailsModal(); });
+
+    // --- QR scanning & camera control (with guidance overlay) ---
     startBtn.addEventListener('click', openModal);
     closeModal.addEventListener('click', closeModalFunc);
-    cancelSave.addEventListener('click', ()=>{ showScanUI(); });
+    flipBtn.addEventListener('click', async ()=>{ usingFront = !usingFront; await restartCameraIfNeeded(); });
+    enableCameraBtn.addEventListener('click', async ()=>{ await startCamera(true); });
 
-    function openModal(){
+    async function openModal(){
       modal.style.display = 'flex';
-      modal.setAttribute('aria-hidden', 'false');
+      modal.setAttribute('aria-hidden','false');
       document.body.style.overflow = 'hidden';
       scanResult.style.display = 'none';
       scannedDataElem.textContent = '';
-      capturePreview.style.display = 'none';
-      ocrProgress.style.display = 'none';
       operatorName.value = currentUser ? (currentUser.displayName || '') : '';
       lockNumber.value = '';
-      startCamera();
-    }
-    async function closeModalFunc(){
-      modal.style.display = 'none';
-      modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      stopCamera();
+      pendingPhotoDataUrl = null;
+      capturePreview.style.display = 'none';
+      retakePhotoBtn.style.display = 'none';
+      uploadStatus.style.display = 'none';
+      lastScannedValue = null;
+      const pref = localStorage.getItem('cameraAllowed');
+      if(pref === 'true'){
+        await startCamera(false);
+      } else {
+        cameraStatus.textContent = 'Klik "Start kamera" for at give adgang';
+      }
     }
 
-    async function startCamera(){
-      if(stream){ stopCamera(); }
+    async function closeModalFunc(){
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+      stopCamera();
+      cameraStatus.textContent = '';
+      stopScanning();
+      lastScannedValue = null;
+      // scroll overview into view and focus created item if any
+      document.getElementById('locks-list')?.scrollIntoView({behavior:'smooth', block:'start'});
+      if(lastCreatedId) setTimeout(()=> focusNewLock(lastCreatedId), 700);
+    }
+
+    async function restartCameraIfNeeded(){ if(stream) await startCamera(false); else await startCamera(true); }
+
+    async function startCamera(forcePrompt = false){
+      if(stream && !forcePrompt){ cameraStatus.textContent = 'Kamera aktiv'; startScanning(); return; }
       const constraints = { video: { facingMode: usingFront ? 'user' : 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
       try{
+        if(stream) stopCamera();
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
         videoFallback.style.display = 'none';
-        if(scanInterval) clearInterval(scanInterval);
-        scanInterval = setInterval(doScanFrame, 900);
+        cameraStatus.textContent = 'Kamera aktiv';
+        localStorage.setItem('cameraAllowed','true');
+        startScanning();
       }catch(err){
         console.warn('Camera error', err);
         videoFallback.style.display = 'block';
+        cameraStatus.textContent = 'Kamera ikke tilgængelig';
       }
     }
+
     function stopCamera(){
-      if(scanInterval){ clearInterval(scanInterval); scanInterval = null; }
-      if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+      if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(e){} stream = null; }
       video.srcObject = null;
+      cameraStatus.textContent = '';
+      stopScanning();
     }
-    flipBtn.addEventListener('click', async ()=>{ usingFront = !usingFront; await startCamera(); });
 
-    // Barcode scan (try BarcodeDetector then jsQR)
-    scanBarcodeBtn.addEventListener('click', async ()=>{ await doScanFrame(true); });
+    function startScanning(){
+      if(scanningActive) return;
+      scanningActive = true;
+      scanInterval = setInterval(scanFrameForQR, 600);
+    }
+    function stopScanning(){ scanningActive = false; if(scanInterval){ clearInterval(scanInterval); scanInterval = null; } }
 
-    async function doScanFrame(oneShot=false){
+    async function scanFrameForQR(){
       if(!stream) return;
-      const vw = video.videoWidth, vh = video.videoHeight; if(vw===0||vh===0) return;
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if(vw === 0 || vh === 0) return;
       canvas.width = vw; canvas.height = vh;
-      const ctx = canvas.getContext('2d'); ctx.drawImage(video,0,0,vw,vh);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, vw, vh);
 
-      // BarcodeDetector
       if(window.BarcodeDetector){
         try{
-          const detector = new BarcodeDetector({formats: ['qr_code','code_128','ean_13','ean_8']});
+          const detector = new BarcodeDetector({formats:['qr_code']});
           const imageBitmap = await createImageBitmap(canvas);
           const barcodes = await detector.detect(imageBitmap);
-          if(barcodes && barcodes.length){ handleScanSuccess(barcodes[0].rawValue); return; }
-        }catch(e){ /* ignore */ }
+          if(barcodes && barcodes.length){ handleQRDetected(barcodes[0].rawValue); return; }
+        }catch(e){}
       }
 
-      // jsQR fallback
-      try{ await loadJsQR(); const imageData = ctx.getImageData(0,0,canvas.width,canvas.height); const code = window.jsQR(imageData.data,imageData.width,imageData.height); if(code && code.data){ handleScanSuccess(code.data); return; } }catch(e){}
+      try{
+        await loadJsQR();
+        const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        const code = window.jsQR(imageData.data,imageData.width,imageData.height);
+        if(code && code.data){ handleQRDetected(code.data); return; }
+      }catch(e){}
     }
 
-    function showScanUI(){ scanResult.style.display = 'none'; document.getElementById('camera-area').style.display = 'block'; }
-
-    function handleScanSuccess(data){
-      scannedDataElem.textContent = data;
-      capturePreview.style.display = 'none';
-      document.getElementById('camera-area').style.display = 'none';
+    function handleQRDetected(value){
+      if(!value) return;
+      if(lastScannedValue && lastScannedValue === value) return;
+      lastScannedValue = value;
+      stopScanning();
+      scannedDataElem.textContent = value;
       scanResult.style.display = 'block';
       operatorName.value = currentUser ? (currentUser.displayName || '') : '';
-      const m = data.match(/lock[:#\-\s]*([A-Za-z0-9_-]+)/i) || data.match(/(?:id|nr|no)[:#\-\s]*([A-Za-z0-9_-]+)/i);
+      const m = value.match(/lock[:#\-\s]*([A-Za-z0-9_-]+)/i) || value.match(/(?:id|nr|no)[:#\-\s]*([A-Za-z0-9_-]+)/i);
       if(m) lockNumber.value = m[1];
-
-      // scroll modal so form is visible (works on mobile)
-      setTimeout(()=> {
-        const modalEl = document.querySelector('.modal');
-        if(modalEl && modalEl.scrollTo) modalEl.scrollTo({ top: modalEl.scrollHeight, behavior: 'smooth' });
-      }, 120);
+      setTimeout(()=> { const modalEl = document.querySelector('.modal'); if(modalEl && modalEl.scrollTo) modalEl.scrollTo({ top: modalEl.scrollHeight, behavior: 'smooth' }); }, 100);
     }
 
-    // Capture photo & OCR
+    // Take photo -> convert dataURL -> Blob -> keep locally pendingPhotoDataUrl (dataURL) BUT upload uses Blob
     takePhotoBtn.addEventListener('click', async ()=>{
-      if(!stream) { alert('Kamera ikke aktivt'); return; }
-      const vw = video.videoWidth, vh = video.videoHeight; if(vw===0||vh===0) return;
-      canvas.width = vw; canvas.height = vh; const ctx = canvas.getContext('2d');
-      ctx.drawImage(video,0,0,vw,vh);
-      preprocessCanvas(ctx, canvas);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      capturePreview.src = dataUrl; capturePreview.style.display = 'block';
-      ocrProgress.style.display = 'block'; ocrPercent.textContent = '0'; ocrStatus.textContent = 'starter';
-      stopCamera();
-      await ensureOCRWorker();
+      if(!stream){ alert('Kamera ikke aktiv. Klik "Start kamera" eller tillad adgang.'); return; }
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if(vw === 0 || vh === 0) return;
+      canvas.width = vw; canvas.height = vh;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, vw, vh);
       try{
-        const res = await ocrWorker.recognize(dataUrl);
-        const text = res.data.text || '';
-        scannedDataElem.textContent = text.trim();
-        const parsed = parseLockFromText(text);
-        if(parsed) lockNumber.value = parsed;
-        else lockNumber.value = '';
-        operatorName.value = currentUser ? (currentUser.displayName || '') : '';
-        scanResult.style.display = 'block';
-
-        // scroll modal to bottom so Save is visible
-        setTimeout(()=> {
-          const modalEl = document.querySelector('.modal');
-          if(modalEl && modalEl.scrollTo) modalEl.scrollTo({ top: modalEl.scrollHeight, behavior: 'smooth' });
-          const saveBtn = document.querySelector('#save-lock-form button[type="submit"]');
-          if(saveBtn) saveBtn.scrollIntoView({ behavior:'smooth', block:'center' });
-        }, 150);
-
-      }catch(err){
-        alert('OCR fejlede: ' + err.message);
-      }finally{
-        ocrStatus.textContent = 'færdig';
-        ocrPercent.textContent = '100';
-      }
-    });
-
-    // simple preprocessing to increase contrast (rudimentær)
-    function preprocessCanvas(ctx, cvs){
-      try{
-        const w = cvs.width, h = cvs.height;
-        let img = ctx.getImageData(0,0,w,h);
-        let d = img.data;
+        const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        const d = imgData.data;
         for(let i=0;i<d.length;i+=4){
           const r=d[i], g=d[i+1], b=d[i+2];
           const lum = 0.2126*r + 0.7152*g + 0.0722*b;
-          let val = (lum - 128) * 1.5 + 128;
+          let val = (lum - 128) * 1.4 + 128;
           val = Math.max(0, Math.min(255, val));
           d[i]=d[i+1]=d[i+2]=val;
         }
-        ctx.putImageData(img,0,0);
-      }catch(e){ console.warn('Preprocess failed', e); }
+        ctx.putImageData(imgData,0,0);
+      }catch(e){}
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      pendingPhotoDataUrl = dataUrl; // keep preview as dataURL
+      capturePreview.src = dataUrl;
+      capturePreview.style.display = 'block';
+      retakePhotoBtn.style.display = 'inline-block';
+      setTimeout(()=> { const modalEl = document.querySelector('.modal'); if(modalEl && modalEl.scrollTo) modalEl.scrollTo({ top: modalEl.scrollHeight, behavior: 'smooth' }); }, 120);
+    });
+
+    retakePhotoBtn.addEventListener('click', ()=>{
+      pendingPhotoDataUrl = null;
+      capturePreview.style.display = 'none';
+      retakePhotoBtn.style.display = 'none';
+      lastScannedValue = null;
+      startScanning();
+      scanResult.style.display = 'none';
+    });
+
+    // Helper: convert dataURL to Blob
+    async function dataURLtoBlob(dataURL){
+      const res = await fetch(dataURL);
+      return await res.blob();
     }
 
-    // Try to parse lock number from OCR text
-    function parseLockFromText(text){
-      if(!text) return null;
-      const patterns = [
-        /(?:lock|lås|laas|lås)[:#\-\s]*([A-Za-z0-9\-]+)/i,
-        /(?:id|ID)[:#\-\s]*([A-Za-z0-9\-]+)/i,
-        /(?:nr|nr\.)[:#\-\s]*([A-Za-z0-9\-]+)/i,
-        /([A-Z0-9\-]{3,})/g
-      ];
-      for(let i=0;i<patterns.length;i++){
-        const p = patterns[i];
-        if(i < patterns.length -1){
-          const m = text.match(p);
-          if(m) return m[1];
-        } else {
-          const all = text.match(p);
-          if(all && all.length){
-            for(const tok of all){
-              if(tok && tok.length>=3 && !/LOTO|LOCK|LÅS|LAA?S|DEMO/i.test(tok)) return tok;
-            }
-          }
-        }
-      }
-      return null;
-    }
-
-    // Save lock (stores createdAt serverTimestamp)
-    saveLockForm.addEventListener('submit', async (e)=>{
+    // Final save: create doc, upload blob (uploadBytes), update doc, close modal and focus new item
+    qrSaveForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
+      if(!currentUser){ alert('Du skal være logget ind'); return; }
       const op = operatorName.value.trim();
       const ln = lockNumber.value.trim();
       const sticker = scannedDataElem.textContent || '';
       if(!op || !ln){ alert('Navn og lås nummer skal udfyldes'); return; }
+      if(!pendingPhotoDataUrl){ alert('Du skal tage et foto af låsen'); return; }
+
+      finalSaveBtn.disabled = true;
+      uploadStatus.style.display = 'block';
+      uploadStatus.textContent = 'Opretter registrering...';
+
       try{
-        await addDoc(collection(db,'activeLocks'), {
+        // create new document
+        const collRef = collection(db, 'activeLocks');
+        const newDocRef = await addDoc(collRef, {
           operatorName: op,
           lockNumber: ln,
           stickerData: sticker,
           createdBy: currentUser.uid,
+          createdByName: currentUser.displayName || '',
           createdAt: serverTimestamp(),
           status: 'active'
         });
+
+        uploadStatus.textContent = 'Konverterer billede...';
+        const blob = await dataURLtoBlob(pendingPhotoDataUrl);
+
+        uploadStatus.textContent = 'Uploader foto som Blob...';
+        const storagePath = `activeLocks/${newDocRef.id}/photo.jpg`;
+        const sRef = storageRef(storage, storagePath);
+        await uploadBytes(sRef, blob);
+
+        const url = await getDownloadURL(sRef);
+
+        uploadStatus.textContent = 'Gemmer reference...';
+        await updateDoc(newDocRef, {
+          photoURL: url,
+          photoUploadedAt: serverTimestamp()
+        });
+
+        // remember id to focus after snapshot updates list
+        lastCreatedId = newDocRef.id;
+
+        // cleanup local state
+        pendingPhotoDataUrl = null;
+        lastScannedValue = null;
+        uploadStatus.textContent = 'Færdig — registrering oprettet.';
+
+        // close modal and return to overview immediately
         closeModalFunc();
-      }catch(err){ alert('Fejl ved gem: ' + err.message); }
+
+        // after DOM updated, focus new item
+        setTimeout(()=>{ focusNewLock(lastCreatedId); }, 900);
+
+      }catch(err){
+        console.error('Save error', err);
+        alert('Fejl ved gem: ' + (err.message || err));
+        uploadStatus.textContent = 'Fejl: ' + (err.message || err);
+      }finally{
+        finalSaveBtn.disabled = false;
+        setTimeout(()=>{ uploadStatus.style.display = 'none'; }, 1200);
+      }
+    });
+
+    // focus and highlight new lock element if present
+    function focusNewLock(lockId){
+      if(!lockId) return;
+      const el = document.querySelector(`.lock[data-lock-id="${lockId}"]`);
+      if(el){
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        el.classList.add('highlight');
+        setTimeout(()=> el.classList.remove('highlight'), 3000);
+      }
+    }
+
+    cancelSave.addEventListener('click', ()=>{
+      pendingPhotoDataUrl = null;
+      capturePreview.style.display = 'none';
+      retakePhotoBtn.style.display = 'none';
+      scanResult.style.display = 'none';
+      lastScannedValue = null;
+      startScanning();
     });
 
     // close modal on backdrop click
     modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModalFunc(); });
-    window.addEventListener('beforeunload', ()=>{ stopCamera(); });
+    detailsModal.addEventListener('click', (e)=>{ if(e.target === detailsModal) closeDetailsModal(); });
 
-    // END
+    // cleanup on unload
+    window.addEventListener('beforeunload', ()=>{ if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(e){} } });
+
   </script>
 </body>
 </html>
