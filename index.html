@@ -3,66 +3,92 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LOTO Manager — QR + Foto (Blob)</title>
+  <title>LOTO Manager — ROCKWOOL</title>
+
   <style>
     :root{
-      --bg:#f7f9fb; --card:#ffffff; --muted:#6b7280; --primary:#1d9bf0; --accent:#e6eef9; --radius:12px;
+      --bg: #f6f6f6;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --primary: #E30613; /* ROCKWOOL red */
+      --green: #16a34a;
+      --accent: #ffeeef;
+      --radius: 12px;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
     *{box-sizing:border-box}
-    body{ margin:0; background:linear-gradient(180deg,var(--bg),#f1f5f9); color:#0f172a; -webkit-font-smoothing:antialiased; }
-    header{ background:var(--card); padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 0 rgba(15,23,42,0.04); position:sticky; top:0; z-index:30; }
-    .brand{ display:flex; gap:12px; align-items:center; }
-    .logo{ width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#4fb3ff); display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700; }
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#f1f1f1);color:#0f172a;-webkit-font-smoothing:antialiased;}
+    header{background:var(--card);padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 0 rgba(15,23,42,0.04);position:sticky;top:0;z-index:30}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#ff6b6b);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
     .title{font-size:1rem;font-weight:700}
-    main{ max-width:980px;margin:20px auto;padding:12px; }
-    .card{ background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:14px; box-shadow:0 6px 18px rgba(15,23,42,0.04); }
-    .row{display:flex;gap:12px;align-items:center;}
+    main{max-width:980px;margin:20px auto;padding:12px}
+    .card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:14px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+    .row{display:flex;align-items:center;gap:12px}
     .spacer{flex:1}
-    .muted{color:var(--muted);font-size:0.95rem}
-    .big{ font-size:1.05rem;font-weight:700; }
-    .btn{ background:var(--primary); color:#fff; padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
-    .btn.secondary{ background:transparent; color:var(--primary); border:1px solid rgba(29,155,240,0.12); }
-    .list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-    .lock{ padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;justify-content:space-between;align-items:center; border:1px solid rgba(15,23,42,0.04); cursor:pointer; transition: box-shadow 0.18s ease; }
-    .lock .meta{display:flex;gap:12px;align-items:center}
-    .lock .meta .details{display:flex;flex-direction:column}
-    .badge{ background:var(--accent);color:var(--primary);padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.9rem; }
-    .small{font-size:0.9rem;color:var(--muted)}
-    input[type="text"], input[type="password"], input[type="tel"]{ padding:10px;border-radius:8px;border:1px solid #e6edf3;background:#fff; }
-    .center{display:flex;justify-content:center;align-items:center}
+    .btn{background:var(--primary);color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+    .btn.secondary{background:#f3f4f6;color:#111}
+    .linklike{background:none;border:0;color:var(--primary);cursor:pointer}
+    .muted{color:var(--muted)}
+    .big{font-size:1.25rem;font-weight:700}
+    .small{font-size:0.85rem;color:var(--muted)}
 
-    /* modal - mobile friendly */
-    .modal-backdrop{ position:fixed; inset:0; background:rgba(2,6,23,0.45); display:none; align-items:flex-start; justify-content:center; z-index:90; overflow:auto; -webkit-overflow-scrolling:touch; padding:4vh 12px; }
-    .modal{ width:100%; max-width:640px; background:var(--card); padding:14px; border-radius:12px; box-shadow:0 12px 40px rgba(2,6,23,0.25); max-height: calc(100vh - 8vh); overflow:auto; display:flex; flex-direction:column; }
-    .modal .content{ flex:1 1 auto; }
-    .modal-footer{ position: sticky; bottom:0; background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,1)); padding-top:8px; padding-bottom:8px; display:flex; justify-content:flex-end; gap:8px; z-index:5; }
-    @media(min-width:800px){ .modal-backdrop{ align-items:center; padding:6vh 12px; } .modal{ padding:18px; } }
-    .video-preview{ width:100%; height:56vw; max-height:360px; background:#000; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#fff; position:relative; }
-    .tiny{ font-size:0.85rem; color:var(--muted) }
-    .linklike{ background:none; border:none; color:var(--primary); cursor:pointer; font-weight:600 }
-    footer{ padding:16px; text-align:center; color:var(--muted); font-size:0.9rem }
-    #capture-preview{ width:100%; max-height:320px; object-fit:contain; border-radius:8px; background:#f4f7fb; display:block; margin-top:8px; }
-    #details-photo{ width:100%; max-height:420px; object-fit:contain; border-radius:8px; background:#f4f7fb; display:none; margin-top:8px; }
-    .detail-row{ display:flex; gap:8px; align-items:center; margin-top:6px; }
-    .locked-note{ font-size:0.9rem; color:var(--muted); }
-    .meta-click-hint{ font-size:0.85rem; color:var(--muted); margin-top:6px; }
+    /* LIST */
+    .list { display:flex; flex-direction:column; gap:8px; margin-top:12px; padding:0; }
+    .lock {
+      display:grid;
+      grid-template-columns: 120px 1fr 180px 160px 120px;
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid rgba(15,23,42,0.06);
+      background:linear-gradient(180deg,#ffffff,#fff6f6);
+      cursor:pointer;
+      transition:box-shadow .18s ease, transform .08s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .lock:hover { transform:translateY(-3px); box-shadow:0 8px 18px rgba(15,23,42,0.06); }
+    .lock .col { display:flex; flex-direction:column; gap:4px; }
+    .lock .col .primary { font-weight:700; }
+    .lock .col .secondary { color:var(--muted); font-size:0.9rem; }
+    .badge { background:var(--green); color:#fff; padding:6px 8px; border-radius:8px; font-weight:700; font-size:0.8rem; text-align:center; display:inline-block; }
+    .overdue-badge { background:#fff1f1; color:#b91c1c; padding:6px 8px; border-radius:8px; font-weight:700; font-size:0.8rem; margin-left:8px; border:1px solid rgba(185,28,28,0.08); }
+    .time-overdue { color:#b91c1c; font-weight:700; }
+    .highlight{box-shadow:0 6px 18px rgba(227,6,19,0.12);border:2px solid rgba(227,6,19,0.08)}
+    @media (max-width:820px) {
+      .lock { grid-template-columns: 1fr; align-items:flex-start; gap:8px; }
+      .lock .badge, .overdue-badge { justify-self:flex-start; }
+    }
 
-    /* QR guidance */
-    .qr-guide { position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:center; }
-    .qr-box { width:62%; max-width:320px; aspect-ratio:1; border: 2px dashed rgba(255,255,255,0.9); border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; }
-    .qr-corner { position:absolute; width:18px;height:18px;border:3px solid #1d9bf0;border-radius:6px; }
-    .qr-corner.tl{ left:-11px; top:-11px; border-right:none; border-bottom:none;}
-    .qr-corner.tr{ right:-11px; top:-11px; border-left:none; border-bottom:none;}
-    .qr-corner.bl{ left:-11px; bottom:-11px; border-right:none; border-top:none;}
-    .qr-corner.br{ right:-11px; bottom:-11px; border-left:none; border-top:none;}
-    .qr-hint { position:absolute; bottom:-28px; color:#fff; font-size:0.85rem; background:rgba(0,0,0,0.32); padding:4px 8px; border-radius:6px; }
+    /* Modal / camera */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.4);display:flex;align-items:center;justify-content:center;z-index:60}
+    .modal-content{background:var(--card);border-radius:12px;padding:16px;max-width:920px;width:94%;max-height:90vh;overflow:auto}
+    .video-wrap{position:relative;border-radius:8px;overflow:hidden;display:inline-block;border:2px solid rgba(0,0,0,0.06)}
+    video{display:block;max-width:100%;border-radius:8px;background:#000}
+    img{max-width:100%;border-radius:8px}
+    canvas{display:none}
+    .muted-note{color:var(--muted);font-size:0.9rem}
+    .photo-fallback{width:320px;height:180px;border-radius:8px;background:#fff6f6;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.95rem}
 
-    .highlight { box-shadow: 0 0 0 3px rgba(29,155,240,0.18); transition: box-shadow 0.4s ease; }
+    /* scan feedback */
+    .video-detect { animation: scanPulse 900ms ease-out; box-shadow: 0 8px 24px rgba(34,197,94,0.12), 0 0 0 4px rgba(34,197,94,0.18); transform-origin:center; }
+    @keyframes scanPulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+    .scan-check { position:absolute; left:50%; top:50%; width:64px; height:64px; transform:translate(-50%,-50%) scale(0.6); border-radius:50%; display:flex;align-items:center;justify-content:center; color:#fff; font-weight:700; font-size:20px; background:linear-gradient(135deg,#16a34a,#4ade80); opacity:0; pointer-events:none; transition:opacity .18s ease, transform .28s cubic-bezier(.2,.9,.2,1); box-shadow:0 8px 20px rgba(16,185,129,0.18); }
+    .scan-check.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
 
-    /* details phone style */
-    #detail-operator { font-size:1.1rem; font-weight:800; }
-    #detail-phone a { font-size:1.02rem; font-weight:700; color:var(--primary); text-decoration:none; }
+    /* Stepper */
+    .steps { position:relative; overflow:hidden; min-height:260px; }
+    .step { position:absolute; inset:0; opacity:0; transform:translateX(20px); transition:opacity .35s ease, transform .35s ease; padding:12px; pointer-events: none; z-index: 1; }
+    .step.active { opacity:1; transform:translateX(0); position:relative; pointer-events: auto; z-index: 2; }
+    .step-indicators{display:flex;gap:8px;margin-bottom:10px}
+    .step-indicator{width:10px;height:10px;border-radius:50%;background:#e6eef9}
+    .step-indicator.active{background:var(--primary)}
+    input[type="text"], input[type="tel"], input[type="password"]{padding:8px;border-radius:8px;border:1px solid #f1dede;width:100%}
+
+    /* info about barcode support */
+    .scanner-warning { padding:10px;border-radius:8px;background:#fff4e6;color:#92400e;margin-top:8px;border:1px solid rgba(146,64,14,0.08) }
   </style>
 </head>
 <body>
@@ -71,7 +97,7 @@
       <div class="logo">LO</div>
       <div>
         <div class="title">LOTO Manager</div>
-        <div class="tiny">QR • Foto • Detaljer</div>
+        <div class="tiny">Udviklet i Vamdrup</div>
       </div>
     </div>
     <div class="spacer"></div>
@@ -83,148 +109,160 @@
 
   <main>
     <div id="auth-card" class="card">
-      <div id="signup-view">
-        <div class="row">
-          <div>
-            <div class="big">Opret bruger</div>
-            <div class="muted">Indtast navn, kodeord og telefonnummer.</div>
-          </div>
-          <div class="spacer"></div>
-        </div>
+      <form id="signup-form">
+        <div class="form-row"><label>Navn</label><input id="input-name" type="text" required></div>
+        <div class="form-row"><label>Kode</label><input id="input-password" type="password" required></div>
+        <div class="form-row"><label>Telefon</label><input id="input-phone" type="tel" required></div>
+        <div class="row"><div class="spacer"></div><button class="btn" type="submit">Opret bruger og log ind</button></div>
+      </form>
 
-        <form id="signup-form" style="margin-top:12px">
-          <div class="form-row"><label class="small">Navn</label><input id="input-name" type="text" required placeholder="Fuldtnavn" /></div>
-          <div class="form-row"><label class="small">Kode</label><input id="input-password" type="password" required placeholder="Kodeord" /></div>
-          <div class="form-row"><label class="small">Telefonnummer</label><input id="input-phone" type="tel" required placeholder="+45 12 34 56 78" /></div>
-          <div class="row"><div class="spacer"></div><button class="btn" type="submit">Opret bruger og log ind</button></div>
-        </form>
+      <hr/>
 
-        <hr style="margin:12px 0;border:none;border-top:1px solid #eef2f6" />
-        <div class="muted">Har du allerede en konto?</div>
-        <form id="login-form" style="margin-top:12px">
-          <div class="form-row"><label class="small">Telefonnummer</label><input id="login-phone" type="tel" required /></div>
-          <div class="form-row"><label class="small">Kode</label><input id="login-password" type="password" required /></div>
-          <div class="row"><div class="spacer"></div><button class="btn secondary" type="submit">Log ind</button></div>
-        </form>
-      </div>
+      <form id="login-form">
+        <div class="form-row"><label>Telefon</label><input id="login-phone" type="tel" required></div>
+        <div class="form-row"><label>Kode</label><input id="login-password" type="password" required></div>
+        <div class="row"><div class="spacer"></div><button class="btn secondary" type="submit">Log ind</button></div>
+      </form>
     </div>
 
-    <div id="app-view" style="display:none">
-      <div class="card">
-        <div class="row">
-          <div>
-            <div class="big">Aktive låse</div>
-            <div class="muted">Tryk på en registrering for detaljer</div>
-          </div>
-          <div class="spacer"></div>
-          <button id="start-loto-btn" class="btn">Start LOTO (QR)</button>
+    <div id="app-view" style="display:none" class="card">
+      <div class="row">
+        <div>
+          <div class="big">Aktive låse</div>
+          <div class="muted">Tryk på en registrering for detaljer</div>
         </div>
-        <div id="locks-list" class="list" style="margin-top:12px"></div>
+        <div class="spacer"></div>
+        <button id="start-loto-btn" class="btn">Start LOTO</button>
       </div>
+      <div id="locks-list" class="list"></div>
     </div>
   </main>
 
-  <!-- QR modal -->
-  <div id="modal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="content">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-          <div style="font-weight:700">Scan QR-kode</div>
-          <div class="spacer"></div>
-          <button id="close-modal" class="linklike">Luk</button>
-        </div>
+  <!-- STEP MODAL -->
+  <div id="modal" class="modal-backdrop" style="display:none" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div id="modal-title" style="font-weight:700">Start LOTO</div>
+        <button id="close-modal" class="linklike">Luk</button>
+      </div>
 
-        <div id="camera-area">
-          <div class="video-preview" id="video-preview">
-            <video id="video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
-            <canvas id="canvas" style="display:none;"></canvas>
-            <div id="video-fallback" class="tiny">Kamera ikke tilgængeligt</div>
+      <div class="step-indicators" aria-hidden="true">
+        <div class="step-indicator" data-step="0"></div>
+        <div class="step-indicator" data-step="1"></div>
+        <div class="step-indicator" data-step="2"></div>
+      </div>
 
-            <div class="qr-guide" aria-hidden="true">
-              <div class="qr-box">
-                <div class="qr-corner tl"></div>
-                <div class="qr-corner tr"></div>
-                <div class="qr-corner bl"></div>
-                <div class="qr-corner br"></div>
-                <div class="qr-hint">Placer QR i rammen</div>
+      <div class="steps">
+        <div id="step-0" class="step active">
+          <div style="font-weight:700;margin-bottom:6px">1. Scan QR-koden på label til Equipment-nummeret</div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="flex:1;">
+              <div class="video-wrap" id="video-wrap">
+                <video id="video" playsinline autoplay muted style="width:100%;height:auto;background:#000;border-radius:8px"></video>
+                <div id="scan-check" class="scan-check" aria-hidden="true">✓</div>
+              </div>
+              <div id="video-fallback" class="muted-note" style="display:none;margin-top:6px">Kamera ikke tilgængeligt</div>
+              <canvas id="canvas" style="display:none"></canvas>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <button id="enable-camera" class="btn secondary">Start kamera</button>
+                <button id="flip-camera" class="btn secondary">Skift kamera</button>
+                <div id="camera-status" class="muted-note" style="align-self:center;margin-left:8px"></div>
+              </div>
+              <div id="scanner-support-warning" class="scanner-warning" style="display:none;margin-top:8px">
+                Din browser understøtter ikke automatisk QR-scanning (BarcodeDetector). Brug manuel indtastning i stedet.
+              </div>
+            </div>
+
+            <div style="width:320px;min-width:220px;">
+              <div style="margin-bottom:8px">Scannet equipment:</div>
+              <div id="scanned-data" style="padding:10px;background:#fff6f6;border-radius:8px;min-height:48px" class="muted">Ingen scanning endnu</div>
+              <div id="scan-hint" class="muted-note" style="margin-top:8px">Hold kameraet over QR-koden. Hvis det ikke virker, indtast nummer manuelt.</div>
+              <div style="margin-top:8px">
+                <label>Manuel indtastning</label>
+                <input id="manual-equip" type="text" placeholder="Equipment-nummer" style="width:100%;margin-top:6px" />
               </div>
             </div>
           </div>
+        </div>
 
-          <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
-            <button id="flip-camera" class="btn secondary">Skift kamera</button>
-            <button id="enable-camera" class="btn secondary">Start kamera</button>
-            <div id="camera-status" class="tiny" style="align-self:center;margin-left:6px"></div>
+        <div id="step-1" class="step">
+          <div style="font-weight:700;margin-bottom:6px">2. Indtast nummeret på hængelåsen du bruger/har hængt på</div>
+          <div style="margin-top:10px">
+            <label>Hængelåse nummer</label>
+            <input id="lock-number-step" type="text" placeholder="F.eks. 12345" style="width:100%;padding:8px;margin-top:8px;border-radius:8px;border:1px solid #f1dede" />
+            <div id="lock-note" class="muted-note" style="margin-top:8px">Dette nummer gemmes med LOTO-registreringen.</div>
           </div>
         </div>
 
-        <div id="scan-result" style="display:none;margin-top:12px">
-          <div class="small">Scannet QR-data</div>
-          <pre id="scanned-data" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;white-space:pre-wrap;"></pre>
+        <div id="step-2" class="step">
+          <div style="font-weight:700;margin-bottom:6px">3. Tag billede af hængelåsen hvor du har igangsat LOTO</div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="flex:1;">
+              <img id="capture-preview" src="" alt="Preview" style="display:none;width:100%;height:auto;border-radius:8px;background:#fff6f6" />
+              <div id="photo-placeholder" class="photo-fallback" style="display:flex;align-items:center;justify-content:center">Ingen foto endnu</div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <button id="take-photo-btn" class="btn">Tag foto</button>
+                <button id="retake-photo" class="btn secondary" style="display:none">Tag igen</button>
+              </div>
+              <div id="upload-status" style="display:none;margin-top:8px" class="muted-note"></div>
+            </div>
 
-          <form id="qr-save-form">
-            <div class="form-row"><label class="small">Navn (påkrævet)</label><input id="operator-name" type="text" required /></div>
-            <div class="form-row"><label class="small">Lås nummer (påkrævet)</label><input id="lock-number" type="text" required /></div>
-
-            <div style="margin-top:8px">
-              <div class="small">Tag et foto af låsen (påkrævet)</div>
-              <img id="capture-preview" style="display:none" alt="capture preview" />
-              <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-                <button id="retake-photo" type="button" class="btn secondary" style="display:none">Tag igen</button>
-                <button id="take-photo-btn" type="button" class="btn">Tag billede</button>
+            <div style="width:320px;min-width:220px;">
+              <div class="muted-note">Sørg for at låsen er synlig og nummeret kan aflæses på billedet.</div>
+              <div style="margin-top:12px">
+                <label>Operatør (auto)</label>
+                <input id="operator-name" type="text" style="width:100%;margin-top:6px" />
               </div>
             </div>
-          </form>
-          <!-- upload status element (was missing previously) -->
-          <div id="upload-status" class="tiny" style="display:none;margin-top:8px"></div>
+          </div>
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button id="cancel-save" class="btn secondary">Annuller</button>
-        <button id="final-save-btn" class="btn">Gem</button>
+      <div style="display:flex;justify-content:space-between;gap:8px;margin-top:12px">
+        <div>
+          <button id="prev-step" class="btn secondary" disabled>Forrige</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button id="next-step" class="btn">Næste</button>
+          <button id="abort-step" class="btn secondary">Annuller</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Details modal -->
-  <div id="details-modal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" id="details-modal-box">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-        <div style="font-weight:700">Registrering — detaljer</div>
-        <div class="spacer"></div>
+  <!-- DETAILS MODAL -->
+  <div id="details-modal" class="modal-backdrop" style="display:none" aria-hidden="true">
+    <div class="modal-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-weight:700">Detaljer</div>
         <button id="close-details" class="linklike">Luk</button>
       </div>
 
-      <div id="details-content">
-        <div class="small">Lås nummer</div>
-        <div id="detail-lock-number" style="font-weight:700;margin-top:6px">—</div>
+      <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+        <div style="flex:1;min-width:260px">
+          <div style="font-weight:700" id="detail-lock-number">—</div>
+          <div id="detail-sticker" class="small muted">—</div>
+          <div style="margin-top:8px"><strong>Operatør</strong><div id="detail-operator" class="muted">—</div></div>
+          <div style="margin-top:8px"><strong>Telefon</strong><div id="detail-phone" class="muted">—</div></div>
+          <div style="margin-top:8px"><strong>Registreret</strong><div id="detail-createdAt" class="muted">—</div></div>
+          <div id="details-actions" style="margin-top:12px"></div>
+        </div>
 
-        <div class="small" style="margin-top:10px">QR / sticker data</div>
-        <pre id="detail-sticker" style="background:#f4f7fb;padding:10px;border-radius:8px;margin:8px 0;white-space:pre-wrap;"></pre>
-
-        <div class="small">Registreret af</div>
-        <div id="detail-operator" style="font-weight:800;margin-top:6px">—</div>
-        <div id="detail-phone" class="tiny" style="margin-top:6px;color:var(--muted)"></div>
-
-        <div class="small" style="margin-top:10px">Tidspunkt</div>
-        <div id="detail-createdAt" style="margin-top:6px">—</div>
-
-        <div class="small" style="margin-top:10px">Foto</div>
-        <img id="details-photo" alt="Billede fra registrering" style="display:none" />
-        <div id="details-photo-fallback" class="tiny" style="display:none;margin-top:6px;color:var(--muted)"></div>
-
-        <div class="detail-row" id="details-actions" style="margin-top:12px"></div>
-
-        <div class="meta-click-hint">Tryk udenfor modal for at lukke</div>
+        <div style="width:340px;min-width:220px">
+          <img id="details-photo" src="" alt="Foto" style="display:none;width:100%;height:auto;border-radius:8px" />
+          <div id="details-photo-fallback" class="photo-fallback" style="display:none">Ingen foto tilgængeligt</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <footer>Demo LOTO-app — husk at konfigurere Firebase‑regler i produktion.</footer>
-
+  <!-- Firebase + App script -->
   <script type="module">
-    // din firebase-config
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, addDoc, collection, serverTimestamp, query, where, onSnapshot, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCZ1l12BC2ZowpgTgyOFX7QsuD9__0omFk",
       authDomain: "loto-app-ffa5a.firebaseapp.com",
@@ -234,343 +272,446 @@
       appId: "1:90362528781:web:e9809bbeb6b12160ea8144"
     };
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import {
-      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-      onAuthStateChanged, signOut, updateProfile
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import {
-      getFirestore, doc, setDoc, addDoc, collection, serverTimestamp,
-      query, where, onSnapshot, updateDoc, getDoc
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-    import {
-      getStorage, ref as storageRef, uploadBytes, getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
-
-    // global error logging to help debug
-    window.addEventListener('error', (e) => { console.error('Global error', e.error || e.message, e); });
-    window.addEventListener('unhandledrejection', (e) => { console.error('Unhandled rejection', e.reason); });
-
-    let jsQRLoaded = false;
-    async function loadJsQR(){ if(jsQRLoaded) return; await import('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'); jsQRLoaded = true; }
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // DOM refs (explicit, to avoid missing refs causing errors)
-    const userName = document.getElementById('user-name');
-    const signupFormEl = document.getElementById('signup-form');
-    const loginFormEl = document.getElementById('login-form');
-    const startBtnEl = document.getElementById('start-loto-btn');
+    // Helper functions & DOM refs (same as earlier)...
+    function get(id){ return document.getElementById(id); }
+    function phoneToEmail(phone){ const cleaned = phone.replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,''); return `${cleaned}@loto.local`; }
+    function formatTimestamp(ts){ if(!ts) return ''; try{ const d = ts.toDate ? ts.toDate() : new Date(ts); const pad = n=>String(n).padStart(2,'0'); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }catch(e){ return ''; } }
 
-    const modal = document.getElementById('modal');
-    const detailsModal = document.getElementById('details-modal');
-    const closeModalBtn = document.getElementById('close-modal');
-    const closeDetailsBtn = document.getElementById('close-details');
+    const userName = get('user-name');
+    const signupFormEl = get('signup-form');
+    const loginFormEl = get('login-form');
+    const startBtnEl = get('start-loto-btn');
+    const modal = get('modal');
+    const detailsModal = get('details-modal');
+    const closeModalBtn = get('close-modal');
+    const closeDetailsBtn = get('close-details');
+    const video = get('video');
+    const videoWrap = get('video-wrap');
+    const scanCheck = get('scan-check');
+    const canvasEl = get('canvas');
+    const videoFallback = get('video-fallback');
+    const flipBtn = get('flip-camera');
+    const enableCameraBtn = get('enable-camera');
+    const cameraStatus = get('camera-status');
+    const scannerSupportWarning = get('scanner-support-warning');
+    const scannedDataDisplay = get('scanned-data');
+    const manualEquip = get('manual-equip');
+    const operatorNameStep = get('operator-name');
+    const lockNumberStep = get('lock-number-step');
+    const capturePreview = get('capture-preview');
+    const photoPlaceholder = get('photo-placeholder');
+    const retakeBtn = get('retake-photo');
+    const takePhotoBtn = get('take-photo-btn');
+    const finalUploadStatus = get('upload-status');
+    const locksListEl = get('locks-list');
+    const detailLockNumber = get('detail-lock-number');
+    const detailSticker = get('detail-sticker');
+    const detailOperator = get('detail-operator');
+    const detailPhone = get('detail-phone');
+    const detailCreatedAt = get('detail-createdAt');
+    const detailsPhoto = get('details-photo');
+    const detailsPhotoFallback = get('details-photo-fallback');
+    const detailsActions = get('details-actions');
 
-    const video = document.getElementById('video');
-    const canvasEl = document.getElementById('canvas');
-    const videoFallback = document.getElementById('video-fallback');
-    const flipBtn = document.getElementById('flip-camera');
-    const enableCameraBtn = document.getElementById('enable-camera');
-    const cameraStatus = document.getElementById('camera-status');
-
-    const scanResultEl = document.getElementById('scan-result');
-    const scannedDataEl = document.getElementById('scanned-data');
-    const operatorNameEl = document.getElementById('operator-name');
-    const lockNumberEl = document.getElementById('lock-number');
-    const qrSaveForm = document.getElementById('qr-save-form');
-    const takePhotoBtn = document.getElementById('take-photo-btn');
-    const retakePhotoBtn = document.getElementById('retake-photo');
-    const capturePreviewEl = document.getElementById('capture-preview');
-
-    const cancelSaveBtn = document.getElementById('cancel-save');
-    const finalSaveBtn = document.getElementById('final-save-btn');
-    const uploadStatusEl = document.getElementById('upload-status'); // now exists in DOM
-
-    const locksListEl = document.getElementById('locks-list');
-
-    // details refs
-    const detailLockNumber = document.getElementById('detail-lock-number');
-    const detailSticker = document.getElementById('detail-sticker');
-    const detailOperator = document.getElementById('detail-operator');
-    const detailPhone = document.getElementById('detail-phone');
-    const detailCreatedAt = document.getElementById('detail-createdAt');
-    const detailsPhoto = document.getElementById('details-photo');
-    const detailsPhotoFallback = document.getElementById('details-photo-fallback');
-    const detailsActions = document.getElementById('details-actions');
-
-    // state
+    // State
     let currentUser = null;
     let stream = null;
     let usingFront = false;
-    let scanInterval = null;
-    let scanningActive = false;
-    let lastScannedValue = null;
-    let pendingPhotoDataUrl = null;
     let unsubscribeLocks = null;
     let lastCreatedId = null;
+    let pendingPhotoDataUrl = null;
+    let lastScannedValue = null;
 
-    function phoneToEmail(phone){ const cleaned = phone.replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,''); return `${cleaned}@loto.local`; }
+    // Stepper etc.
+    let stepIndex = 0;
+    const steps = [ get('step-0'), get('step-1'), get('step-2') ];
+    const indicators = Array.from(document.querySelectorAll('.step-indicator'));
+    const prevBtn = get('prev-step');
+    const nextBtn = get('next-step');
+    const abortBtn = get('abort-step');
 
-    // AUTH
-    signupFormEl.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const name = document.getElementById('input-name').value.trim();
-      const pwd = document.getElementById('input-password').value;
-      const phone = document.getElementById('input-phone').value.trim();
-      if(!name || !pwd || !phone){ alert('Udfyld alle felter'); return; }
-      const email = phoneToEmail(phone);
+    // Detector
+    let detector = null;
+    let scanActive = false;
+    let scanFrameId = null;
+    const scanCanvas = canvasEl;
+    const scanCtx = scanCanvas ? scanCanvas.getContext('2d') : null;
+
+    // Init detector (if supported)
+    async function initDetector(){
       try{
-        const uc = await createUserWithEmailAndPassword(auth, email, pwd);
-        await updateProfile(uc.user, { displayName: name });
-        await setDoc(doc(db,'users',uc.user.uid), { name, phone, createdAt: serverTimestamp() });
-      }catch(err){ console.error('Signup error', err); alert('Fejl ved oprettelse: ' + err.message); }
-    });
+        if(window.BarcodeDetector){
+          detector = new BarcodeDetector({formats:['qr_code']});
+          if(scannerSupportWarning) scannerSupportWarning.style.display='none';
+        } else {
+          detector = null;
+          if(scannerSupportWarning) scannerSupportWarning.style.display='block';
+        }
+      } catch(e){ detector = null; if(scannerSupportWarning) scannerSupportWarning.style.display='block'; console.warn('detector init err', e); }
+    }
+    initDetector();
 
-    loginFormEl.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const phone = document.getElementById('login-phone').value.trim();
-      const pwd = document.getElementById('login-password').value;
-      if(!phone || !pwd){ alert('Udfyld alle felter'); return; }
-      const email = phoneToEmail(phone);
-      try{ await signInWithEmailAndPassword(auth, email, pwd); }catch(err){ console.error('Login error', err); alert('Login fejlede: ' + err.message); }
-    });
+    // Visual feedback
+    function triggerScanAnimation(){
+      try{
+        if(!video) return;
+        video.classList.add('video-detect');
+        if(scanCheck) scanCheck.classList.add('show');
+        setTimeout(()=>{ video.classList.remove('video-detect'); }, 900);
+        setTimeout(()=>{ if(scanCheck) scanCheck.classList.remove('show'); }, 900);
+      } catch(e){ console.warn('scan anim err', e); }
+    }
 
-    document.getElementById('signout-btn').addEventListener('click', async ()=>{ try{ await signOut(auth); }catch(e){ console.error(e); } });
-
-    onAuthStateChanged(auth, user => {
-      if(user){
-        currentUser = user;
-        userName.textContent = user.displayName || user.email;
-        document.getElementById('user-area').style.display = 'flex';
-        document.getElementById('auth-card').style.display = 'none';
-        document.getElementById('app-view').style.display = 'block';
-        startListeningActiveLocks();
-      } else {
-        currentUser = null;
-        document.getElementById('user-area').style.display = 'none';
-        document.getElementById('auth-card').style.display = 'block';
-        document.getElementById('app-view').style.display = 'none';
-        stopListeningActiveLocks();
+    // Camera control & scanning (as earlier)...
+    async function startCamera(forcePrompt=false){
+      try{
+        if(stream && !forcePrompt){ if(cameraStatus) cameraStatus.textContent='Kamera aktiv'; await startScanningWithDetector(); return; }
+        const constraints = { video: { facingMode: usingFront ? 'user' : 'environment', width:{ideal:1280}, height:{ideal:720} }, audio:false };
+        if(stream) stopCamera();
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        if(video){ video.srcObject = stream; try{ await video.play(); } catch(e){} }
+        if(videoFallback) videoFallback.style.display='none';
+        if(cameraStatus) cameraStatus.textContent='Kamera aktiv';
+        localStorage.setItem('cameraAllowed','true');
+        await startScanningWithDetector();
+      } catch(e){
+        console.warn('startCamera err', e);
+        if(videoFallback) videoFallback.style.display='block';
+        if(cameraStatus) cameraStatus.textContent='Kamera ikke tilgængelig';
       }
-    });
+    }
+    function stopCamera(){ if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(e){} stream=null; } if(video) video.srcObject=null; if(cameraStatus) cameraStatus.textContent=''; stopScanningLoop(); }
 
-    // Active locks listener
-    function formatTimestamp(ts){ if(!ts) return ''; try{ const d = ts.toDate ? ts.toDate() : new Date(ts); const pad = n=>String(n).padStart(2,'0'); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }catch(e){ return ''; } }
+    async function startScanningWithDetector(){
+      if(!video || !scanCanvas || !scanCtx) return;
+      if(scanActive || !detector) return;
+      scanActive = true;
+      lastScannedValue = null;
+      if(video.paused) try{ await video.play(); } catch(e){}
 
+      const loop = async ()=>{
+        try{
+          if(!video || video.readyState < 2){ scanFrameId = requestAnimationFrame(loop); return; }
+          const vw = video.videoWidth, vh = video.videoHeight;
+          if(vw===0||vh===0){ scanFrameId = requestAnimationFrame(loop); return; }
+          scanCanvas.width = vw; scanCanvas.height = vh;
+          scanCtx.drawImage(video,0,0,vw,vh);
+          try{
+            const bitmap = await createImageBitmap(scanCanvas);
+            const results = await detector.detect(bitmap);
+            bitmap.close();
+            if(results && results.length>0){
+              const v = results[0].rawValue || results[0].rawData || '';
+              if(v && v !== lastScannedValue){ lastScannedValue = v; onDetectedQR(v); }
+            }
+          } catch(err){
+            // detection failed — continue, no fallback CDN used
+          }
+        } catch(e){ console.warn('scan loop err', e); }
+        scanFrameId = requestAnimationFrame(loop);
+      };
+      scanFrameId = requestAnimationFrame(loop);
+    }
+    function stopScanningLoop(){ if(scanFrameId){ cancelAnimationFrame(scanFrameId); scanFrameId=null; } scanActive = false; }
+
+    function onDetectedQR(value){
+      if(!scannedDataDisplay) return;
+      scannedDataDisplay.textContent = value;
+      scannedDataDisplay.classList.remove('muted'); scannedDataDisplay.classList.add('scan-success');
+      triggerScanAnimation();
+      stopScanningLoop();
+      setTimeout(()=>{ if(stepIndex===0) showStep(1); }, 600);
+    }
+
+    // Firestore list: client-side sort + overdue mark (>24h)
     function startListeningActiveLocks(){
       const locksRef = collection(db,'activeLocks');
       const q = query(locksRef, where('status','==','active'));
       if(unsubscribeLocks) unsubscribeLocks();
       unsubscribeLocks = onSnapshot(q, snapshot => {
+        const items = [];
+        snapshot.forEach(snap => items.push({ id: snap.id, data: snap.data() }));
+        items.sort((a,b)=>{
+          const ta = a.data.createdAt && a.data.createdAt.toDate ? a.data.createdAt.toDate().getTime() : 0;
+          const tb = b.data.createdAt && b.data.createdAt.toDate ? b.data.createdAt.toDate().getTime() : 0;
+          return tb - ta;
+        });
+
         locksListEl.innerHTML = '';
-        if(snapshot.empty){ locksListEl.innerHTML = '<div class="muted">Ingen aktive låse.</div>'; return; }
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data(); const id = docSnap.id; const createdAtText = formatTimestamp(data.createdAt); const isOwner = currentUser && data.createdBy === currentUser.uid;
+        if(items.length===0){ locksListEl.innerHTML = '<div class="muted">Ingen aktive låse.</div>'; return; }
+
+        items.forEach(item=>{
+          const data = item.data; const id = item.id;
+          const createdAtText = formatTimestamp(data.createdAt);
+          const createdAtMs = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().getTime() : 0;
+          const isOld = (Date.now() - createdAtMs) > (24*3600*1000);
+          const isOwner = currentUser && data.createdBy === currentUser.uid;
           const el = document.createElement('div');
           el.className = 'lock';
           el.dataset.lockId = id;
           el.dataset.createdBy = data.createdBy || '';
           el.dataset.lockNumber = data.lockNumber || '';
-          el.dataset.photoUrl = data.photoURL || '';
           el.dataset.sticker = data.stickerData || '';
           el.dataset.operatorName = data.operatorName || '';
-          el.dataset.createdAt = data.createdAt ? (data.createdAt.seconds || '') : '';
-          el.innerHTML = `<div class="meta"><div class="details"><div style="font-weight:700">${data.lockNumber || '—'}</div><div class="small">${data.stickerData || ''}</div></div><div style="margin-left:12px" class="details"><div class="small">Registreret af</div><div style="font-weight:700">${data.operatorName || ''}</div><div class="small">Tidspunkt: ${createdAtText || '—'}</div></div></div><div style="display:flex;align-items:center;gap:8px"><div class="badge">AKTIV</div>${isOwner?`<div class="small locked-by-you">Du kan frigive</div>`:`<div class="small locked-by-other">Kun skaberen kan frigive</div>`}</div>`;
+
+          const overdueHtml = isOld ? `<span class="overdue-badge">Over 24h</span>` : '';
+          el.innerHTML = `
+            <div class="col col-lock">
+              <div class="primary">${data.lockNumber || '—'}</div>
+              <div class="secondary">Låsenr.</div>
+            </div>
+            <div class="col col-sticker">
+              <div class="primary">${data.stickerData || '—'}</div>
+              <div class="secondary">Equipment</div>
+            </div>
+            <div class="col col-operator">
+              <div class="primary">${data.operatorName || ''}</div>
+              <div class="secondary">Registreret af</div>
+            </div>
+            <div class="col col-time">
+              <div class="primary ${isOld ? 'time-overdue' : ''}">${createdAtText || '—'}</div>
+              <div class="secondary">Tidspunkt</div>
+            </div>
+            <div class="col col-badge">
+              <div class="badge">AKTIV</div>
+              ${overdueHtml}
+            </div>
+          `;
+          el.setAttribute('role','button'); el.setAttribute('tabindex','0');
+
           if(lastCreatedId && lastCreatedId === id){ el.classList.add('highlight'); setTimeout(()=>el.classList.remove('highlight'),3000); lastCreatedId = null; }
+
+          el.addEventListener('click', ()=> openLockDetails(id));
+          el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openLockDetails(id); } });
           locksListEl.appendChild(el);
         });
       }, err => console.error('Fejl i locks snapshot', err));
     }
-    function stopListeningActiveLocks(){ if(unsubscribeLocks) unsubscribeLocks(); unsubscribeLocks = null; locksListEl.innerHTML = ''; }
+    function stopListeningActiveLocks(){ if(unsubscribeLocks) unsubscribeLocks(); unsubscribeLocks = null; locksListEl.innerHTML=''; }
 
-    // click in list -> details
-    locksListEl.addEventListener('click', async (ev) => {
-      try {
-        const lockEl = ev.target.closest('.lock'); if(!lockEl) return;
-        const lockId = lockEl.dataset.lockId, createdBy = lockEl.dataset.createdBy, lockNumber = lockEl.dataset.lockNumber, sticker = lockEl.dataset.sticker, operatorNameLocal = lockEl.dataset.operatorName, photoUrlAttr = lockEl.dataset.photoUrl;
-        detailLockNumber.textContent = lockNumber || '—';
-        detailSticker.textContent = sticker || '—';
-        detailOperator.textContent = operatorNameLocal || '—';
-        detailPhone.textContent = ''; detailCreatedAt.textContent = '—';
-        detailsPhoto.style.display = 'none'; detailsPhoto.src = ''; detailsPhotoFallback.style.display = 'none';
-        detailsActions.innerHTML = '';
-        const lockDocRef = doc(db,'activeLocks',lockId); const lockSnap = await getDoc(lockDocRef);
+    // open details and release action with robust error handling
+    async function openLockDetails(lockId){
+      try{
+        if(!lockId) return;
+        if(detailLockNumber) detailLockNumber.textContent='—';
+        if(detailSticker) detailSticker.textContent='—';
+        if(detailOperator) detailOperator.textContent='—';
+        if(detailPhone) detailPhone.textContent='';
+        if(detailCreatedAt) detailCreatedAt.textContent='—';
+        if(detailsPhoto){ detailsPhoto.style.display='none'; detailsPhoto.src=''; }
+        if(detailsPhotoFallback) detailsPhotoFallback.style.display='none';
+        if(detailsActions) detailsActions.innerHTML='';
+
+        const lockDocRef = doc(db,'activeLocks',lockId);
+        const lockSnap = await getDoc(lockDocRef);
+        let photoField=null, sticker='', operatorNameLocal='';
+
         if(lockSnap.exists()){
-          const data = lockSnap.data();
-          detailCreatedAt.textContent = formatTimestamp(data.createdAt) || '—';
-          const photoURL = data.photoURL || photoUrlAttr || '';
-          if(photoURL){ detailsPhoto.src = photoURL; detailsPhoto.style.display = 'block'; detailsPhotoFallback.style.display = 'none'; }
-          else { detailsPhoto.style.display = 'none'; detailsPhotoFallback.style.display = 'block'; detailsPhotoFallback.textContent = 'Ingen foto tilgængeligt'; }
+          const d = lockSnap.data();
+          sticker = d.stickerData || '';
+          operatorNameLocal = d.operatorName || '';
+          if(detailCreatedAt) detailCreatedAt.textContent = formatTimestamp(d.createdAt) || '—';
+          photoField = d.photoURL || null;
+          if(detailLockNumber) detailLockNumber.textContent = d.lockNumber || '—';
+          if(detailSticker) detailSticker.textContent = sticker || '—';
+          if(detailOperator) detailOperator.textContent = operatorNameLocal || '—';
         } else {
-          if(photoUrlAttr){ detailsPhoto.src = photoUrlAttr; detailsPhoto.style.display = 'block'; detailsPhotoFallback.style.display = 'none'; }
-          else { detailsPhoto.style.display = 'none'; detailsPhotoFallback.style.display = 'block'; detailsPhotoFallback.textContent = 'Ingen foto tilgængeligt'; }
-        }
-        if(createdBy){
-          const userDoc = await getDoc(doc(db,'users',createdBy));
-          if(userDoc.exists()){
-            const ud = userDoc.data();
-            detailOperator.textContent = ud.name || operatorNameLocal || '—';
-            if(ud.phone) detailPhone.innerHTML = `<a href="tel:${ud.phone}">${ud.phone}</a>`; else detailPhone.textContent = '';
+          const listEl = document.querySelector(`.lock[data-lock-id="${lockId}"]`);
+          if(listEl){
+            sticker = listEl.dataset.sticker || '';
+            operatorNameLocal = listEl.dataset.operatorName || '';
+            if(detailLockNumber) detailLockNumber.textContent = listEl.dataset.lockNumber || '—';
+            if(detailSticker) detailSticker.textContent = sticker || '—';
+            if(detailOperator) detailOperator.textContent = operatorNameLocal || '—';
           }
         }
+
+        const resolvedUrl = await resolvePhotoDownloadUrl(lockId, photoField);
+        if(resolvedUrl && detailsPhoto){ detailsPhoto.src=resolvedUrl; detailsPhoto.style.display='block'; if(detailsPhotoFallback) detailsPhotoFallback.style.display='none'; }
+        else { if(detailsPhoto) detailsPhoto.style.display='none'; if(detailsPhotoFallback){ detailsPhotoFallback.style.display='block'; detailsPhotoFallback.textContent='Ingen foto tilgængeligt'; } }
+
+        const createdBy = lockSnap.exists() ? (lockSnap.data().createdBy || '') : (document.querySelector(`.lock[data-lock-id="${lockId}"]`)?.dataset?.createdBy || '');
+        if(createdBy){
+          const userDoc = await getDoc(doc(db,'users',createdBy));
+          if(userDoc.exists()){ const ud = userDoc.data(); if(detailOperator) detailOperator.textContent = ud.name || operatorNameLocal || '—'; if(detailPhone){ if(ud.phone) detailPhone.innerHTML=`<a href="tel:${ud.phone}">${ud.phone}</a>`; else detailPhone.textContent=''; } }
+        }
+
+        // show release only if current user is owner
         if(currentUser && createdBy && currentUser.uid === createdBy){
           const btn = document.createElement('button'); btn.className='btn secondary'; btn.textContent='Frigiv';
-          btn.addEventListener('click', async ()=>{ if(!confirm('Vil du frigive denne lås?')) return; try{ await updateDoc(doc(db,'activeLocks',lockId), { status:'released', releasedBy: currentUser.uid, releasedAt: serverTimestamp() }); closeDetailsModal(); }catch(err){ alert('Fejl: '+err.message);} });
-          detailsActions.appendChild(btn);
-        } else detailsActions.innerHTML = '<div class="locked-note">Kun skaberen kan frigive denne lås</div>';
-        detailsModal.style.display='flex'; detailsModal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
-      } catch(err) {
-        console.error('Error opening details', err);
-        alert('Fejl ved åbning af detaljer: ' + (err.message || err));
+          btn.addEventListener('click', async ()=>{
+            if(!confirm('Vil du frigive denne lås?')) return;
+            try{
+              await updateDoc(doc(db,'activeLocks',lockId), { status:'released', releasedBy: currentUser.uid, releasedAt: serverTimestamp() });
+              closeDetailsModal();
+            } catch(err){
+              console.error('Release error', err);
+              if(err && err.code === 'permission-denied'){
+                alert('Du har ikke tilladelse til at frigive denne lås. Tjek Firestore-rules eller kontakt administrator.');
+              } else {
+                alert('Fejl ved frigivelse: ' + (err.message || err));
+              }
+            }
+          });
+          if(detailsActions) detailsActions.appendChild(btn);
+        } else {
+          if(detailsActions) detailsActions.innerHTML = '<div class="locked-note">Kun skaberen kan frigive denne lås</div>';
+        }
+
+        // open details modal
+        if(detailsModal){ detailsModal.style.display='flex'; detailsModal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+      } catch(err){ console.error('openLockDetails err', err); alert('Fejl ved åbning af detaljer: ' + (err.message || err)); }
+    }
+
+    // resolve photo
+    async function resolvePhotoDownloadUrl(docId, photoField){
+      try{
+        if(!photoField && !docId) return null;
+        if(photoField && (photoField.startsWith('http://') || photoField.startsWith('https://'))){
+          try{ const u = new URL(photoField); if(u.searchParams.has('token')) return photoField; } catch(e){ return photoField; }
+        }
+        if(photoField && photoField.startsWith('gs://')){
+          const parts = photoField.split('/'); const path = parts.slice(3).join('/');
+          if(path) return await getDownloadURL(storageRef(storage, path));
+        }
+        if(photoField && photoField.includes('/v0/b/')){
+          try{ const url = new URL(photoField); const o = url.searchParams.get('o'); if(o) return await getDownloadURL(storageRef(storage, decodeURIComponent(o))); }catch(e){}
+        }
+        if(docId){
+          try{ return await getDownloadURL(storageRef(storage, `activeLocks/${docId}/photo.jpg`)); } catch(e){ console.warn(e); }
+        }
+      } catch(err){ console.error('resolvePhotoDownloadUrl', err); }
+      return null;
+    }
+
+    // Auth & forms (same as before)
+    if (signupFormEl) signupFormEl.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = get('input-name')?.value?.trim();
+      const pwd = get('input-password')?.value;
+      const phone = get('input-phone')?.value?.trim();
+      if(!name||!pwd||!phone){ alert('Udfyld alle felter'); return; }
+      try {
+        const uc = await createUserWithEmailAndPassword(auth, phoneToEmail(phone), pwd);
+        await updateProfile(uc.user, { displayName: name });
+        await setDoc(doc(db,'users',uc.user.uid), { name, phone, createdAt: serverTimestamp() });
+      } catch(err) { console.error(err); alert('Fejl: '+err.message); }
+    });
+
+    if (loginFormEl) loginFormEl.addEventListener('submit', async e => {
+      e.preventDefault();
+      const phone = get('login-phone')?.value?.trim();
+      const pwd = get('login-password')?.value;
+      if(!phone||!pwd){ alert('Udfyld alle felter'); return; }
+      try { await signInWithEmailAndPassword(auth, phoneToEmail(phone), pwd); } catch(err){ console.error(err); alert('Login fejlede: '+err.message); }
+    });
+
+    get('signout-btn')?.addEventListener('click', async ()=> { try{ await signOut(auth); } catch(e){ console.error(e); } });
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user || null;
+      if (user) {
+        if (userName) userName.textContent = user.displayName || user.email || '';
+        get('user-area') && (get('user-area').style.display = 'flex');
+        get('auth-card') && (get('auth-card').style.display = 'none');
+        get('app-view') && (get('app-view').style.display = 'block');
+        startListeningActiveLocks();
+        if(operatorNameStep && !operatorNameStep.value.trim()) operatorNameStep.value = user.displayName || '';
+      } else {
+        if (userName) userName.textContent = '';
+        get('user-area') && (get('user-area').style.display = 'none');
+        get('auth-card') && (get('auth-card').style.display = 'block');
+        get('app-view') && (get('app-view').style.display = 'none');
+        stopListeningActiveLocks();
       }
     });
 
-    function closeDetailsModal(){ detailsModal.style.display='none'; detailsModal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
-    document.getElementById('close-details').addEventListener('click', closeDetailsModal);
-    detailsModal.addEventListener('click',(e)=>{ if(e.target===detailsModal) closeDetailsModal(); });
-
-    // QR flow
-    document.getElementById('start-loto-btn').addEventListener('click', openModal);
-    document.getElementById('close-modal').addEventListener('click', closeModalFunc);
-    document.getElementById('flip-camera').addEventListener('click', async ()=>{ usingFront = !usingFront; await restartCameraIfNeeded(); });
-    document.getElementById('enable-camera').addEventListener('click', async ()=> await startCamera(true));
-
-    // define closeModalFunc (was missing)
-    function closeModalFunc(){
-      try{
-        modal.style.display='none';
-        modal.setAttribute('aria-hidden','true');
-        document.body.style.overflow='';
-        stopCamera();
-        cameraStatus.textContent='';
-        stopScanning();
-        lastScannedValue=null;
-        // return focus to list
-        const listEl = document.getElementById('locks-list');
-        if(listEl) listEl.scrollIntoView({behavior:'smooth', block:'start'});
-      }catch(e){ console.error('closeModalFunc error', e); }
+    // Stepper & save flow (same as before)...
+    function showStep(idx){
+      if(idx<0||idx>=steps.length) return;
+      steps.forEach((s,i)=> s.classList.toggle('active', i===idx));
+      indicators.forEach((ind,i)=> ind.classList.toggle('active', i===idx));
+      stepIndex = idx;
+      prevBtn.disabled = (stepIndex===0);
+      nextBtn.textContent = (stepIndex === steps.length-1) ? 'Gem' : 'Næste';
+      const activeStep = steps[idx]; if(activeStep){
+        const focusable = activeStep.querySelector('input,button,select,textarea,[tabindex]:not([tabindex="-1"])');
+        if(focusable) try{ focusable.focus(); } catch(e){}
+      }
+      if(idx !== 0) stopScanningLoop();
     }
+    prevBtn?.addEventListener('click', ()=> { if(stepIndex>0) showStep(stepIndex-1); });
+    abortBtn?.addEventListener('click', ()=> { closeModalFunc(); });
 
-    async function openModal(){ 
-      try{
-        modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
-        scanResultEl.style.display='none'; scannedDataEl.textContent='';
-        operatorNameEl.value = currentUser ? (currentUser.displayName || '') : '';
-        lockNumberEl.value = '';
-        pendingPhotoDataUrl = null; capturePreviewEl.style.display='none'; retakePhotoBtn.style.display='none'; uploadStatusEl.style.display='none';
-        lastScannedValue=null;
-        const pref = localStorage.getItem('cameraAllowed');
-        if(pref==='true') await startCamera(false); else cameraStatus.textContent='Klik "Start kamera" for at give adgang';
-      }catch(e){ console.error('openModal error', e); }
-    }
-
-    async function restartCameraIfNeeded(){ if(stream) await startCamera(false); else await startCamera(true); }
-
-    async function startCamera(forcePrompt=false){
-      try{
-        if(stream && !forcePrompt){ cameraStatus.textContent='Kamera aktiv'; startScanning(); return; }
-        const constraints={video:{facingMode:usingFront? 'user':'environment', width:{ideal:1280}, height:{ideal:720}}, audio:false};
-        if(stream) stopCamera();
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject=stream; videoFallback.style.display='none'; cameraStatus.textContent='Kamera aktiv'; localStorage.setItem('cameraAllowed','true'); startScanning();
-      }catch(err){ console.warn('camera error',err); videoFallback.style.display='block'; cameraStatus.textContent='Kamera ikke tilgængelig'; }
-    }
-    function stopCamera(){ if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(e){} stream=null; } video.srcObject=null; cameraStatus.textContent=''; stopScanning(); }
-
-    function startScanning(){ if(scanningActive) return; scanningActive=true; scanInterval = setInterval(scanFrameForQR, 600); }
-    function stopScanning(){ scanningActive=false; if(scanInterval){ clearInterval(scanInterval); scanInterval=null; } }
-
-    async function scanFrameForQR(){
-      try{
-        if(!stream) return;
-        const vw=video.videoWidth, vh=video.videoHeight; if(vw===0||vh===0) return;
-        canvasEl.width=vw; canvasEl.height=vh; const ctx = canvasEl.getContext('2d'); ctx.drawImage(video,0,0,vw,vh);
-        if(window.BarcodeDetector){
-          try{ const det = new BarcodeDetector({formats:['qr_code']}); const imageBitmap = await createImageBitmap(canvasEl); const barcodes = await det.detect(imageBitmap); if(barcodes && barcodes.length){ handleQRDetected(barcodes[0].rawValue); return; } }catch(e){}
-        }
-        try{ await loadJsQR(); const imageData = ctx.getImageData(0,0,canvasEl.width,canvasEl.height); const code = window.jsQR(imageData.data,imageData.width,imageData.height); if(code && code.data){ handleQRDetected(code.data); return; } }catch(e){}
-      }catch(err){ console.error('scanFrameForQR error', err); }
-    }
-
-    function handleQRDetected(value){ try{
-      if(!value) return;
-      if(lastScannedValue && lastScannedValue===value) return;
-      lastScannedValue=value; stopScanning(); scannedDataEl.textContent=value; scanResultEl.style.display='block'; operatorNameEl.value = currentUser ? (currentUser.displayName || '') : '';
-      const m = value.match(/lock[:#\-\s]*([A-Za-z0-9_-]+)/i) || value.match(/(?:id|nr|no)[:#\-\s]*([A-Za-z0-9_-]+)/i);
-      if(m) lockNumberEl.value = m[1];
-      setTimeout(()=>{ const modalEl=document.querySelector('.modal'); if(modalEl && modalEl.scrollTo) modalEl.scrollTo({top:modalEl.scrollHeight, behavior:'smooth'}); },100);
-    }catch(e){ console.error('handleQRDetected error', e);} }
-
-    // take photo (preview as dataURL), convert to Blob later
-    takePhotoBtn.addEventListener('click', async ()=>{
-      try{
-        if(!stream){ alert('Kamera ikke aktiv. Klik "Start kamera" eller tillad adgang.'); return; }
-        const vw=video.videoWidth, vh=video.videoHeight; if(vw===0||vh===0) return;
-        canvasEl.width=vw; canvasEl.height=vh; const ctx=canvasEl.getContext('2d'); ctx.drawImage(video,0,0,vw,vh);
-        try{ const imgData=ctx.getImageData(0,0,canvasEl.width,canvasEl.height); const d = imgData.data; for(let i=0;i<d.length;i+=4){ const r=d[i], g=d[i+1], b=d[i+2]; const lum = 0.2126*r + 0.7152*g + 0.0722*b; let val = (lum - 128)*1.4 + 128; val = Math.max(0, Math.min(255,val)); d[i]=d[i+1]=d[i+2]=val; } ctx.putImageData(imgData,0,0); }catch(e){}
-        const dataUrl = canvasEl.toDataURL('image/jpeg',0.9);
-        pendingPhotoDataUrl=dataUrl; capturePreviewEl.src=dataUrl; capturePreviewEl.style.display='block'; retakePhotoBtn.style.display='inline-block';
-        setTimeout(()=>{ const modalEl=document.querySelector('.modal'); if(modalEl && modalEl.scrollTo) modalEl.scrollTo({top:modalEl.scrollHeight, behavior:'smooth'}); },120);
-      }catch(e){ console.error('takePhoto error', e); alert('Fejl ved tag billede: ' + (e.message || e)); }
+    nextBtn?.addEventListener('click', async ()=> {
+      if(stepIndex===0){
+        const scanned = (scannedDataDisplay && scannedDataDisplay.textContent && scannedDataDisplay.textContent.trim() && scannedDataDisplay.textContent.trim()!=='Ingen scanning endnu') ? scannedDataDisplay.textContent.trim() : null;
+        const manual = manualEquip && manualEquip.value.trim() ? manualEquip.value.trim() : null;
+        if(!scanned && !manual){ alert('Scan QR eller indtast equipment-nummer manuelt for at fortsætte.'); return; }
+        if(!scanned && manual){ scannedDataDisplay.textContent = manual; scannedDataDisplay.classList.remove('muted'); scannedDataDisplay.classList.add('scan-success'); }
+        showStep(stepIndex+1);
+      } else if(stepIndex===1){
+        const ln = lockNumberStep && lockNumberStep.value.trim();
+        if(!ln){ alert('Indtast låsens nummer for at fortsætte.'); return; }
+        showStep(stepIndex+1);
+      } else if(stepIndex===2){
+        if(!pendingPhotoDataUrl){ alert('Tag et foto af låsen før du gemmer.'); return; }
+        try{
+          if(!auth.currentUser){ alert('Du skal være logget ind'); return; }
+          const op = operatorNameStep?.value?.trim() || '';
+          const ln = lockNumberStep?.value?.trim() || '';
+          const sticker = scannedDataDisplay?.textContent?.trim() || (manualEquip && manualEquip.value.trim()) || '';
+          if(!op||!ln){ alert('Udfyld navn og lås'); return; }
+          stopCamera(); closeModalFunc();
+          if(finalUploadStatus) { finalUploadStatus.style.display='block'; finalUploadStatus.textContent='Opretter...'; }
+          const newDocRef = await addDoc(collection(db,'activeLocks'), {
+            operatorName:op, lockNumber:ln, stickerData:sticker,
+            createdBy:auth.currentUser.uid, createdByName:auth.currentUser.displayName||'',
+            createdAt: serverTimestamp(), status:'active'
+          });
+          const blob = await (await fetch(pendingPhotoDataUrl)).blob();
+          const sRef = storageRef(storage, `activeLocks/${newDocRef.id}/photo.jpg`);
+          try{ await uploadBytes(sRef, blob); } catch(storageErr){ console.error('Upload failed', storageErr); await updateDoc(newDocRef, { status:'upload_failed' }).catch(()=>{}); alert('Upload fejlede: '+(storageErr.message||storageErr.code)); if(finalUploadStatus) finalUploadStatus.style.display='none'; return; }
+          const url = await getDownloadURL(sRef);
+          await updateDoc(newDocRef, { photoURL: url, photoUploadedAt: serverTimestamp() });
+          lastCreatedId = newDocRef.id; pendingPhotoDataUrl=null; if(finalUploadStatus) finalUploadStatus.style.display='none';
+          setTimeout(()=> focusNewLock(lastCreatedId), 900);
+        } catch(err){ console.error('Save error', err); alert('Fejl: ' + (err.message||err)); }
+      }
     });
 
-    retakePhotoBtn.addEventListener('click', ()=>{ pendingPhotoDataUrl=null; capturePreviewEl.style.display='none'; retakePhotoBtn.style.display='none'; lastScannedValue=null; startScanning(); scanResultEl.style.display='none'; });
+    function openModal(){ if(!modal){ alert('Modal mangler i DOM'); return; } modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; scannedDataDisplay.textContent='Ingen scanning endnu'; scannedDataDisplay.classList.add('muted'); scannedDataDisplay.classList.remove('scan-success'); manualEquip.value=''; operatorNameStep.value = currentUser ? (currentUser.displayName||'') : ''; lockNumberStep.value=''; pendingPhotoDataUrl=null; capturePreview.style.display='none'; capturePreview.src=''; photoPlaceholder.style.display='flex'; retakeBtn.style.display='none'; showStep(0); const pref = localStorage.getItem('cameraAllowed'); if(pref==='true'){ startCamera(false); } else { if(cameraStatus) cameraStatus.textContent='Klik \"Start kamera\" for at give adgang'; } }
+    function closeModalFunc(){ if(modal){ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; } stopCamera(); lastScannedValue=null; }
 
-    // convert dataURL->Blob
-    async function dataURLtoBlob(dataURL){ const r = await fetch(dataURL); return await r.blob(); }
+    // close details modal
+    function closeDetailsModal(){ if(detailsModal){ detailsModal.style.display='none'; detailsModal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; } }
+    closeDetailsBtn && closeDetailsBtn.addEventListener('click', closeDetailsModal);
+    detailsModal && detailsModal.addEventListener('click', (e)=>{ if(e.target===detailsModal) closeDetailsModal(); });
 
-    // final save: CLOSE modal immediately, upload in background
-    finalSaveBtn.addEventListener('click', async (ev)=>{
-      try{
-        ev.preventDefault();
-        const op = operatorNameEl.value.trim(); const ln = lockNumberEl.value.trim(); const sticker = scannedDataEl.textContent || '';
-        if(!currentUser){ alert('Du skal være logget ind'); return; }
-        if(!op || !ln){ alert('Navn og lås nummer skal udfyldes'); return; }
-        if(!pendingPhotoDataUrl){ alert('Du skal tage et foto af låsen'); return; }
+    // camera bindings
+    enableCameraBtn?.addEventListener('click', async ()=>{ await initDetector(); await startCamera(true); });
+    flipBtn?.addEventListener('click', async ()=>{ usingFront = !usingFront; await startCamera(true); });
 
-        // close UI immediately
-        stopCamera(); closeModalFunc();
+    // photo capture bindings
+    takePhotoBtn?.addEventListener('click', async ()=>{ if(!video){ alert('Start kamera først'); return; } if(!stream){ alert('Start kamera først'); return; } const vw = video.videoWidth, vh = video.videoHeight; if(vw===0||vh===0){ alert('Kamera ikke klar'); return; } if(!scanCanvas || !scanCtx){ alert('Intern fejl: canvas ikke sat op'); return; } scanCanvas.width = vw; scanCanvas.height = vh; scanCtx.drawImage(video,0,0,vw,vh); const dataUrl = scanCanvas.toDataURL('image/jpeg',0.9); pendingPhotoDataUrl = dataUrl; capturePreview.src = dataUrl; capturePreview.style.display='block'; photoPlaceholder.style.display='none'; retakeBtn.style.display='inline-block'; });
+    retakeBtn?.addEventListener('click', ()=>{ pendingPhotoDataUrl=null; capturePreview.src=''; capturePreview.style.display='none'; photoPlaceholder.style.display='flex'; retakeBtn.style.display='none'; });
 
-        // show small console status; upload runs now
-        if(uploadStatusEl) { uploadStatusEl.style.display = 'block'; uploadStatusEl.textContent = 'Uploader registrering...'; }
+    // start bindings
+    startBtnEl && startBtnEl.addEventListener('click', ()=> openModal());
+    closeModalBtn && closeModalBtn.addEventListener('click', ()=> closeModalFunc());
+    modal && modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModalFunc(); });
 
-        const collRef = collection(db,'activeLocks');
-        const newDocRef = await addDoc(collRef, { operatorName: op, lockNumber: ln, stickerData: sticker, createdBy: currentUser.uid, createdByName: currentUser.displayName || '', createdAt: serverTimestamp(), status: 'active' });
+    function focusNewLock(id){ if(!id) return; const el=document.querySelector(`.lock[data-lock-id="${id}"]`); if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.classList.add('highlight'); setTimeout(()=>el.classList.remove('highlight'),3000); } }
 
-        const blob = await dataURLtoBlob(pendingPhotoDataUrl);
-        const storagePath = `activeLocks/${newDocRef.id}/photo.jpg`;
-        const sRef = storageRef(storage, storagePath);
-        await uploadBytes(sRef, blob);
+    // Start UI
+    showStep(0);
+    console.log('App initialized (fixed): BarcodeDetector-only fallback, green AKTIV badge, safer release handling.');
 
-        const url = await getDownloadURL(sRef);
-        await updateDoc(newDocRef, { photoURL: url, photoUploadedAt: serverTimestamp() });
-
-        lastCreatedId = newDocRef.id;
-        pendingPhotoDataUrl = null;
-        if(uploadStatusEl) uploadStatusEl.style.display = 'none';
-        setTimeout(()=> focusNewLock(lastCreatedId), 900);
-      }catch(err){ console.error('Save/upload error', err); alert('Fejl ved gem/upload: ' + (err.message || err)); if(uploadStatusEl) uploadStatusEl.style.display = 'none'; }
-    });
-
-    function focusNewLock(lockId){ if(!lockId) return; const el = document.querySelector(`.lock[data-lock-id="${lockId}"]`); if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.classList.add('highlight'); setTimeout(()=> el.classList.remove('highlight'), 3000); } }
-
-    cancelSaveBtn.addEventListener('click', ()=>{ pendingPhotoDataUrl=null; capturePreviewEl.style.display='none'; retakePhotoBtn.style.display='none'; scanResultEl.style.display='none'; lastScannedValue=null; startScanning(); });
-
-    // close modal on backdrop
-    modal.addEventListener('click',(e)=>{ if(e.target===modal) closeModalFunc(); });
-    detailsModal.addEventListener('click',(e)=>{ if(e.target===detailsModal) closeDetailsModal(); });
-
-    // helpful: ensure UI not permanently blocked by stray overlays
-    // If something went wrong and modal/backdrop stayed visible, allow Esc to close:
-    window.addEventListener('keydown', (e) => { if(e.key === 'Escape'){ try{ closeModalFunc(); closeDetailsModal(); }catch(_){} } });
-
-    window.addEventListener('beforeunload', ()=>{ if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(e){} } });
-
-    // End script
   </script>
 </body>
 </html>
