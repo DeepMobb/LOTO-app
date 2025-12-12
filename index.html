@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LOTO Manager — Fixet Modal</title>
+  <title>LOTO Manager — Max 10 Tegn</title>
   <style>
     :root{
       --bg:#f6f6f6; --card:#fff; --muted:#6b7280; --primary:#E30613; --green:#16a34a;
@@ -201,15 +201,15 @@
         <div>
           <div class="muted-note">Hold kameraet over QR-koden. Hvis det ikke virker: indtast manuelt (kun tal).</div>
           <div style="margin-top:8px"><label>Scannet equipment</label><div id="scanned-data" style="padding:8px;background:#fff6f6;border-radius:6px">Ingen scanning endnu</div></div>
-          <div style="margin-top:8px"><label>Manuel indtastning</label><input id="manual-equip" type="tel" inputmode="numeric"></div>
+          <div style="margin-top:8px"><label>Manuel indtastning (Max 10)</label><input id="manual-equip" type="tel" inputmode="numeric" maxlength="10"></div>
         </div>
       </div>
 
       <div id="step-1" class="step hidden">
         <h3>2) Indtast låsenummer & Dato</h3>
         <div style="margin-top:8px">
-          <label>Hængelås nummer (kun tal)</label>
-          <input id="lock-number" type="tel" inputmode="numeric">
+          <label>Hængelås nummer (kun tal, Max 10)</label>
+          <input id="lock-number" type="tel" inputmode="numeric" maxlength="10">
           
           <label style="margin-top:12px">Forventet slutdato</label>
           <input id="expected-end" type="date">
@@ -508,9 +508,6 @@
       }
     }
     
-    // Initial start
-    // Vi kalder ikke goToStep(0) her direkte, den kaldes når modal åbnes
-
     $('next-step').addEventListener('click', async ()=>{
       if(currentStep===0){
         const scanned = scannedDataEl.textContent && scannedDataEl.textContent.trim() && scannedDataEl.textContent.trim()!=='Ingen scanning endnu' ? scannedDataEl.textContent.trim() : null;
@@ -556,7 +553,7 @@
           }
           uploadStatus.style.display = 'none';
           showToast('Registrering gemt', 'success');
-          // ÆNDRET: Vi sender 'true' til closeModal for at undgå prompt
+          // Vi sender 'true' til closeModal for at undgå prompt
           closeModal(true);
         } catch(err){ console.error(err); uploadStatus.style.display='none'; showToast('Gem fejlede: ' + (err.message || err), 'error'); }
       }
@@ -565,9 +562,8 @@
     $('prev-step').addEventListener('click', ()=>{ if(currentStep>0) goToStep(currentStep-1); });
     $('abort-step').addEventListener('click', ()=>{ if(confirm('Annuller flow?')) closeModal(); });
 
-    // ÆNDRET: Nu med force parameter
+    // Nu med force parameter
     function closeModal(force = false){
-      // Hvis force = true, skipper vi tjekket
       if(!force && (manualEquip.value || lockNumber.value || pendingPhotoDataUrl)){ if(!confirm('Du mister ændringer. Fortsæt?')) return; }
       stopCamera(); $('modal-backdrop').style.display = 'none'; goToStep(0);
     }
@@ -727,7 +723,15 @@
         } catch(e){ console.error(e); showToast('Kunne ikke frigive lås', 'error'); }
     });
 
-    function enforceDigits(el){ if(!el) return; el.addEventListener('input', ()=>{ el.value = (el.value||'').replace(/\D+/g,''); }); }
+    // ÆNDRET: Ny validering klipper også strengen over 10 tegn
+    function enforceDigits(el){ 
+        if(!el) return; 
+        el.addEventListener('input', ()=>{ 
+            let v = (el.value||'').replace(/\D+/g,''); 
+            if(v.length > 10) v = v.slice(0,10); 
+            el.value = v; 
+        }); 
+    }
     enforceDigits(manualEquip); enforceDigits(lockNumber); enforceDigits(pinInput);
 
     console.log('LOTO Manager ready — test via http(s)/localhost for camera/scanner.');
