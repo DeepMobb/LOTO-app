@@ -992,6 +992,7 @@
     let unsubscribeLocks = null;
     let currentStep = 0;
     let currentDetailId = null;
+    let currentDetailOpenedByMaster = false;
     let pendingLockForPin = null;
     const scanCtx = canvas.getContext ? canvas.getContext('2d') : null;
 
@@ -1329,6 +1330,7 @@
     async function openDetails(id, masterOverride = false){
       try{
         currentDetailId = id;
+        currentDetailOpenedByMaster = masterOverride;
         const snap = await getDoc(doc(db,'activeLocks',id));
         if(!snap.exists()){ showToast('Ingen data', 'error'); return; }
         const d = snap.data();
@@ -1361,7 +1363,15 @@
       if(!currentDetailId) return;
       if(!confirm('Er du sikker på, at du vil FRIGIVE denne lås?')) return;
       try {
-        await updateDoc(doc(db, 'activeLocks', currentDetailId), { status: 'released', releasedAt: serverTimestamp(), releasedBy: currentUser.uid });
+        const updatePayload = {
+          status: 'released',
+          releasedAt: serverTimestamp(),
+          releasedBy: currentUser.uid
+        };
+        if(currentDetailOpenedByMaster) {
+          updatePayload.releasedByMaster = true;
+        }
+        await updateDoc(doc(db, 'activeLocks', currentDetailId), updatePayload);
         detailsBackdrop.style.display = 'none';
         showToast('Lås frigivet', 'success');
       } catch(e){ showToast('Kunne ikke frigive lås', 'error'); }
