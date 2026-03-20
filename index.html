@@ -1288,7 +1288,11 @@
                 ${isOld?'<span class="badge-overdue">Over 24h</span>':''}
               </div>
             `;
-            el.addEventListener('click', ()=> requestPin(id));
+            const isOwn = currentUser && d.createdBy === currentUser.uid;
+            el.addEventListener('click', ()=> {
+              if(isOwn) { openDetails(id); }
+              else { requestPin(id); }
+            });
             locksList.appendChild(el);
           });
         }, err => { locksList.innerHTML = '<div class="empty-state">Fejl ved hentning af låse.</div>'; });
@@ -1313,7 +1317,7 @@
       const val = pinInput.value;
       if(val === '6580'){
         pinBackdrop.style.display = 'none';
-        if(pendingLockForPin) openDetails(pendingLockForPin);
+        if(pendingLockForPin) openDetails(pendingLockForPin, true);
         pendingLockForPin = null;
       } else {
         setInlineError(pinError, 'Forkert PIN-kode');
@@ -1322,7 +1326,7 @@
       }
     }
 
-    async function openDetails(id){
+    async function openDetails(id, masterOverride = false){
       try{
         currentDetailId = id;
         const snap = await getDoc(doc(db,'activeLocks',id));
@@ -1345,8 +1349,9 @@
           </div>
           <div style="padding:16px 20px 0;">${photoHtml}</div>
         `;
-        if(currentUser && d.createdBy === currentUser.uid){ releaseLotoBtn.style.display = 'block'; }
-        else { releaseLotoBtn.style.display = 'none'; }
+        // Own lock → can always release. Master PIN override → can release anyone's lock.
+        const isOwn = currentUser && d.createdBy === currentUser.uid;
+        releaseLotoBtn.style.display = (isOwn || masterOverride) ? 'block' : 'none';
         detailsBackdrop.style.display = 'flex';
       } catch(e){ showToast('Fejl ved hentning', 'error'); }
     }
