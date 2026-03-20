@@ -3,138 +3,788 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LOTO Manager — Max 10 Tegn</title>
+  <title>LOTO Manager — ROCKWOOL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#f6f6f6; --card:#fff; --muted:#6b7280; --primary:#E30613; --green:#16a34a;
-      --radius:12px; --btn-pad:12px 16px; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,var(--bg),#efefef);color:#0b1720}
-    header{background:var(--card);padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 0 rgba(0,0,0,0.05);position:sticky;top:0;z-index:40}
-    .logo{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--primary),#ff6b6b);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
-    .title{font-weight:700}
-    main{max-width:1080px;margin:18px auto;padding:12px}
-    .card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:0 8px 24px rgba(0,0,0,0.04)}
-    .row{display:flex;gap:12px;align-items:center}
-    .spacer{flex:1}
-    .btn{background:var(--primary);color:#fff;padding:var(--btn-pad);border-radius:10px;border:0;cursor:pointer;font-size:1rem}
-    .btn.secondary{background:#f3f4f6;color:#111;padding:var(--btn-pad)}
-    .btn.success{background:var(--green);color:#fff;}
-    .link{background:none;border:0;color:var(--primary);cursor:pointer}
-    label{display:block;font-size:0.9rem;color:var(--muted);margin-bottom:6px}
-    input{width:100%;padding:10px;border-radius:8px;border:1px solid #eee}
-    .inline-error{color:#b91c1c;font-size:0.9rem;display:none}
-    .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin-left:8px;vertical-align:middle}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .muted-note{color:var(--muted);margin-top:6px}
-    .list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
-    
-    /* Grid layout */
-    .grid-layout {
-       display:grid;
-       grid-template-columns:80px 1fr 140px 130px 130px 100px;
-       gap:10px;
+      /* ROCKWOOL Brand Colours */
+      --rw-red: #D20014;
+      --rw-dark-red: #8C0F1E;
+      --rw-black: #000000;
+      --rw-white: #FFFFFF;
+      --rw-grey: #63666A;
+      --rw-light-grey: #F0F0F0;
+      --rw-mid-grey: #D8D8D8;
+      --rw-ocean-blue: #45A6DE;
+      --rw-cedar-green: #1AB092;
+      --rw-coral: #FF7768;
+      --rw-sun-yellow: #EBEA79;
+
+      /* UI Tokens */
+      --bg: #F4F3F1;
+      --card: #FFFFFF;
+      --border: rgba(0,0,0,0.08);
+      --shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+      --radius: 4px;
+      --radius-lg: 8px;
+
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     }
 
-    /* Header styling */
-    .list-header {
-      padding: 0 12px 8px 12px;
-      color: var(--muted);
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--rw-black);
+      min-height: 100vh;
+    }
+
+    /* ═══════════════════════════════════════
+       HEADER
+    ═══════════════════════════════════════ */
+    header {
+      background: var(--rw-black);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .rw-logo-mark {
+      width: 36px;
+      height: 36px;
+      background: var(--rw-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rw-logo-mark svg { width: 22px; height: 22px; }
+
+    .header-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .header-brand-name {
+      color: var(--rw-white);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      line-height: 1;
+    }
+    .header-app-name {
+      color: var(--rw-white);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 1;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .spacer { flex: 1; }
+
+    #user-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    #user-name {
+      color: rgba(255,255,255,0.65);
       font-size: 0.85rem;
-      font-weight: 700;
-      margin-top: 16px;
-      align-items: end; 
+      font-weight: 500;
+    }
+    #signout-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.65);
+      padding: 5px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    #signout-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--rw-white);
+      border-color: rgba(255,255,255,0.35);
     }
 
-    .lock{
-      padding:12px;
-      border-radius:10px;
-      border:1px solid rgba(0,0,0,0.06);
-      background:#fff; 
-      cursor: pointer; 
-      transition: background 0.2s;
+    /* ═══════════════════════════════════════
+       RED ACCENT BAR
+    ═══════════════════════════════════════ */
+    .accent-bar {
+      height: 3px;
+      background: var(--rw-red);
+    }
+
+    /* ═══════════════════════════════════════
+       MAIN LAYOUT
+    ═══════════════════════════════════════ */
+    main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* ═══════════════════════════════════════
+       AUTH CARD
+    ═══════════════════════════════════════ */
+    #auth-card {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .auth-header {
+      background: var(--rw-black);
+      padding: 28px 32px 24px;
+    }
+    .auth-header h2 {
+      color: var(--rw-white);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .auth-header p {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.82rem;
+      margin-top: 4px;
+    }
+
+    .auth-body {
+      padding: 28px 32px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--rw-grey);
+      margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--rw-mid-grey);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: var(--rw-black);
+      background: var(--rw-white);
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--rw-red);
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .inline-error {
+      color: var(--rw-red);
+      font-size: 0.82rem;
+      display: none;
+      flex: 1;
+    }
+
+    /* ═══════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════ */
+    .btn {
+      background: var(--rw-red);
+      color: var(--rw-white);
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      font-family: inherit;
+      letter-spacing: 0.03em;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--rw-dark-red); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn.secondary {
+      background: var(--rw-light-grey);
+      color: var(--rw-black);
+      border: 1.5px solid var(--rw-mid-grey);
+    }
+    .btn.secondary:hover { background: var(--rw-mid-grey); }
+
+    .btn.success {
+      background: var(--rw-cedar-green);
+    }
+    .btn.success:hover { background: #138a72; }
+
+    .link {
+      background: none;
+      border: none;
+      color: var(--rw-red);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: inherit;
+      font-weight: 500;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════
+       APP VIEW — TOP BAR
+    ═══════════════════════════════════════ */
+    .app-top-bar {
+      padding: 24px 28px 20px;
+      border-bottom: 1.5px solid var(--rw-light-grey);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .app-top-bar h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .app-top-bar .subtitle {
+      font-size: 0.82rem;
+      color: var(--rw-grey);
+      margin-top: 2px;
+    }
+
+    /* ═══════════════════════════════════════
+       LOCKS TABLE
+    ═══════════════════════════════════════ */
+    .table-header {
+      display: grid;
+      grid-template-columns: 90px 1fr 160px 150px 130px 120px;
+      gap: 0;
+      padding: 0 28px;
+      background: #F8F7F5;
+      border-bottom: 1.5px solid var(--rw-mid-grey);
+    }
+    .table-header > div {
+      padding: 10px 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--rw-grey);
+    }
+
+    .locks-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lock-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 160px 150px 130px 120px;
+      gap: 0;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--rw-light-grey);
+      cursor: pointer;
+      transition: background 0.12s;
       align-items: center;
     }
-    .lock:hover{background:#fafafa;}
-    
-    .primary{font-weight:700}
-    .secondary{color:var(--muted)}
-    .badge{background:var(--green);color:#fff;padding:6px 8px;border-radius:8px;font-weight:700}
-    .overdue{background:#fff1f1;color:#b91c1c;padding:6px 8px;border-radius:8px;font-weight:700}
-    .time-overdue{color:#b91c1c;font-weight:700}
-    
-    @media (max-width:950px){ 
-      .list-header { display: none; }
-      .lock { display: flex; flex-direction: column; gap: 6px; } 
+    .lock-row:last-child { border-bottom: none; }
+    .lock-row:hover { background: #FBF9F8; }
+
+    .lock-row > div {
+      padding: 14px 12px;
     }
 
-    /* Modal / steps */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;z-index:60}
-    .modal{background:var(--card);border-radius:10px;padding:12px;width:95%;max-width:920px;max-height:90vh;overflow:auto}
-    .modal-top{position:sticky;top:0;background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(255,255,255,0.95));padding:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid rgba(0,0,0,0.03);z-index:10}
-    
-    /* Video Wrapper er nu flytbar */
-    .video-wrap{position:relative;border-radius:8px;overflow:hidden;background:#000;min-height:200px;}
-    video{display:block;width:100%;height:auto;border-radius:8px}
-    
-    .scan-check{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(0.6);width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#16a34a,#4ade80);color:#fff;font-weight:700;opacity:0;transition:opacity .18s,transform .18s}
-    .scan-check.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
-    
-    .step{padding:12px}
-    .step.hidden{display:none}
-    .step-indicators{display:flex;gap:8px;margin-bottom:10px}
-    .step-indicators div{width:10px;height:10px;border-radius:50%;background:#e6eef9}
-    .step-indicators div.active{background:var(--primary)}
-    .scanner-warning{padding:10px;border-radius:8px;background:#fff4e6;color:#92400e;margin-top:8px;border:1px solid rgba(146,64,14,0.08)}
-    
-    .photo-fallback{width:100%;min-height:200px;border-radius:8px;background:#fff6f6;display:flex;align-items:center;justify-content:center;color:var(--muted); border: 2px dashed #eee;}
+    .lock-number {
+      font-family: 'DM Mono', monospace;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--rw-black);
+    }
 
-    /* Toast Notifications CSS */
-    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-    .toast { pointer-events: auto; background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 500; min-width: 250px; display:flex; align-items:center; gap:10px; }
-    .toast.show { opacity: 1; transform: translateY(0); }
-    .toast-success { background: var(--green); }
-    .toast-error { background: var(--primary); }
+    .lock-equipment {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--rw-black);
+    }
 
-    /* small helpers */
-    .hidden { display:none !important; }
+    .lock-creator-name {
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--rw-black);
+    }
+    .lock-creator-phone {
+      font-size: 0.78rem;
+      color: var(--rw-grey);
+      margin-top: 2px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .lock-date {
+      font-size: 0.85rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--rw-black);
+    }
+    .lock-date.overdue { color: var(--rw-red); font-weight: 600; }
+
+    .lock-end-date {
+      font-size: 0.85rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--rw-grey);
+    }
+
+    .status-col {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .badge-active {
+      display: inline-block;
+      background: var(--rw-cedar-green);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    .badge-overdue {
+      display: inline-block;
+      background: #FFF0F0;
+      color: var(--rw-red);
+      border: 1px solid rgba(210,0,20,0.2);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+
+    .empty-state {
+      padding: 48px 28px;
+      text-align: center;
+      color: var(--rw-grey);
+      font-size: 0.9rem;
+    }
+
+    /* ═══════════════════════════════════════
+       MODALS
+    ═══════════════════════════════════════ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      width: 95%;
+      max-width: 920px;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-top {
+      position: sticky;
+      top: 0;
+      background: var(--rw-black);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    .modal-top .btn.secondary {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
+      border-color: rgba(255,255,255,0.15);
+    }
+    .modal-top .btn.secondary:hover {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+    }
+
+    .modal-body { padding: 24px; }
+
+    /* Steps indicator */
+    .step-indicators {
+      display: flex;
+      gap: 6px;
+      padding: 0 24px 16px;
+    }
+    .step-indicators div {
+      height: 3px;
+      flex: 1;
+      background: var(--rw-mid-grey);
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    .step-indicators div.active { background: var(--rw-red); }
+
+    /* Step headings */
+    .step h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      margin-bottom: 16px;
+      padding: 0 24px;
+    }
+    .step { padding-bottom: 24px; }
+    .step.hidden { display: none; }
+
+    /* Form inside modal */
+    .modal-form-group {
+      padding: 0 24px;
+      margin-bottom: 14px;
+    }
+    .modal-form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--rw-grey);
+      margin-bottom: 6px;
+    }
+    .modal-form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--rw-mid-grey);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: var(--rw-black);
+      transition: border-color 0.15s;
+    }
+    .modal-form-group input:focus {
+      outline: none;
+      border-color: var(--rw-red);
+    }
+
+    .muted-note {
+      color: var(--rw-grey);
+      font-size: 0.82rem;
+      padding: 0 24px;
+      margin-top: 6px;
+    }
+
+    .scanned-data-display {
+      padding: 10px 12px;
+      background: #F8F7F5;
+      border: 1.5px solid var(--rw-mid-grey);
+      border-radius: var(--radius);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.88rem;
+      color: var(--rw-grey);
+      min-height: 38px;
+    }
+
+    /* Camera */
+    .video-wrap {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #111;
+      min-height: 200px;
+      margin: 0 24px 12px;
+    }
+    video {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+    }
+    .scan-check {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%,-50%) scale(0.6);
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--rw-cedar-green);
+      color: #fff; font-weight: 700; font-size: 1.5rem;
+      opacity: 0;
+      transition: opacity .18s, transform .18s;
+    }
+    .scan-check.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+
+    .camera-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 0 24px;
+      margin-bottom: 12px;
+    }
+
+    .scanner-warning {
+      margin: 0 24px 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      background: #FFFBF0;
+      color: #7C5E0A;
+      border: 1px solid #F0D98A;
+      font-size: 0.82rem;
+    }
+
+    .photo-fallback {
+      width: 100%;
+      min-height: 200px;
+      border-radius: var(--radius);
+      background: #F8F7F5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--rw-grey);
+      border: 2px dashed var(--rw-mid-grey);
+    }
+
+    /* ═══════════════════════════════════════
+       DETAILS MODAL
+    ═══════════════════════════════════════ */
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 20px 20px 0;
+    }
+    .detail-field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--rw-grey);
+      margin-bottom: 4px;
+    }
+    .detail-field .detail-value {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--rw-black);
+    }
+
+    /* ═══════════════════════════════════════
+       PIN MODAL
+    ═══════════════════════════════════════ */
+    #pin-backdrop .modal {
+      max-width: 340px;
+    }
+    .pin-body {
+      padding: 28px 24px 24px;
+      text-align: center;
+    }
+    .pin-body h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .pin-body .pin-subtitle {
+      color: var(--rw-grey);
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+    }
+    #pin-input {
+      text-align: center;
+      font-size: 1.8rem;
+      letter-spacing: 0.3em;
+      font-family: 'DM Mono', monospace;
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--rw-mid-grey);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      transition: border-color 0.15s;
+    }
+    #pin-input:focus {
+      outline: none;
+      border-color: var(--rw-red);
+    }
+    #pin-error {
+      color: var(--rw-red);
+      font-size: 0.82rem;
+      display: none;
+      margin-bottom: 14px;
+    }
+    .pin-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    /* ═══════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════ */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      background: var(--rw-black);
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: var(--radius);
+      opacity: 0;
+      transform: translateY(-16px) scale(0.97);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.88rem;
+      font-weight: 500;
+      min-width: 220px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 3px solid var(--rw-grey);
+    }
+    .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+    .toast-success { border-left-color: var(--rw-cedar-green); }
+    .toast-error { border-left-color: var(--rw-red); }
+    .toast-icon {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+    .toast-success .toast-icon { background: var(--rw-cedar-green); }
+    .toast-error .toast-icon { background: var(--rw-red); }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .table-header { display: none; }
+      .lock-row {
+        grid-template-columns: 1fr 1fr;
+        padding: 14px 20px;
+        gap: 8px;
+      }
+    }
+    @media (max-width: 600px) {
+      main { padding: 16px 12px; }
+      header { padding: 0 16px; }
+      .app-top-bar { padding: 16px 18px 14px; }
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
+  <div class="accent-bar"></div>
   <header>
-    <div class="row"><div class="logo">LO</div><div class="title">LOTO Manager</div></div>
+    <div class="rw-logo-mark">
+      <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="22" height="22" fill="#D20014"/>
+        <text x="3" y="16" font-family="DM Sans, sans-serif" font-size="12" font-weight="700" fill="white">LO</text>
+      </svg>
+    </div>
+    <div class="header-brand">
+      <div class="header-brand-name">ROCKWOOL</div>
+      <div class="header-app-name">LOTO Manager</div>
+    </div>
+    <div class="header-divider"></div>
     <div class="spacer"></div>
-    <div id="user-area" class="row" style="display:none"><div id="user-name" class="muted"></div><button id="signout-btn" class="link">Log ud</button></div>
+    <div id="user-area" style="display:none">
+      <span id="user-name"></span>
+      <button id="signout-btn">Log ud</button>
+    </div>
   </header>
 
   <main>
+    <!-- AUTH -->
     <section class="card" id="auth-card">
-      <div style="display:flex;gap:16px;flex-wrap:wrap;">
-        <div style="min-width:260px;max-width:420px">
-          <h3>Log ind</h3>
-          <form id="login-form">
+      <div class="auth-header">
+        <h2>Log ind på LOTO Manager</h2>
+        <p>ROCKWOOL Safety Management System</p>
+      </div>
+      <div class="auth-body">
+        <form id="login-form">
+          <div class="form-group">
             <label>Telefon</label>
             <input id="login-phone" type="tel" placeholder="+45 ..." />
-            <label style="margin-top:8px">Kode</label>
-            <input id="login-password" type="password" placeholder="Kode" />
-            <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:10px">
-              <span id="login-error" class="inline-error"></span>
-              <button id="login-btn" class="btn" type="submit">Log ind <span id="login-spinner" class="spinner" style="display:none"></span></button>
-            </div>
-          </form>
-          <div style="margin-top:8px;display:flex;justify-content:flex-end">
-            <button id="show-signup" class="link">Opret bruger</button>
           </div>
+          <div class="form-group">
+            <label>Adgangskode</label>
+            <input id="login-password" type="password" placeholder="Kode" />
+          </div>
+          <div class="form-actions">
+            <span id="login-error" class="inline-error"></span>
+            <button id="login-btn" class="btn" type="submit">Log ind <span id="login-spinner" class="spinner" style="display:none"></span></button>
+          </div>
+        </form>
+        <div style="margin-top:12px;display:flex;justify-content:flex-end">
+          <button id="show-signup" class="link">Opret bruger</button>
         </div>
 
-        <div id="signup-card" style="display:none;min-width:260px;max-width:420px">
-          <h3>Opret bruger</h3>
+        <div id="signup-card" style="display:none; margin-top:24px; padding-top:24px; border-top:1.5px solid var(--rw-light-grey);">
+          <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px">Opret bruger</h3>
           <form id="signup-form">
-            <label>Navn</label><input id="signup-name" type="text" />
-            <label style="margin-top:8px">Telefon</label><input id="signup-phone" type="tel" />
-            <label style="margin-top:8px">Kode</label><input id="signup-password" type="password" />
-            <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:10px">
+            <div class="form-group"><label>Navn</label><input id="signup-name" type="text" /></div>
+            <div class="form-group"><label>Telefon</label><input id="signup-phone" type="tel" /></div>
+            <div class="form-group"><label>Adgangskode</label><input id="signup-password" type="password" /></div>
+            <div class="form-actions">
               <span id="signup-error" class="inline-error"></span>
               <button id="signup-cancel" class="btn secondary" type="button">Annuller</button>
               <button id="signup-btn" class="btn" type="submit">Opret <span id="signup-spinner" class="spinner" style="display:none"></span></button>
@@ -144,14 +794,18 @@
       </div>
     </section>
 
+    <!-- APP VIEW -->
     <section class="card" id="app-view" style="display:none">
-      <div class="row">
-        <div><h2>Aktive låse</h2><div class="muted-note">Tryk på en registrering for detaljer</div></div>
+      <div class="app-top-bar">
+        <div>
+          <h2>Aktive låse</h2>
+          <div class="subtitle">Tryk på en registrering for at se detaljer</div>
+        </div>
         <div class="spacer"></div>
-        <button id="start-loto-btn" class="btn">Start LOTO</button>
+        <button id="start-loto-btn" class="btn">+ Start LOTO</button>
       </div>
 
-      <div class="list-header grid-layout">
+      <div class="table-header">
         <div>Lås nr.</div>
         <div>Equipment</div>
         <div>Oprettet af</div>
@@ -160,82 +814,83 @@
         <div>Status</div>
       </div>
 
-      <div id="locks-list" class="list"></div>
+      <div id="locks-list" class="locks-list"></div>
     </section>
   </main>
 
+  <!-- LOTO FLOW MODAL -->
   <div id="modal-backdrop" class="modal-backdrop" style="display:none">
     <div class="modal">
       <div class="modal-top">
-        <div><button id="prev-step" class="btn secondary" disabled>Forrige</button></div>
+        <div><button id="prev-step" class="btn secondary" disabled>← Forrige</button></div>
         <div style="display:flex;gap:8px">
           <button id="abort-step" class="btn secondary">Annuller</button>
-          <button id="next-step" class="btn">Næste</button>
+          <button id="next-step" class="btn">Næste →</button>
         </div>
       </div>
 
-      <div class="step-indicators" style="display:flex;gap:8px;margin-bottom:10px">
-        <div data-step="0" class="active" style="width:10px;height:10px;border-radius:50%;background:var(--primary)"></div>
-        <div data-step="1" style="width:10px;height:10px;border-radius:50%;background:#e6eef9"></div>
-        <div data-step="2" style="width:10px;height:10px;border-radius:50%;background:#e6eef9"></div>
+      <div class="step-indicators" style="padding:12px 24px 4px;">
+        <div data-step="0" class="active"></div>
+        <div data-step="1"></div>
+        <div data-step="2"></div>
       </div>
 
-      <div id="video-wrapper" class="video-wrap" style="margin-bottom:8px; display:none;">
+      <div id="video-wrapper" class="video-wrap" style="margin-bottom:8px; display:none; margin-left:24px; margin-right:24px;">
         <video id="video" playsinline autoplay muted></video>
         <div id="scan-check" class="scan-check">✓</div>
       </div>
 
       <div id="step-0" class="step">
-        <h3>1) Scan QR-kode</h3>
-        <div style="margin-bottom:10px">
-          <div id="scan-mount"></div>
-          
-          <div style="display:flex;gap:8px;align-items:center; margin-top:8px;">
-            <button id="start-camera" class="btn secondary">Start kamera</button>
-            <button id="flip-camera" class="btn secondary">Skift kamera</button>
-            <div id="camera-status" class="muted-note"></div>
-          </div>
-          <div id="scanner-warning" class="scanner-warning" style="display:none">BarcodeDetector ikke tilgængelig — test via Chrome/Edge eller localhost/HTTPS</div>
+        <h3>Trin 1 — Scan QR-kode</h3>
+        <div id="scan-mount"></div>
+        <div class="camera-actions">
+          <button id="start-camera" class="btn secondary">Start kamera</button>
+          <button id="flip-camera" class="btn secondary">Skift kamera</button>
+          <span id="camera-status" style="color:var(--rw-grey);font-size:0.82rem;margin-left:4px;"></span>
         </div>
-
-        <div>
-          <div class="muted-note">Hold kameraet over QR-koden. Hvis det ikke virker: indtast manuelt (kun tal).</div>
-          <div style="margin-top:8px"><label>Scannet equipment</label><div id="scanned-data" style="padding:8px;background:#fff6f6;border-radius:6px">Ingen scanning endnu</div></div>
-          <div style="margin-top:8px"><label>Manuel indtastning (Max 10)</label><input id="manual-equip" type="tel" inputmode="numeric" maxlength="10"></div>
+        <div id="scanner-warning" class="scanner-warning" style="display:none">BarcodeDetector ikke tilgængelig — test via Chrome/Edge eller localhost/HTTPS</div>
+        <p class="muted-note">Hold kameraet over QR-koden. Virker det ikke, så indtast manuelt (kun tal).</p>
+        <div class="modal-form-group" style="margin-top:10px;">
+          <label>Scannet equipment</label>
+          <div id="scanned-data" class="scanned-data-display">Ingen scanning endnu</div>
+        </div>
+        <div class="modal-form-group">
+          <label>Manuel indtastning (Max 10)</label>
+          <input id="manual-equip" type="tel" inputmode="numeric" maxlength="10">
         </div>
       </div>
 
       <div id="step-1" class="step hidden">
-        <h3>2) Indtast låsenummer & Dato</h3>
-        <div style="margin-top:8px">
+        <h3>Trin 2 — Låsenummer & dato</h3>
+        <div class="modal-form-group">
           <label>Hængelås nummer (kun tal, Max 10)</label>
           <input id="lock-number" type="tel" inputmode="numeric" maxlength="10">
-          
-          <label style="margin-top:12px">Forventet slutdato</label>
-          <input id="expected-end" type="date">
-          
-          <div class="muted-note" style="margin-top:8px">Dato og låsenummer gemmes med registreringen.</div>
         </div>
+        <div class="modal-form-group">
+          <label>Forventet slutdato</label>
+          <input id="expected-end" type="date">
+        </div>
+        <p class="muted-note">Dato og låsenummer gemmes med registreringen.</p>
       </div>
 
       <div id="step-2" class="step hidden">
-        <h3>3) Tag foto</h3>
-        <div style="display:flex;gap:12px;align-items:flex-start;margin-top:8px; flex-wrap:wrap;">
-          <div style="flex:1; min-width:280px;">
+        <h3>Trin 3 — Tag foto</h3>
+        <div style="display:flex;gap:16px;align-items:flex-start;padding:0 24px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:260px;">
             <div id="photo-mount" style="min-height:200px;"></div>
-
-            <img id="capture-preview" src="" style="display:none;width:100%;border-radius:8px; border:2px solid #ddd;" alt="Preview">
-            
+            <img id="capture-preview" src="" style="display:none;width:100%;border-radius:var(--radius);border:2px solid var(--rw-mid-grey);" alt="Preview">
             <div id="photo-placeholder" class="photo-fallback" style="display:none;">Kamera starter...</div>
-            
-            <div style="margin-top:8px;display:flex;gap:8px">
+            <div style="margin-top:10px;display:flex;gap:8px">
               <button id="take-photo" class="btn">Tag foto</button>
               <button id="retake-photo" class="btn secondary" style="display:none">Tag igen</button>
             </div>
-            <div id="upload-status" class="muted-note" style="margin-top:8px;display:none"></div>
+            <div id="upload-status" style="color:var(--rw-grey);font-size:0.82rem;margin-top:8px;display:none"></div>
           </div>
-          <div style="flex:1; min-width:260px;">
-            <label>Operatør (valgfri)</label><input id="operator" type="text">
+          <div style="flex:1;min-width:220px;">
+            <div class="modal-form-group" style="padding:0;">
+              <label>Operatør (valgfri)</label>
+              <input id="operator" type="text">
+            </div>
           </div>
         </div>
       </div>
@@ -244,6 +899,7 @@
     </div>
   </div>
 
+  <!-- DETAILS MODAL -->
   <div id="details-backdrop" class="modal-backdrop" style="display:none">
     <div class="modal">
       <div class="modal-top">
@@ -251,26 +907,26 @@
         <div class="spacer"></div>
         <button id="release-loto-btn" class="btn success" style="display:none">Frigiv LOTO</button>
       </div>
-      
-      <div id="details-content" style="margin-top:12px; padding: 0 8px;"></div>
+      <div id="details-content" style="padding-bottom:20px;"></div>
     </div>
   </div>
 
+  <!-- PIN MODAL -->
   <div id="pin-backdrop" class="modal-backdrop" style="display:none; z-index:70;">
-    <div class="modal" style="max-width:320px; text-align:center;">
-       <h3>Sikkerhedskontrol</h3>
-       <div class="muted-note">Indtast PIN for at se detaljer</div>
-       
-       <div style="margin: 20px 0;">
-         <input id="pin-input" type="tel" maxlength="4" style="text-align:center; font-size:24px; letter-spacing:4px; width:100%; padding:12px;" placeholder="PIN">
-       </div>
-       
-       <div id="pin-error" class="inline-error" style="margin-bottom:12px;"></div>
-
-       <div style="display:flex; gap:10px; justify-content:center;">
-         <button id="pin-cancel" class="btn secondary">Annuller</button>
-         <button id="pin-submit" class="btn">Bekræft</button>
-       </div>
+    <div class="modal" style="max-width:340px;">
+      <div class="modal-top" style="justify-content:center;">
+        <span style="color:rgba(255,255,255,0.8);font-size:0.88rem;font-weight:600;letter-spacing:0.03em;">SIKKERHEDSKONTROL</span>
+      </div>
+      <div class="pin-body">
+        <h3>Indtast PIN-kode</h3>
+        <p class="pin-subtitle">PIN kræves for at se detaljer om denne lås</p>
+        <input id="pin-input" type="tel" maxlength="4" placeholder="••••">
+        <div id="pin-error" class="inline-error" style="display:none;margin-bottom:12px;text-align:left;"></div>
+        <div class="pin-actions">
+          <button id="pin-cancel" class="btn secondary">Annuller</button>
+          <button id="pin-submit" class="btn">Bekræft</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -296,53 +952,35 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // utility
     const $ = id => document.getElementById(id);
     function phoneToEmail(phone){ const cleaned = (phone||'').replace(/\s+/g,'').replace(/\+/g,'plus').replace(/[^a-zA-Z0-9_-]/g,''); return `${cleaned}@loto.local`; }
     function formatTimestamp(ts){ if(!ts) return ''; try{ const d = ts.toDate ? ts.toDate() : new Date(ts); const pad = n=>String(n).padStart(2,'0'); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }catch(e){ return ''; } }
-    function formatDateOnly(ts){ 
-        if(!ts) return '—'; 
-        try{ 
-            const d = ts.toDate ? ts.toDate() : new Date(ts); 
-            const pad = n=>String(n).padStart(2,'0'); 
-            return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`; 
-        }catch(e){ return '—'; } 
-    }
+    function formatDateOnly(ts){ if(!ts) return '—'; try{ const d = ts.toDate ? ts.toDate() : new Date(ts); const pad = n=>String(n).padStart(2,'0'); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`; }catch(e){ return '—'; } }
 
-    // Toast function
     function showToast(message, type='success'){
-        const container = $('toast-container');
-        const el = document.createElement('div');
-        el.className = `toast toast-${type}`;
-        const icon = type === 'success' ? '✓' : '!';
-        el.innerHTML = `<span style="font-weight:900;font-size:1.2rem">${icon}</span> <span>${message}</span>`;
-        container.appendChild(el);
-        requestAnimationFrame(() => { el.classList.add('show'); });
-        setTimeout(() => {
-            el.classList.remove('show');
-            setTimeout(() => el.remove(), 400);
-        }, 3000);
+      const container = $('toast-container');
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      const icon = type === 'success' ? '✓' : '!';
+      el.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+      container.appendChild(el);
+      requestAnimationFrame(() => { el.classList.add('show'); });
+      setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3000);
     }
 
-    // DOM refs
     const loginForm = $('login-form'), loginBtn = $('login-btn'), loginSpinner = $('login-spinner'), loginError = $('login-error');
-    const showSignup = $('show-signup'), signupCard = $('signup-card'), signupForm = $('signup-form'), signupBtn = $('signup-btn'), signupSpinner = $('signup-spinner'), signupError = $('signup-error'), signupCancel = $('signup-cancel');
+    const showSignupBtn = $('show-signup'), signupCard = $('signup-card'), signupForm = $('signup-form'), signupBtn = $('signup-btn'), signupSpinner = $('signup-spinner'), signupError = $('signup-error'), signupCancel = $('signup-cancel');
     const authCard = $('auth-card'), appView = $('app-view'), userArea = $('user-area'), userName = $('user-name'), signoutBtn = $('signout-btn');
     const locksList = $('locks-list');
-
-    // modal refs
     const modalBackdrop = $('modal-backdrop'), prevStepBtn = $('prev-step'), nextStepBtn = $('next-step'), abortStepBtn = $('abort-step');
-    // NYT: videoWrapper
     const videoWrapper = $('video-wrapper');
     const scanMount = $('scan-mount'), photoMount = $('photo-mount');
-    
     const videoEl = $('video'), scanCheck = $('scan-check'), canvas = $('canvas'), cameraStatus = $('camera-status'), scannerWarning = $('scanner-warning');
     const scannedDataEl = $('scanned-data'), manualEquip = $('manual-equip'), lockNumber = $('lock-number'), expectedEndInput = $('expected-end'), operatorField = $('operator');
     const capturePreview = $('capture-preview'), photoPlaceholder = $('photo-placeholder'), takePhotoBtn = $('take-photo'), retakePhotoBtn = $('retake-photo'), uploadStatus = $('upload-status');
     const detailsBackdrop = $('details-backdrop'), detailsContent = $('details-content'), closeDetailsBtn = $('close-details'), releaseLotoBtn = $('release-loto-btn');
     const pinBackdrop = $('pin-backdrop'), pinInput = $('pin-input'), pinSubmit = $('pin-submit'), pinCancel = $('pin-cancel'), pinError = $('pin-error');
 
-    // state
     let currentUser = null;
     let stream = null;
     let usingFront = false;
@@ -353,27 +991,24 @@
     let lastScannedValue = null;
     let unsubscribeLocks = null;
     let currentStep = 0;
-    let currentDetailId = null; 
-    let pendingLockForPin = null; 
+    let currentDetailId = null;
+    let pendingLockForPin = null;
     const scanCtx = canvas.getContext ? canvas.getContext('2d') : null;
 
-    // init detector
     async function initDetector(){
       try{
         if(window.BarcodeDetector){ detector = new BarcodeDetector({formats:['qr_code']}); hide($('scanner-warning')); }
         else { detector = null; show($('scanner-warning')); }
-      } catch(e){ detector = null; show($('scanner-warning')); console.warn(e); }
+      } catch(e){ detector = null; show($('scanner-warning')); }
     }
     initDetector();
 
-    // small helpers
     function show(el){ if(el) el.style.display = ''; }
     function hide(el){ if(el) el.style.display = 'none'; }
     function setInlineError(el, msg){ if(!el) return; if(msg){ el.textContent = msg; el.style.display = 'block'; } else { el.textContent=''; el.style.display = 'none'; } }
 
-    // auth UI
-    showSignup.addEventListener('click', ()=>{ show(signupCard); hide(showSignup); });
-    signupCancel.addEventListener('click', ()=>{ hide(signupCard); show(showSignup); });
+    showSignupBtn.addEventListener('click', ()=>{ show(signupCard); hide(showSignupBtn); });
+    signupCancel.addEventListener('click', ()=>{ hide(signupCard); show(showSignupBtn); });
 
     loginForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
@@ -382,7 +1017,7 @@
       if(!phone||!pwd){ setInlineError(loginError,'Udfyld telefon og kode'); return; }
       loginBtn.disabled = true; show(loginSpinner);
       try{ await signInWithEmailAndPassword(auth, phoneToEmail(phone), pwd); }
-      catch(err){ console.error(err); setInlineError(loginError, err.message || 'Login fejlede'); }
+      catch(err){ setInlineError(loginError, err.message || 'Login fejlede'); }
       finally{ loginBtn.disabled = false; hide(loginSpinner); }
     });
 
@@ -396,13 +1031,13 @@
         const uc = await createUserWithEmailAndPassword(auth, phoneToEmail(phone), pwd);
         await updateProfile(uc.user, { displayName: name });
         await setDoc(doc(db,'users',uc.user.uid), { name, phone, createdAt: serverTimestamp() });
-        hide(signupCard); show(showSignup);
+        hide(signupCard); show(showSignupBtn);
         showToast('Bruger oprettet', 'success');
-      } catch(err){ console.error(err); setInlineError(signupError, err.message || 'Oprettelse fejlede'); }
+      } catch(err){ setInlineError(signupError, err.message || 'Oprettelse fejlede'); }
       finally{ signupBtn.disabled = false; hide(signupSpinner); }
     });
 
-    signoutBtn.addEventListener('click', async ()=>{ try{ await signOut(auth); showToast('Du er logget ud'); }catch(e){ console.error(e); showToast('Log ud fejlede', 'error'); } });
+    signoutBtn.addEventListener('click', async ()=>{ try{ await signOut(auth); showToast('Du er logget ud'); }catch(e){ showToast('Log ud fejlede', 'error'); } });
 
     onAuthStateChanged(auth, user => {
       currentUser = user || null;
@@ -414,7 +1049,6 @@
       }
     });
 
-    // camera & scanning
     function safeDrawFrame(){
       if(!videoEl || !canvas || !scanCtx) return false;
       const vw = videoEl.videoWidth, vh = videoEl.videoHeight;
@@ -424,7 +1058,6 @@
 
     async function startCamera(force=false){
       try{
-        // Vis video wrapperen
         show(videoWrapper);
         if(stream && !force){ cameraStatus.textContent = 'Kamera aktiv'; startScanning(); return; }
         const constraints = { video:{ facingMode: usingFront? 'user':'environment', width:{ideal:1280}, height:{ideal:720} }, audio:false };
@@ -435,7 +1068,7 @@
         localStorage.setItem('cameraAllowed','true');
         await initDetector();
         startScanning();
-      } catch(e){ console.warn(e); cameraStatus.textContent = 'Kamera ikke tilgængelig'; }
+      } catch(e){ cameraStatus.textContent = 'Kamera ikke tilgængelig'; }
     }
     function stopCamera(){ if(stream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(e){} stream=null; } if(videoEl) videoEl.srcObject = null; cameraStatus.textContent = ''; stopScanning(); }
 
@@ -456,64 +1089,53 @@
               if(v && v !== lastScannedValue){ lastScannedValue = v; onDetectedQR(v); }
             }
           } catch(e){}
-        } catch(e){ console.warn(e); }
+        } catch(e){}
         scanFrameId = requestAnimationFrame(loop);
       };
       scanFrameId = requestAnimationFrame(loop);
     }
     function stopScanning(){ if(scanFrameId){ cancelAnimationFrame(scanFrameId); scanFrameId=null; } scanActive=false; }
 
-    function triggerScanAnim(){ try{ videoEl.classList.add('video-detect'); scanCheck.classList.add('show'); setTimeout(()=>videoEl.classList.remove('video-detect'),900); setTimeout(()=>scanCheck.classList.remove('show'),900); }catch(e){} }
-    function onDetectedQR(value){ scannedDataEl.textContent = value; scannedDataEl.classList.remove('muted'); triggerScanAnim(); stopScanning(); setTimeout(()=>{ if(currentStep===0) goToStep(1); },600); }
+    function triggerScanAnim(){ try{ scanCheck.classList.add('show'); setTimeout(()=>scanCheck.classList.remove('show'),900); }catch(e){} }
+    function onDetectedQR(value){ scannedDataEl.textContent = value; triggerScanAnim(); stopScanning(); setTimeout(()=>{ if(currentStep===0) goToStep(1); },600); }
 
-    // steps
     const stepsEls = [$('step-0'), $('step-1'), $('step-2')];
     const stepIndicators = Array.from(document.querySelectorAll('.step-indicators div'));
-    
+
     function goToStep(idx){
       if(idx<0||idx>2) return;
       currentStep = idx;
-      
-      // UI Updates
       stepsEls.forEach((s,i)=> s.classList.toggle('hidden', i !== idx));
       stepIndicators.forEach((d,i)=> d.classList.toggle('active', i===idx));
       $('prev-step').disabled = (idx===0);
 
-      // --- KAMERA LOGIK ---
-      // Hvis step 0 (Scan): Flyt video til step 0 container
       if(idx === 0) {
-          scanMount.appendChild(videoWrapper);
-          show(videoWrapper);
-          hide(capturePreview);
-          const pref = localStorage.getItem('cameraAllowed'); 
-          if(pref === 'true') startCamera(false).catch(()=>{}); 
-      }
-      // Hvis step 2 (Foto): Flyt video til step 2 container
-      else if(idx === 2) {
-          photoMount.appendChild(videoWrapper);
-          // Hvis vi allerede har et foto klar, vis det, ellers vis video
-          if(pendingPhotoDataUrl) {
-              hide(videoWrapper);
-              show(capturePreview);
-              retakePhotoBtn.style.display = 'inline-block';
-              takePhotoBtn.style.display = 'none';
-          } else {
-              show(videoWrapper);
-              hide(capturePreview);
-              retakePhotoBtn.style.display = 'none';
-              takePhotoBtn.style.display = 'inline-block';
-              // Genstart kamera hvis det var stoppet
-              startCamera(false).catch(()=>{});
-          }
+        scanMount.appendChild(videoWrapper);
+        show(videoWrapper);
+        hide(capturePreview);
+        const pref = localStorage.getItem('cameraAllowed');
+        if(pref === 'true') startCamera(false).catch(()=>{});
+      } else if(idx === 2) {
+        photoMount.appendChild(videoWrapper);
+        if(pendingPhotoDataUrl) {
+          hide(videoWrapper); show(capturePreview);
+          retakePhotoBtn.style.display = 'inline-block';
+          takePhotoBtn.style.display = 'none';
+        } else {
+          show(videoWrapper); hide(capturePreview);
+          retakePhotoBtn.style.display = 'none';
+          takePhotoBtn.style.display = 'inline-block';
+          startCamera(false).catch(()=>{});
+        }
       }
     }
-    
+
     $('next-step').addEventListener('click', async ()=>{
       if(currentStep===0){
         const scanned = scannedDataEl.textContent && scannedDataEl.textContent.trim() && scannedDataEl.textContent.trim()!=='Ingen scanning endnu' ? scannedDataEl.textContent.trim() : null;
         const manual = manualEquip.value.trim() || null;
         if(!scanned && !manual){ showToast('Scan QR eller indtast manuelt', 'error'); return; }
-        if(!scanned && manual){ scannedDataEl.textContent = manual; scannedDataEl.classList.remove('muted'); }
+        if(!scanned && manual){ scannedDataEl.textContent = manual; }
         goToStep(1);
       } else if(currentStep===1){
         const ln = lockNumber.value.trim();
@@ -526,24 +1148,21 @@
         const endDt = expectedEndInput.value;
         if(!ln || !endDt){ showToast('Manglende info', 'error'); goToStep(1); return; }
         if(!pendingPhotoDataUrl){ showToast('Tag et foto før gem', 'error'); return; }
-        
         try{
           uploadStatus.style.display = 'block'; uploadStatus.textContent = 'Opretter...';
           const op = operatorField.value.trim() || (auth.currentUser ? (auth.currentUser.displayName || '') : '');
           const sticker = scannedDataEl.textContent.trim() || manualEquip.value.trim() || '';
           const endDateObj = new Date(endDt);
-
           const docRef = await addDoc(collection(db,'activeLocks'), {
-            operatorName: op, 
-            lockNumber: ln, 
+            operatorName: op,
+            lockNumber: ln,
             stickerData: sticker,
             expectedEnd: endDateObj,
             createdBy: auth.currentUser ? auth.currentUser.uid : null,
             createdByName: auth.currentUser ? (auth.currentUser.displayName || '') : '',
-            createdAt: serverTimestamp(), 
+            createdAt: serverTimestamp(),
             status: 'active'
           });
-          
           if(pendingPhotoDataUrl){
             const blob = await (await fetch(pendingPhotoDataUrl)).blob();
             const sRef = storageRef(storage, `activeLocks/${docRef.id}/photo.jpg`);
@@ -553,35 +1172,29 @@
           }
           uploadStatus.style.display = 'none';
           showToast('Registrering gemt', 'success');
-          // Vi sender 'true' til closeModal for at undgå prompt
           closeModal(true);
-        } catch(err){ console.error(err); uploadStatus.style.display='none'; showToast('Gem fejlede: ' + (err.message || err), 'error'); }
+        } catch(err){ uploadStatus.style.display='none'; showToast('Gem fejlede: ' + (err.message || err), 'error'); }
       }
     });
 
     $('prev-step').addEventListener('click', ()=>{ if(currentStep>0) goToStep(currentStep-1); });
     $('abort-step').addEventListener('click', ()=>{ if(confirm('Annuller flow?')) closeModal(); });
 
-    // Nu med force parameter
     function closeModal(force = false){
       if(!force && (manualEquip.value || lockNumber.value || pendingPhotoDataUrl)){ if(!confirm('Du mister ændringer. Fortsæt?')) return; }
       stopCamera(); $('modal-backdrop').style.display = 'none'; goToStep(0);
     }
 
-    $('start-loto-btn').addEventListener('click', ()=>{ 
-        $('modal-backdrop').style.display = 'flex'; 
-        lockNumber.value = '';
-        expectedEndInput.value = '';
-        manualEquip.value = '';
-        operatorField.value = '';
-        scannedDataEl.textContent = 'Ingen scanning endnu';
-        scannedDataEl.classList.add('muted');
-        
-        // Nulstil foto
-        pendingPhotoDataUrl = null;
-        capturePreview.src = '';
-        
-        goToStep(0); 
+    $('start-loto-btn').addEventListener('click', ()=>{
+      $('modal-backdrop').style.display = 'flex';
+      lockNumber.value = '';
+      expectedEndInput.value = '';
+      manualEquip.value = '';
+      operatorField.value = '';
+      scannedDataEl.textContent = 'Ingen scanning endnu';
+      pendingPhotoDataUrl = null;
+      capturePreview.src = '';
+      goToStep(0);
     });
 
     $('start-camera').addEventListener('click', async ()=>{ await initDetector(); startCamera(true); });
@@ -592,42 +1205,48 @@
       if(!canvas || !scanCtx){ showToast('Canvas ikke tilgængelig', 'error'); return; }
       const vw = videoEl.videoWidth, vh = videoEl.videoHeight;
       if(!vw || !vh){ showToast('Kamera ikke klar', 'error'); return; }
-      
-      // Tegn video frame til canvas
-      canvas.width = vw; canvas.height = vh; 
+      canvas.width = vw; canvas.height = vh;
       scanCtx.drawImage(videoEl,0,0,vw,vh);
       const dataUrl = canvas.toDataURL('image/jpeg',0.9);
-      
       pendingPhotoDataUrl = dataUrl;
-      capturePreview.src = dataUrl; 
-      
-      // UI Skift: Skjul video, vis foto
-      hide(videoWrapper);
-      show(capturePreview);
-      
+      capturePreview.src = dataUrl;
+      hide(videoWrapper); show(capturePreview);
       takePhotoBtn.style.display = 'none';
       retakePhotoBtn.style.display = 'inline-block';
     });
 
-    $('retake-photo').addEventListener('click', ()=>{ 
-        pendingPhotoDataUrl = null; 
-        capturePreview.src=''; 
-        
-        // UI Skift: Skjul foto, vis video
-        hide(capturePreview);
-        show(videoWrapper);
-        
-        retakePhotoBtn.style.display = 'none';
-        takePhotoBtn.style.display = 'inline-block';
+    $('retake-photo').addEventListener('click', ()=>{
+      pendingPhotoDataUrl = null;
+      capturePreview.src='';
+      hide(capturePreview); show(videoWrapper);
+      retakePhotoBtn.style.display = 'none';
+      takePhotoBtn.style.display = 'inline-block';
     });
 
-    // locks list rendering
+    // ── LOCKS LIST ───────────────────────────────────────────────
+    // We need to look up phone numbers from the users collection
+    const phoneCache = {};
+
+    async function getPhoneForUid(uid) {
+      if (!uid) return '';
+      if (phoneCache[uid] !== undefined) return phoneCache[uid];
+      try {
+        const snap = await getDoc(doc(db, 'users', uid));
+        const phone = snap.exists() ? (snap.data().phone || '') : '';
+        phoneCache[uid] = phone;
+        return phone;
+      } catch(e) {
+        phoneCache[uid] = '';
+        return '';
+      }
+    }
+
     function startListeningActiveLocks(){
       try{
         const locksRef = collection(db,'activeLocks');
         const q = query(locksRef, where('status','==','active'));
         if(unsubscribeLocks) unsubscribeLocks();
-        unsubscribeLocks = onSnapshot(q, snap => {
+        unsubscribeLocks = onSnapshot(q, async snap => {
           const items = [];
           snap.forEach(s => items.push({ id: s.id, data: s.data() }));
           items.sort((a,b)=> {
@@ -635,34 +1254,50 @@
             const tb = b.data.createdAt && b.data.createdAt.toDate ? b.data.createdAt.toDate().getTime() : 0;
             return tb - ta;
           });
+
           locksList.innerHTML = '';
-          if(items.length===0){ locksList.innerHTML = '<div class="muted-note">Ingen aktive låse.</div>'; return; }
-          
+          if(items.length===0){
+            locksList.innerHTML = '<div class="empty-state">Ingen aktive låse registreret.</div>';
+            return;
+          }
+
+          // Fetch phone numbers for all unique creators
+          const uids = [...new Set(items.map(i => i.data.createdBy).filter(Boolean))];
+          await Promise.all(uids.map(uid => getPhoneForUid(uid)));
+
           items.forEach(item=>{
             const d = item.data; const id = item.id;
             const createdAtText = formatTimestamp(d.createdAt);
             const endAtText = formatDateOnly(d.expectedEnd);
-            
             const isOld = (Date.now() - (d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().getTime() : 0)) > (24*3600*1000);
-            
-            const el = document.createElement('div'); el.className = 'lock grid-layout';
+            const phone = phoneCache[d.createdBy] || '';
+
+            const el = document.createElement('div');
+            el.className = 'lock-row';
             el.innerHTML = `
-              <div class="primary">${d.lockNumber||'—'}</div>
-              <div class="primary">${d.stickerData||'—'}</div>
-              <div class="primary">${d.operatorName||''}</div>
-              <div class="primary ${isOld?'time-overdue':''}">${createdAtText||'—'}</div>
-              <div class="primary" style="color:var(--muted)">${endAtText||'—'}</div>
-              <div><div class="badge">AKTIV</div>${isOld?'<div class="overdue">Over 24h</div>':''}</div>
+              <div class="lock-number">${d.lockNumber||'—'}</div>
+              <div class="lock-equipment">${d.stickerData||'—'}</div>
+              <div>
+                <div class="lock-creator-name">${d.operatorName || d.createdByName || '—'}</div>
+                ${phone ? `<div class="lock-creator-phone">${phone}</div>` : ''}
+              </div>
+              <div class="lock-date${isOld?' overdue':''}">${createdAtText||'—'}</div>
+              <div class="lock-end-date">${endAtText||'—'}</div>
+              <div class="status-col">
+                <span class="badge-active">Aktiv</span>
+                ${isOld?'<span class="badge-overdue">Over 24h</span>':''}
+              </div>
             `;
             el.addEventListener('click', ()=> requestPin(id));
             locksList.appendChild(el);
           });
-        }, err => console.error('locks snapshot err', err));
-      } catch(e){ console.error(e); locksList.innerHTML = '<div class="muted-note">Fejl ved hentning</div>'; }
+        }, err => { locksList.innerHTML = '<div class="empty-state">Fejl ved hentning af låse.</div>'; });
+      } catch(e){ locksList.innerHTML = '<div class="empty-state">Fejl ved hentning.</div>'; }
     }
+
     function stopListeningActiveLocks(){ if(unsubscribeLocks) unsubscribeLocks(); unsubscribeLocks=null; locksList.innerHTML=''; }
 
-    // PIN LOGIC
+    // PIN
     function requestPin(id){
       pendingLockForPin = id;
       pinInput.value = '';
@@ -693,48 +1328,51 @@
         const snap = await getDoc(doc(db,'activeLocks',id));
         if(!snap.exists()){ showToast('Ingen data', 'error'); return; }
         const d = snap.data();
-        let photoHtml = '<div>Ingen foto</div>';
-        if(d.photoURL){ photoHtml = `<img src="${d.photoURL}" style="max-width:100%;border-radius:8px">`; }
+        const phone = await getPhoneForUid(d.createdBy);
+        let photoHtml = '<div style="color:var(--rw-grey);font-size:0.85rem;">Ingen foto tilgængeligt</div>';
+        if(d.photoURL){ photoHtml = `<img src="${d.photoURL}" style="max-width:100%;border-radius:var(--radius);border:1.5px solid var(--rw-mid-grey);">`; }
         else {
-          try{ const url = await getDownloadURL(storageRef(storage, `activeLocks/${id}/photo.jpg`)); if(url) photoHtml = `<img src="${url}" style="max-width:100%;border-radius:8px">`; } catch(e){}
+          try{ const url = await getDownloadURL(storageRef(storage, `activeLocks/${id}/photo.jpg`)); if(url) photoHtml = `<img src="${url}" style="max-width:100%;border-radius:var(--radius);">`; } catch(e){}
         }
         detailsContent.innerHTML = `
-          <div><strong>Låsenr:</strong> ${d.lockNumber||'—'}</div>
-          <div><strong>Equipment:</strong> ${d.stickerData||'—'}</div>
-          <div><strong>Operatør:</strong> ${d.operatorName||'—'}</div>
-          <div><strong>Start:</strong> ${formatTimestamp(d.createdAt)||'—'}</div>
-          <div><strong>Forventet slut:</strong> ${formatDateOnly(d.expectedEnd)||'—'}</div>
-          <div style="margin-top:8px">${photoHtml}</div>
+          <div class="details-grid">
+            <div class="detail-field"><label>Låsenummer</label><div class="detail-value" style="font-family:'DM Mono',monospace;">${d.lockNumber||'—'}</div></div>
+            <div class="detail-field"><label>Equipment</label><div class="detail-value">${d.stickerData||'—'}</div></div>
+            <div class="detail-field"><label>Operatør</label><div class="detail-value">${d.operatorName||'—'}</div></div>
+            <div class="detail-field"><label>Oprettet af</label><div class="detail-value">${d.createdByName||'—'}${phone ? `<div style="font-size:0.82rem;color:var(--rw-grey);font-family:'DM Mono',monospace;margin-top:2px;">${phone}</div>` : ''}</div></div>
+            <div class="detail-field"><label>Starttidspunkt</label><div class="detail-value" style="font-family:'DM Mono',monospace;">${formatTimestamp(d.createdAt)||'—'}</div></div>
+            <div class="detail-field"><label>Forventet slut</label><div class="detail-value" style="font-family:'DM Mono',monospace;">${formatDateOnly(d.expectedEnd)||'—'}</div></div>
+          </div>
+          <div style="padding:16px 20px 0;">${photoHtml}</div>
         `;
-        if(currentUser && d.createdBy === currentUser.uid){ releaseLotoBtn.style.display = 'block'; } 
+        if(currentUser && d.createdBy === currentUser.uid){ releaseLotoBtn.style.display = 'block'; }
         else { releaseLotoBtn.style.display = 'none'; }
         detailsBackdrop.style.display = 'flex';
-      } catch(e){ console.error(e); showToast('Fejl ved hentning', 'error'); }
+      } catch(e){ showToast('Fejl ved hentning', 'error'); }
     }
     closeDetailsBtn.addEventListener('click', ()=> detailsBackdrop.style.display = 'none');
 
     releaseLotoBtn.addEventListener('click', async ()=>{
-        if(!currentDetailId) return;
-        if(!confirm('Er du sikker på, at du vil FRIGIVE denne lås?')) return;
-        try {
-            await updateDoc(doc(db, 'activeLocks', currentDetailId), { status: 'released', releasedAt: serverTimestamp(), releasedBy: currentUser.uid });
-            detailsBackdrop.style.display = 'none';
-            showToast('Lås frigivet', 'success');
-        } catch(e){ console.error(e); showToast('Kunne ikke frigive lås', 'error'); }
+      if(!currentDetailId) return;
+      if(!confirm('Er du sikker på, at du vil FRIGIVE denne lås?')) return;
+      try {
+        await updateDoc(doc(db, 'activeLocks', currentDetailId), { status: 'released', releasedAt: serverTimestamp(), releasedBy: currentUser.uid });
+        detailsBackdrop.style.display = 'none';
+        showToast('Lås frigivet', 'success');
+      } catch(e){ showToast('Kunne ikke frigive lås', 'error'); }
     });
 
-    // ÆNDRET: Ny validering klipper også strengen over 10 tegn
-    function enforceDigits(el){ 
-        if(!el) return; 
-        el.addEventListener('input', ()=>{ 
-            let v = (el.value||'').replace(/\D+/g,''); 
-            if(v.length > 10) v = v.slice(0,10); 
-            el.value = v; 
-        }); 
+    function enforceDigits(el){
+      if(!el) return;
+      el.addEventListener('input', ()=>{
+        let v = (el.value||'').replace(/\D+/g,'');
+        if(v.length > 10) v = v.slice(0,10);
+        el.value = v;
+      });
     }
     enforceDigits(manualEquip); enforceDigits(lockNumber); enforceDigits(pinInput);
 
-    console.log('LOTO Manager ready — test via http(s)/localhost for camera/scanner.');
+    console.log('LOTO Manager ready — ROCKWOOL branded.');
   </script>
 </body>
 </html>
