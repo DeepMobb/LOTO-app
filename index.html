@@ -839,19 +839,97 @@
       </div>
 
       <div id="step-0" class="step">
-        <h3>Trin 1 — Scan QR-kode</h3>
-        <div id="scan-mount"></div>
-        <div class="camera-actions">
-          <button id="start-camera" class="btn secondary">Start kamera</button>
-          <span id="camera-status" style="color:var(--rw-grey);font-size:0.82rem;margin-left:4px;"></span>
+
+        <!-- INTRO SCREEN (shown first) -->
+        <div id="scan-intro" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 28px;text-align:center;gap:24px;">
+
+          <!-- Lottie-style SVG QR scan animation -->
+          <div style="width:200px;height:200px;position:relative;flex-shrink:0;">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+              <!-- QR code body -->
+              <rect x="40" y="40" width="120" height="120" rx="8" fill="none" stroke="#E8E5E0" stroke-width="3"/>
+              <!-- TL corner bracket -->
+              <rect x="52" y="52" width="30" height="30" rx="3" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+              <rect x="59" y="59" width="16" height="16" rx="1" fill="#1a1a1a"/>
+              <!-- TR corner bracket -->
+              <rect x="118" y="52" width="30" height="30" rx="3" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+              <rect x="125" y="59" width="16" height="16" rx="1" fill="#1a1a1a"/>
+              <!-- BL corner bracket -->
+              <rect x="52" y="118" width="30" height="30" rx="3" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+              <rect x="59" y="125" width="16" height="16" rx="1" fill="#1a1a1a"/>
+              <!-- Data dots -->
+              <rect x="90" y="59" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.5"/>
+              <rect x="100" y="59" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.7"/>
+              <rect x="90" y="69" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.4"/>
+              <rect x="100" y="69" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.8"/>
+              <rect x="110" y="69" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.5"/>
+              <rect x="90" y="79" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.6"/>
+              <rect x="110" y="79" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.9"/>
+              <rect x="90" y="90" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.7"/>
+              <rect x="100" y="90" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.3"/>
+              <rect x="110" y="90" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.6"/>
+              <rect x="90" y="100" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.5"/>
+              <rect x="110" y="100" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.8"/>
+              <rect x="90" y="110" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.4"/>
+              <rect x="100" y="110" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.7"/>
+              <rect x="110" y="110" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.5"/>
+              <rect x="90" y="125" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.6"/>
+              <rect x="100" y="125" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.4"/>
+              <rect x="110" y="125" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.9"/>
+              <rect x="90" y="135" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.5"/>
+              <rect x="100" y="135" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.7"/>
+              <rect x="110" y="135" width="6" height="6" rx="1" fill="#1a1a1a" opacity="0.3"/>
+              <!-- Scan line animated -->
+              <line id="scan-line" x1="40" y1="100" x2="160" y2="100" stroke="#D20014" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+              <!-- Corner frame overlays - animated -->
+              <g id="scan-frame" stroke="#D20014" stroke-width="3.5" fill="none" stroke-linecap="round">
+                <path d="M52,72 L52,44 L80,44"/>
+                <path d="M148,72 L148,44 L120,44"/>
+                <path d="M52,128 L52,156 L80,156"/>
+                <path d="M148,128 L148,156 L120,156"/>
+              </g>
+            </svg>
+            <style>
+              #scan-line {
+                animation: scanMove 2s ease-in-out infinite;
+              }
+              @keyframes scanMove {
+                0%   { y1: 48; y2: 48; opacity: 0; }
+                10%  { opacity: 0.9; }
+                50%  { y1: 152; y2: 152; opacity: 0.9; }
+                90%  { opacity: 0.9; }
+                100% { y1: 48; y2: 48; opacity: 0; }
+              }
+              #scan-frame {
+                animation: framePulse 2s ease-in-out infinite;
+              }
+              @keyframes framePulse {
+                0%, 100% { opacity: 0.4; }
+                50%       { opacity: 1; }
+              }
+            </style>
+          </div>
+
+          <div>
+            <h2 style="font-size:1.25rem;font-weight:700;color:var(--rw-black);margin-bottom:10px;line-height:1.35;">Start med at scanne QR-koden<br>på labellen med Equipment nummeret.</h2>
+            <p style="color:var(--rw-grey);font-size:0.875rem;max-width:340px;line-height:1.55;margin:0 auto;">Virker scanning ikke, kan du indtaste nummeret manuelt i næste trin.</p>
+          </div>
+
+          <button id="start-camera" class="btn" style="font-size:1rem;padding:13px 40px;letter-spacing:0.04em;">Start</button>
         </div>
 
-        <p class="muted-note">Hold kameraet over QR-koden. Virker det ikke, så indtast manuelt (kun tal).</p>
-
-        <input id="scanned-data" type="hidden" value="">
-        <div class="modal-form-group">
-          <label>Manuel indtastning (Max 10)</label>
-          <input id="manual-equip" type="tel" inputmode="numeric" maxlength="10">
+        <!-- CAMERA SCREEN (shown after Start is clicked) -->
+        <div id="scan-camera" style="display:none;">
+          <div id="scan-mount"></div>
+          <div class="camera-actions">
+            <span id="camera-status" style="color:var(--rw-grey);font-size:0.82rem;margin-left:4px;"></span>
+          </div>
+          <p class="muted-note">Hold kameraet over QR-koden. Virker det ikke, så indtast manuelt.</p>
+          <input id="scanned-data" type="hidden" value="">
+          <div class="modal-form-group">
+            <label>Manuel indtastning (Max 10)</label>
+            <input id="manual-equip" type="tel" inputmode="numeric" maxlength="10">
+          </div>
         </div>
 
       </div>
@@ -1126,11 +1204,14 @@
       $('prev-step').disabled = (idx===0);
 
       if(idx === 0) {
-        scanMount.appendChild(videoWrapper);
-        show(videoWrapper);
+        // Always show intro screen first when returning to step 0
+        const intro = document.getElementById('scan-intro');
+        const cam = document.getElementById('scan-camera');
+        if(intro) intro.style.display = 'flex';
+        if(cam) cam.style.display = 'none';
+        // Stop camera if running
+        stopCamera();
         hide(capturePreview);
-        const pref = localStorage.getItem('cameraAllowed');
-        if(pref === 'true') startCamera(false).catch(()=>{});
       } else if(idx === 2) {
         photoMount.appendChild(videoWrapper);
         if(pendingPhotoDataUrl) {
@@ -1214,7 +1295,19 @@
       goToStep(0);
     });
 
-    $('start-camera').addEventListener('click', async ()=>{ await initDetector(); startCamera(true); });
+    $('start-camera').addEventListener('click', async ()=>{
+      // Switch from intro to camera view
+      const intro = document.getElementById('scan-intro');
+      const cam = document.getElementById('scan-camera');
+      if(intro) intro.style.display = 'none';
+      if(cam) cam.style.display = 'block';
+      // Move video wrapper into scan-mount
+      const sm = document.getElementById('scan-mount');
+      if(sm && videoWrapper) sm.appendChild(videoWrapper);
+      show(videoWrapper);
+      await initDetector();
+      startCamera(true);
+    });
 
     $('take-photo').addEventListener('click', async ()=>{
       if(!videoEl || !stream){ showToast('Start kamera først', 'error'); return; }
