@@ -843,23 +843,17 @@
         <div id="scan-mount"></div>
         <div class="camera-actions">
           <button id="start-camera" class="btn secondary">Start kamera</button>
-          <button id="flip-camera" class="btn secondary">Skift kamera</button>
           <span id="camera-status" style="color:var(--rw-grey);font-size:0.82rem;margin-left:4px;"></span>
         </div>
-        <div id="scanner-warning" class="scanner-warning" style="display:none">BarcodeDetector ikke tilgængelig — test via Chrome/Edge eller localhost/HTTPS</div>
+
         <p class="muted-note">Hold kameraet over QR-koden. Virker det ikke, så indtast manuelt (kun tal).</p>
-        <div class="modal-form-group" style="margin-top:10px;">
-          <label>Scannet equipment</label>
-          <div id="scanned-data" class="scanned-data-display">Ingen scanning endnu</div>
-        </div>
+
+        <input id="scanned-data" type="hidden" value="">
         <div class="modal-form-group">
           <label>Manuel indtastning (Max 10)</label>
           <input id="manual-equip" type="tel" inputmode="numeric" maxlength="10">
         </div>
-        <div class="modal-form-group">
-          <label>Beskrivelse (fra equipment register)</label>
-          <div id="equipment-description" style="padding:10px 12px;background:#F8F7F5;border:1.5px solid var(--rw-mid-grey);border-radius:var(--radius);font-size:0.88rem;color:var(--rw-grey);min-height:38px;">—</div>
-        </div>
+
       </div>
 
       <div id="step-1" class="step hidden">
@@ -985,8 +979,8 @@
     const modalBackdrop = $('modal-backdrop'), prevStepBtn = $('prev-step'), nextStepBtn = $('next-step'), abortStepBtn = $('abort-step');
     const videoWrapper = $('video-wrapper');
     const scanMount = $('scan-mount'), photoMount = $('photo-mount');
-    const videoEl = $('video'), scanCheck = $('scan-check'), canvas = $('canvas'), cameraStatus = $('camera-status'), scannerWarning = $('scanner-warning');
-    const scannedDataEl = $('scanned-data'), manualEquip = $('manual-equip'), lockNumber = $('lock-number'), expectedEndInput = $('expected-end'), operatorField = $('operator');
+    const videoEl = $('video'), scanCheck = $('scan-check'), canvas = $('canvas'), cameraStatus = $('camera-status');
+    const scannedDataEl = $('scanned-data') /* hidden input */, manualEquip = $('manual-equip'), lockNumber = $('lock-number'), expectedEndInput = $('expected-end'), operatorField = $('operator');
     const capturePreview = $('capture-preview'), photoPlaceholder = $('photo-placeholder'), takePhotoBtn = $('take-photo'), retakePhotoBtn = $('retake-photo'), uploadStatus = $('upload-status');
     const detailsBackdrop = $('details-backdrop'), detailsContent = $('details-content'), closeDetailsBtn = $('close-details'), releaseLotoBtn = $('release-loto-btn');
     const pinBackdrop = $('pin-backdrop'), pinInput = $('pin-input'), pinSubmit = $('pin-submit'), pinCancel = $('pin-cancel'), pinError = $('pin-error');
@@ -1008,9 +1002,9 @@
 
     async function initDetector(){
       try{
-        if(window.BarcodeDetector){ detector = new BarcodeDetector({formats:['qr_code']}); hide($('scanner-warning')); }
-        else { detector = null; show($('scanner-warning')); }
-      } catch(e){ detector = null; show($('scanner-warning')); }
+        if(window.BarcodeDetector){ detector = new BarcodeDetector({formats:['qr_code']}); }
+        else { detector = null; }
+      } catch(e){ detector = null; }
     }
     initDetector();
 
@@ -1109,7 +1103,7 @@
 
     function triggerScanAnim(){ try{ scanCheck.classList.add('show'); setTimeout(()=>scanCheck.classList.remove('show'),900); }catch(e){} }
     function onDetectedQR(value){
-      scannedDataEl.textContent = value;
+      scannedDataEl.value = value;
       updateEquipDescription(value);
       triggerScanAnim(); stopScanning(); setTimeout(()=>{ if(currentStep===0) goToStep(1); },600);
     }
@@ -1154,10 +1148,10 @@
 
     $('next-step').addEventListener('click', async ()=>{
       if(currentStep===0){
-        const scanned = scannedDataEl.textContent && scannedDataEl.textContent.trim() && scannedDataEl.textContent.trim()!=='Ingen scanning endnu' ? scannedDataEl.textContent.trim() : null;
+        const scanned = scannedDataEl.value && scannedDataEl.value.trim() ? scannedDataEl.value.trim() : null;
         const manual = manualEquip.value.trim() || null;
         if(!scanned && !manual){ showToast('Scan QR eller indtast manuelt', 'error'); return; }
-        if(!scanned && manual){ scannedDataEl.textContent = manual; }
+        if(!scanned && manual){ scannedDataEl.value = manual; }
         goToStep(1);
       } else if(currentStep===1){
         const ln = lockNumber.value.trim();
@@ -1173,7 +1167,7 @@
         try{
           uploadStatus.style.display = 'block'; uploadStatus.textContent = 'Opretter...';
           const op = operatorField.value.trim() || (auth.currentUser ? (auth.currentUser.displayName || '') : '');
-          const sticker = scannedDataEl.textContent.trim() || manualEquip.value.trim() || '';
+          const sticker = scannedDataEl.value.trim() || manualEquip.value.trim() || '';
           const endDateObj = new Date(endDt);
           const docRef = await addDoc(collection(db,'activeLocks'), {
             operatorName: op,
@@ -1214,14 +1208,13 @@
       expectedEndInput.value = '';
       manualEquip.value = '';
       operatorField.value = '';
-      scannedDataEl.textContent = 'Ingen scanning endnu';
+      scannedDataEl.value = '';
       pendingPhotoDataUrl = null;
       capturePreview.src = '';
       goToStep(0);
     });
 
     $('start-camera').addEventListener('click', async ()=>{ await initDetector(); startCamera(true); });
-    $('flip-camera').addEventListener('click', async ()=>{ usingFront = !usingFront; await startCamera(true); });
 
     $('take-photo').addEventListener('click', async ()=>{
       if(!videoEl || !stream){ showToast('Start kamera først', 'error'); return; }
