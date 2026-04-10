@@ -551,6 +551,19 @@
       height: auto;
       border-radius: var(--radius);
     }
+    /* When video-wrap is inside photo-mount (step 3), fill the container */
+    #photo-mount .video-wrap {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      border-radius: var(--radius);
+    }
+    #photo-mount .video-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     .scan-check {
       position: absolute;
       left: 50%; top: 50%;
@@ -947,18 +960,22 @@
         <p class="muted-note">Lås-id og dato gemmes med registreringen.</p>
       </div>
 
-      <div id="step-2" class="step hidden">
-        <h3>Trin 3 — Tag foto</h3>
-        <div style="padding:0 24px;">
-            <div id="photo-mount" style="min-height:200px;"></div>
-            <img id="capture-preview" src="" style="display:none;width:100%;border-radius:var(--radius);border:2px solid var(--rw-mid-grey);" alt="Preview">
-            <div id="photo-placeholder" class="photo-fallback" style="display:none;">Kamera starter...</div>
-            <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
-              <button id="take-photo" class="btn">Tag foto</button>
-              <button id="retake-photo" class="btn secondary" style="display:none">Tag igen</button>
-              <button id="next-step-photo" class="btn" style="display:none;margin-left:auto;">Gem registrering →</button>
+      <div id="step-2" class="step hidden" style="display:flex;flex-direction:column;height:calc(100vh - 160px);max-height:620px;">
+        <h3 style="padding:0 24px;flex-shrink:0;">Trin 3 — Tag foto</h3>
+        <div style="padding:0 24px;display:flex;flex-direction:column;flex:1;min-height:0;gap:12px;">
+            <!-- Media area: fills available space, never overflows -->
+            <div style="flex:1;min-height:0;position:relative;border-radius:var(--radius);overflow:hidden;background:#111;">
+              <div id="photo-mount" style="width:100%;height:100%;"></div>
+              <img id="capture-preview" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:var(--radius);" alt="Preview">
+              <div id="photo-placeholder" class="photo-fallback" style="display:none;height:100%;">Kamera starter...</div>
             </div>
-            <div id="upload-status" style="color:var(--rw-grey);font-size:0.82rem;margin-top:8px;display:none"></div>
+            <!-- Buttons always pinned at bottom -->
+            <div style="flex-shrink:0;display:flex;gap:8px;align-items:center;padding-bottom:8px;">
+              <button id="take-photo" class="btn" style="flex:1;">Tag foto</button>
+              <button id="retake-photo" class="btn secondary" style="display:none;flex:1;">Tag igen</button>
+              <button id="next-step-photo" class="btn" style="display:none;flex:1;">Gem →</button>
+            </div>
+            <div id="upload-status" style="color:var(--rw-grey);font-size:0.82rem;flex-shrink:0;display:none;padding-bottom:4px;"></div>
             <input id="operator" type="hidden" value="">
         </div>
       </div>
@@ -1268,7 +1285,16 @@
     function goToStep(idx){
       if(idx<0||idx>2) return;
       currentStep = idx;
-      stepsEls.forEach((s,i)=> s.classList.toggle('hidden', i !== idx));
+      stepsEls.forEach((s,i)=> {
+        if(i === idx) {
+          s.classList.remove('hidden');
+          // step-2 uses flex layout
+          s.style.display = (i === 2) ? 'flex' : '';
+        } else {
+          s.classList.add('hidden');
+          s.style.display = '';
+        }
+      });
       stepIndicators.forEach((d,i)=> d.classList.toggle('active', i===idx));
       $('prev-step').disabled = (idx===0);
 
