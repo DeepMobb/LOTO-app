@@ -1647,11 +1647,44 @@
     }
 
     console.log('LOTO Manager ready — ROCKWOOL branded.');
-    // Fabrikskort overlay
+    // Fabrikskort overlay — requires PIN first
     document.getElementById('kort-btn').addEventListener('click', ()=>{
-      const o = document.getElementById('kort-overlay');
-      o.style.display = 'flex';
+      const backdrop = document.getElementById('kort-pin-backdrop');
+      const input = document.getElementById('kort-pin-input');
+      const err = document.getElementById('kort-pin-error');
+      input.value = '';
+      err.style.display = 'none';
+      err.textContent = '';
+      backdrop.style.display = 'flex';
+      setTimeout(()=> input.focus(), 100);
     });
+
+    function validateKortPin() {
+      const input = document.getElementById('kort-pin-input');
+      const err = document.getElementById('kort-pin-error');
+      if(input.value === '6580') {
+        document.getElementById('kort-pin-backdrop').style.display = 'none';
+        document.getElementById('kort-overlay').style.display = 'flex';
+      } else {
+        err.textContent = 'Forkert kode — prøv igen';
+        err.style.display = 'block';
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    document.getElementById('kort-pin-submit').addEventListener('click', validateKortPin);
+    document.getElementById('kort-pin-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter') validateKortPin(); });
+    document.getElementById('kort-pin-cancel').addEventListener('click', ()=>{
+      document.getElementById('kort-pin-backdrop').style.display = 'none';
+    });
+    document.getElementById('kort-pin-input').addEventListener('focus', (e)=>{
+      e.target.style.borderColor = '#D20014';
+    });
+    document.getElementById('kort-pin-input').addEventListener('blur', (e)=>{
+      e.target.style.borderColor = '#D8D8D8';
+    });
+
     document.getElementById('kort-close').addEventListener('click', ()=>{
       document.getElementById('kort-overlay').style.display = 'none';
     });
@@ -1667,6 +1700,27 @@
       <img src="https://raw.githubusercontent.com/DeepMobb/LOTO-app/dd76e58fd5f93624f59caa8111c4ab2cf153ed79/fabrikskort.png"
            style="max-width:100%;max-height:100%;object-fit:contain;touch-action:pinch-zoom;"
            alt="Fabrikskort">
+    </div>
+  </div>
+
+  <!-- KORT PIN MODAL -->
+  <div id="kort-pin-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:290;align-items:center;justify-content:center;backdrop-filter:blur(2px);">
+    <div style="background:#fff;border-radius:8px;width:95%;max-width:340px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+      <div style="background:#000;padding:12px 16px;text-align:center;">
+        <span style="color:rgba(255,255,255,0.8);font-size:0.88rem;font-weight:600;letter-spacing:0.05em;">SIKKERHEDSKONTROL</span>
+      </div>
+      <div style="padding:28px 24px 24px;text-align:center;">
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:6px;">Indtast admin-kode</h3>
+        <p style="color:#63666A;font-size:0.85rem;margin-bottom:20px;">Koden kræves for at se fabrikskortet</p>
+        <input id="kort-pin-input" type="tel" maxlength="4"
+               style="text-align:center;font-size:1.8rem;letter-spacing:0.3em;font-family:'DM Mono',monospace;width:100%;padding:12px;border:2px solid #D8D8D8;border-radius:4px;margin-bottom:8px;outline:none;transition:border-color 0.15s;"
+               placeholder="••••">
+        <div id="kort-pin-error" style="color:#D20014;font-size:0.82rem;display:none;margin-bottom:12px;text-align:left;"></div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">
+          <button id="kort-pin-cancel" style="background:#F0F0F0;border:1.5px solid #D8D8D8;color:#000;padding:10px 20px;border-radius:4px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;">Annuller</button>
+          <button id="kort-pin-submit" style="background:#D20014;border:none;color:#fff;padding:10px 20px;border-radius:4px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;">Bekræft</button>
+        </div>
+      </div>
     </div>
   </div>
 </body>
