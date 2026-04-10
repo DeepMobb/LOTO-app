@@ -803,7 +803,7 @@
       </div>
 
       <div class="table-header" style="grid-template-columns: 90px 1fr 200px 160px 150px 130px 120px;">
-        <div>Lås nr.</div>
+        <div>Lås</div>
         <div>Equipment</div>
         <div>Område</div>
         <div>Oprettet af</div>
@@ -937,14 +937,14 @@
       <div id="step-1" class="step hidden">
         <h3>Trin 2 — Låsenummer & dato</h3>
         <div class="modal-form-group">
-          <label>Hængelås nummer (kun tal, Max 10)</label>
-          <input id="lock-number" type="tel" inputmode="numeric" maxlength="10">
+          <label>Hængelås nr. eller navn</label>
+          <input id="lock-number" type="text" maxlength="30" placeholder="F.eks. 42 eller Bent K.">
         </div>
         <div class="modal-form-group">
           <label>Forventet slutdato</label>
           <input id="expected-end" type="date">
         </div>
-        <p class="muted-note">Dato og låsenummer gemmes med registreringen.</p>
+        <p class="muted-note">Lås-id og dato gemmes med registreringen.</p>
       </div>
 
       <div id="step-2" class="step hidden">
@@ -1237,7 +1237,7 @@
       } else if(currentStep===1){
         const ln = lockNumber.value.trim();
         const endDt = expectedEndInput.value;
-        if(!ln){ showToast('Indtast låsens nummer', 'error'); return; }
+        if(!ln){ showToast('Indtast låsens nr. eller navn', 'error'); return; }
         if(!endDt){ showToast('Indtast forventet slutdato', 'error'); return; }
         goToStep(2);
       } else if(currentStep===2){
@@ -1495,7 +1495,7 @@
         el.value = v;
       });
     }
-    enforceDigits(manualEquip); enforceDigits(lockNumber); enforceDigits(pinInput);
+    enforceDigits(manualEquip); enforceDigits(pinInput);
 
     // Live description lookup when typing manual equipment number
     if(manualEquip) {
