@@ -965,9 +965,9 @@
         <div style="padding:0 24px;display:flex;flex-direction:column;flex:1;min-height:0;gap:12px;">
             <!-- Media area: fills available space, never overflows -->
             <div style="flex:1;min-height:0;position:relative;border-radius:var(--radius);overflow:hidden;background:#111;">
-              <div id="photo-mount" style="width:100%;height:100%;"></div>
-              <img id="capture-preview" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:var(--radius);" alt="Preview">
-              <div id="photo-placeholder" class="photo-fallback" style="display:none;height:100%;">Kamera starter...</div>
+              <div id="photo-mount" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;"></div>
+              <img id="capture-preview" src="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:var(--radius);z-index:2;" alt="Preview">
+              <div id="photo-placeholder" class="photo-fallback" style="display:none;position:absolute;inset:0;height:100%;z-index:1;">Kamera starter...</div>
             </div>
             <!-- Buttons always pinned at bottom -->
             <div style="flex-shrink:0;display:flex;gap:8px;align-items:center;padding-bottom:8px;">
@@ -1313,7 +1313,9 @@
         photoMount.appendChild(videoWrapper);
         const inlineNext = document.getElementById('next-step-photo');
         if(pendingPhotoDataUrl) {
-          hide(videoWrapper); show(capturePreview);
+          hide(videoWrapper);
+          capturePreview.style.display = 'block';
+          capturePreview.style.zIndex = '5';
           retakePhotoBtn.style.display = 'inline-block';
           takePhotoBtn.style.display = 'none';
           if(inlineNext) inlineNext.style.display = 'inline-block';
@@ -1438,7 +1440,10 @@
       const dataUrl = canvas.toDataURL('image/jpeg',0.9);
       pendingPhotoDataUrl = dataUrl;
       capturePreview.src = dataUrl;
-      hide(videoWrapper); show(capturePreview);
+      // Stop camera tracks and detach video from DOM so preview is fully visible
+      stopCamera();
+      if(videoWrapper.parentNode) videoWrapper.parentNode.removeChild(videoWrapper);
+      capturePreview.style.display = 'block';
       takePhotoBtn.style.display = 'none';
       retakePhotoBtn.style.display = 'inline-block';
       // Show inline gem button, hide global Næste
@@ -1450,12 +1455,18 @@
     $('retake-photo').addEventListener('click', ()=>{
       pendingPhotoDataUrl = null;
       capturePreview.src='';
-      hide(capturePreview); show(videoWrapper);
+      capturePreview.style.display = 'none';
+      // Re-attach videoWrapper to photo-mount and restart camera
+      const pm = document.getElementById('photo-mount');
+      if(pm) pm.appendChild(videoWrapper);
+      show(videoWrapper);
       retakePhotoBtn.style.display = 'none';
       takePhotoBtn.style.display = 'inline-block';
       // Hide inline gem button, restore global Næste
       const inlineNext = document.getElementById('next-step-photo');
       if(inlineNext) inlineNext.style.display = 'none';
+      nextStepBtn.style.display = '';
+      startCamera(false).catch(()=>{});
       nextStepBtn.style.display = '';
     });
 
