@@ -1532,7 +1532,7 @@
             const createdAtText = formatTimestamp(d.createdAt);
             const endAtText = formatDateOnly(d.expectedEnd);
             const isOld = (Date.now() - (d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().getTime() : 0)) > (24*3600*1000);
-            const phone = phoneCache[d.createdBy] || '';
+            const phone = phoneCache[d.createdBy] || d.createdByPhone || '';
 
             const el = document.createElement('div');
             el.className = 'lock-row';
@@ -1597,7 +1597,8 @@
         const snap = await getDoc(doc(db,'activeLocks',id));
         if(!snap.exists()){ showToast('Ingen data', 'error'); return; }
         const d = snap.data();
-        const phone = await getPhoneForUid(d.createdBy);
+        // Use stored phone on doc first (works even if users/ read is restricted)
+        const phone = d.createdByPhone || await getPhoneForUid(d.createdBy);
         let photoHtml = '<div style="color:var(--rw-grey);font-size:0.85rem;">Ingen foto tilgængeligt</div>';
         if(d.photoURL){ photoHtml = `<img src="${d.photoURL}" style="max-width:100%;border-radius:var(--radius);border:1.5px solid var(--rw-mid-grey);">`; }
         else {
