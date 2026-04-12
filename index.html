@@ -1685,23 +1685,196 @@
       e.target.style.borderColor = '#D8D8D8';
     });
 
-    document.getElementById('kort-close').addEventListener('click', ()=>{
-      document.getElementById('kort-overlay').style.display = 'none';
-    });
+    // kort-close handled by pan/zoom script
   </script>
 
   <!-- FABRIKSKORT OVERLAY -->
-  <div id="kort-overlay" style="display:none;position:fixed;inset:0;z-index:300;background:#000;flex-direction:column;">
+  <div id="kort-overlay" style="display:none;position:fixed;inset:0;z-index:300;background:#1a1a1a;flex-direction:column;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#000;flex-shrink:0;">
-      <span style="color:#fff;font-weight:700;font-size:1rem;letter-spacing:0.04em;">FABRIKSKORT</span>
-      <button id="kort-close" style="background:rgba(255,255,255,0.12);border:none;color:#fff;padding:8px 18px;border-radius:4px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;">Luk ✕</button>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="color:#fff;font-weight:700;font-size:1rem;letter-spacing:0.04em;">FABRIKSKORT</span>
+        <span style="color:rgba(255,255,255,0.4);font-size:0.78rem;">Pinch for at zoome · Træk for at navigere</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="kort-zoom-out" style="background:rgba(255,255,255,0.12);border:none;color:#fff;width:34px;height:34px;border-radius:4px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">−</button>
+        <button id="kort-zoom-reset" style="background:rgba(255,255,255,0.12);border:none;color:#fff;height:34px;padding:0 10px;border-radius:4px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">100%</button>
+        <button id="kort-zoom-in" style="background:rgba(255,255,255,0.12);border:none;color:#fff;width:34px;height:34px;border-radius:4px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+        <button id="kort-close" style="background:rgba(255,255,255,0.12);border:none;color:#fff;padding:0 18px;height:34px;border-radius:4px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;">Luk ✕</button>
+      </div>
     </div>
-    <div style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:8px;">
-      <img src="https://raw.githubusercontent.com/DeepMobb/LOTO-app/dd76e58fd5f93624f59caa8111c4ab2cf153ed79/fabrikskort.png"
-           style="max-width:100%;max-height:100%;object-fit:contain;touch-action:pinch-zoom;"
-           alt="Fabrikskort">
+    <!-- Pan/zoom canvas -->
+    <div id="kort-viewport" style="flex:1;overflow:hidden;position:relative;cursor:grab;">
+      <img id="kort-img"
+           src="https://raw.githubusercontent.com/DeepMobb/LOTO-app/dd76e58fd5f93624f59caa8111c4ab2cf153ed79/fabrikskort.png"
+           alt="Fabrikskort"
+           style="position:absolute;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-drag:none;">
     </div>
   </div>
+
+  <script>
+  (function(){
+    let scale = 1, minScale = 0.2, maxScale = 8;
+    let originX = 0, originY = 0; // translation
+    let isDragging = false, lastX = 0, lastY = 0;
+    let lastPinchDist = null;
+    let imgNaturalW = 0, imgNaturalH = 0;
+    let vpW = 0, vpH = 0;
+
+    const overlay  = document.getElementById('kort-overlay');
+    const viewport = document.getElementById('kort-viewport');
+    const img      = document.getElementById('kort-img');
+    const zoomLabel = document.getElementById('kort-zoom-reset');
+
+    function applyTransform() {
+      img.style.transform = `translate(${originX}px,${originY}px) scale(${scale})`;
+      zoomLabel.textContent = Math.round(scale * 100) + '%';
+    }
+
+    function fitToScreen() {
+      vpW = viewport.clientWidth;
+      vpH = viewport.clientHeight;
+      if(!imgNaturalW || !imgNaturalH) return;
+      const scaleX = vpW / imgNaturalW;
+      const scaleY = vpH / imgNaturalH;
+      scale = Math.min(scaleX, scaleY) * 0.95;
+      minScale = scale * 0.4;
+      originX = (vpW - imgNaturalW * scale) / 2;
+      originY = (vpH - imgNaturalH * scale) / 2;
+      applyTransform();
+    }
+
+    img.addEventListener('load', ()=>{
+      imgNaturalW = img.naturalWidth;
+      imgNaturalH = img.naturalHeight;
+      fitToScreen();
+    });
+    // In case image is cached and already loaded
+    if(img.complete && img.naturalWidth) {
+      imgNaturalW = img.naturalWidth;
+      imgNaturalH = img.naturalHeight;
+    }
+
+    // Open: fit to screen
+    document.getElementById('kort-btn').addEventListener('click', ()=>{}, false);
+    const origValidate = window._validateKortPin;
+
+    function onOverlayOpen() {
+      vpW = viewport.clientWidth;
+      vpH = viewport.clientHeight;
+      if(imgNaturalW) fitToScreen();
+    }
+
+    // Observe overlay becoming visible
+    const observer = new MutationObserver(()=>{
+      if(overlay.style.display === 'flex') onOverlayOpen();
+    });
+    observer.observe(overlay, { attributes: true, attributeFilter: ['style'] });
+
+    // ── MOUSE DRAG ────────────────────────────────────────────
+    viewport.addEventListener('mousedown', e=>{
+      isDragging = true; lastX = e.clientX; lastY = e.clientY;
+      viewport.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', e=>{
+      if(!isDragging) return;
+      originX += e.clientX - lastX;
+      originY += e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      applyTransform();
+    });
+    window.addEventListener('mouseup', ()=>{ isDragging = false; viewport.style.cursor = 'grab'; });
+
+    // ── MOUSE WHEEL ZOOM ──────────────────────────────────────
+    viewport.addEventListener('wheel', e=>{
+      e.preventDefault();
+      const rect = viewport.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      const delta = e.deltaY < 0 ? 1.12 : 0.89;
+      const newScale = Math.min(maxScale, Math.max(minScale, scale * delta));
+      const factor = newScale / scale;
+      originX = px - factor * (px - originX);
+      originY = py - factor * (py - originY);
+      scale = newScale;
+      applyTransform();
+    }, { passive: false });
+
+    // ── TOUCH: DRAG + PINCH ───────────────────────────────────
+    function touchDist(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx*dx + dy*dy);
+    }
+    function touchMidpoint(touches, rect) {
+      return {
+        x: ((touches[0].clientX + touches[1].clientX)/2) - rect.left,
+        y: ((touches[0].clientY + touches[1].clientY)/2) - rect.top,
+      };
+    }
+
+    viewport.addEventListener('touchstart', e=>{
+      if(e.touches.length === 1) {
+        isDragging = true;
+        lastX = e.touches[0].clientX;
+        lastY = e.touches[0].clientY;
+        lastPinchDist = null;
+      } else if(e.touches.length === 2) {
+        isDragging = false;
+        lastPinchDist = touchDist(e.touches);
+      }
+      e.preventDefault();
+    }, { passive: false });
+
+    viewport.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      if(e.touches.length === 1 && isDragging) {
+        originX += e.touches[0].clientX - lastX;
+        originY += e.touches[0].clientY - lastY;
+        lastX = e.touches[0].clientX;
+        lastY = e.touches[0].clientY;
+        applyTransform();
+      } else if(e.touches.length === 2) {
+        const dist = touchDist(e.touches);
+        if(lastPinchDist !== null) {
+          const rect = viewport.getBoundingClientRect();
+          const mid = touchMidpoint(e.touches, rect);
+          const delta = dist / lastPinchDist;
+          const newScale = Math.min(maxScale, Math.max(minScale, scale * delta));
+          const factor = newScale / scale;
+          originX = mid.x - factor * (mid.x - originX);
+          originY = mid.y - factor * (mid.y - originY);
+          scale = newScale;
+          applyTransform();
+        }
+        lastPinchDist = dist;
+      }
+    }, { passive: false });
+
+    viewport.addEventListener('touchend', e=>{
+      if(e.touches.length < 2) lastPinchDist = null;
+      if(e.touches.length === 0) isDragging = false;
+    });
+
+    // ── ZOOM BUTTONS ─────────────────────────────────────────
+    function zoomAt(factor) {
+      const cx = viewport.clientWidth / 2;
+      const cy = viewport.clientHeight / 2;
+      const newScale = Math.min(maxScale, Math.max(minScale, scale * factor));
+      const f = newScale / scale;
+      originX = cx - f * (cx - originX);
+      originY = cy - f * (cy - originY);
+      scale = newScale;
+      applyTransform();
+    }
+    document.getElementById('kort-zoom-in').addEventListener('click', ()=> zoomAt(1.3));
+    document.getElementById('kort-zoom-out').addEventListener('click', ()=> zoomAt(1/1.3));
+    document.getElementById('kort-zoom-reset').addEventListener('click', ()=> fitToScreen());
+    document.getElementById('kort-close').addEventListener('click', ()=>{
+      overlay.style.display = 'none';
+    });
+  })();
+  </script>
 
   <!-- KORT PIN MODAL -->
   <div id="kort-pin-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:290;align-items:center;justify-content:center;backdrop-filter:blur(2px);">
