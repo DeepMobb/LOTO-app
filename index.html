@@ -792,7 +792,7 @@
           <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px">Opret bruger</h3>
           <form id="signup-form">
             <div class="form-group"><label>Navn</label><input id="signup-name" type="text" /></div>
-            <div class="form-group"><label>Telefon</label><input id="signup-phone" type="tel" /></div>
+            <div class="form-group"><label>Telefon <span style="color:var(--rw-grey);font-weight:400;font-size:0.78rem;">(8 cifre)</span></label><input id="signup-phone" type="tel" inputmode="numeric" maxlength="8" placeholder="12345678" /></div>
             <div class="form-group"><label>Adgangskode</label><input id="signup-password" type="password" /></div>
             <div class="form-actions">
               <span id="signup-error" class="inline-error"></span>
@@ -1194,8 +1194,11 @@
     signupForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
       setInlineError(signupError,'');
-      const name = $('signup-name').value.trim(), phone = $('signup-phone').value.trim(), pwd = $('signup-password').value;
+      const name = $('signup-name').value.trim(), pwd = $('signup-password').value;
+      const phoneRaw = $('signup-phone').value.trim();
+      const phone = phoneRaw.replace(/\s+/g,'');
       if(!name||!phone||!pwd){ setInlineError(signupError,'Udfyld alle felter'); return; }
+      if(!/^\d{8}$/.test(phone)){ setInlineError(signupError,'Telefonnummer skal være præcis 8 cifre'); return; }
       signupBtn.disabled = true; show(signupSpinner);
       try{
         const uc = await createUserWithEmailAndPassword(auth, phoneToEmail(phone), pwd);
@@ -1213,6 +1216,8 @@
       currentUser = user || null;
       if(user){
         hide(authCard); show(appView); show(userArea); userName.textContent = user.displayName || user.email || '';
+        // Pre-load own phone into cache so it's available when saving new locks
+        getPhoneForUid(user.uid).catch(()=>{});
         startListeningActiveLocks();
       } else {
         show(authCard); hide(appView); hide(userArea); stopListeningActiveLocks();
@@ -1365,6 +1370,7 @@
             expectedEnd: endDateObj,
             createdBy: auth.currentUser ? auth.currentUser.uid : null,
             createdByName: auth.currentUser ? (auth.currentUser.displayName || '') : '',
+            createdByPhone: (phoneCache[auth.currentUser ? auth.currentUser.uid : null] || ''),
             createdAt: serverTimestamp(),
             status: 'active'
           });
@@ -1537,7 +1543,7 @@
               <div class="lock-equipment" style="font-weight:400;color:var(--rw-grey);font-size:0.83rem;">${equipArea||'—'}</div>
               <div>
                 <div class="lock-creator-name">${d.operatorName || d.createdByName || '—'}</div>
-                ${phone ? `<div class="lock-creator-phone">${phone}</div>` : ''}
+                ${(phone||d.createdByPhone) ? `<div class="lock-creator-phone">${phone||d.createdByPhone}</div>` : ''}
               </div>
               <div class="lock-date${isOld?' overdue':''}">${createdAtText||'—'}</div>
               <div class="lock-end-date">${endAtText||'—'}</div>
@@ -1602,7 +1608,7 @@
             <div class="detail-field"><label>Låsenummer</label><div class="detail-value" style="font-family:'DM Mono',monospace;">${d.lockNumber||'—'}</div></div>
 <div class="detail-field"><label>Equipment</label><div class="detail-value">${d.stickerData||'—'}${(d.equipmentDescription||lookupEquipment(d.stickerData)) ? `<div style="font-size:0.82rem;color:var(--rw-grey);margin-top:2px;">${d.equipmentDescription||lookupEquipment(d.stickerData)}</div>` : ''}</div></div>
             <div class="detail-field"><label>Operatør</label><div class="detail-value">${d.operatorName||'—'}</div></div>
-            <div class="detail-field"><label>Oprettet af</label><div class="detail-value">${d.createdByName||'—'}${phone ? `<div style="font-size:0.82rem;color:var(--rw-grey);font-family:'DM Mono',monospace;margin-top:2px;">${phone}</div>` : ''}</div></div>
+            <div class="detail-field"><label>Oprettet af</label><div class="detail-value">${d.createdByName||'—'}${(phone||d.createdByPhone) ? `<div style="font-size:0.82rem;color:var(--rw-grey);font-family:'DM Mono',monospace;margin-top:2px;">${phone||d.createdByPhone}</div>` : ''}</div></div>
             <div class="detail-field"><label>Starttidspunkt</label><div class="detail-value" style="font-family:'DM Mono',monospace;">${formatTimestamp(d.createdAt)||'—'}</div></div>
             <div class="detail-field"><label>Forventet slut</label><div class="detail-value" style="font-family:'DM Mono',monospace;">${formatDateOnly(d.expectedEnd)||'—'}</div></div>
           </div>
@@ -1643,6 +1649,13 @@
       });
     }
     enforceDigits(manualEquip); enforceDigits(pinInput);
+    // Enforce digits-only on signup phone
+    const signupPhoneEl = document.getElementById('signup-phone');
+    if(signupPhoneEl) {
+      signupPhoneEl.addEventListener('input', ()=>{
+        signupPhoneEl.value = signupPhoneEl.value.replace(/\D+/g,'').slice(0,8);
+      });
+    }
 
     // Live description lookup when typing manual equipment number
     if(manualEquip) {
