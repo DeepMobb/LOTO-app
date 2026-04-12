@@ -1514,6 +1514,9 @@
             return;
           }
 
+          // Update kort map hotspots
+          if(window.kortUpdateLocks) window.kortUpdateLocks(items);
+
           // Fetch phone numbers for all unique creators
           const uids = [...new Set(items.map(i => i.data.createdBy).filter(Boolean))];
           await Promise.all(uids.map(uid => getPhoneForUid(uid)));
@@ -1704,175 +1707,307 @@
     </div>
     <!-- Pan/zoom canvas -->
     <div id="kort-viewport" style="flex:1;overflow:hidden;position:relative;cursor:grab;">
-      <img id="kort-img"
-           src="https://raw.githubusercontent.com/DeepMobb/LOTO-app/dd76e58fd5f93624f59caa8111c4ab2cf153ed79/fabrikskort.png"
-           alt="Fabrikskort"
-           style="position:absolute;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-drag:none;">
+      <!-- Map image + hotspot SVG overlay move together -->
+      <div id="kort-canvas" style="position:absolute;transform-origin:0 0;will-change:transform;">
+        <img id="kort-img"
+             src="https://raw.githubusercontent.com/DeepMobb/LOTO-app/dd76e58fd5f93624f59caa8111c4ab2cf153ed79/fabrikskort.png"
+             alt="Fabrikskort"
+             style="display:block;user-select:none;-webkit-user-drag:none;">
+        <!-- SVG overlay — same size as image, hotspots in % coordinates -->
+        <svg id="kort-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible;pointer-events:none;">
+          <defs>
+            <radialGradient id="hotGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#D20014" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#D20014" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <!-- Hotspots rendered by JS -->
+        </svg>
+      </div>
+    </div>
+
+    <!-- Lock info popup on map -->
+    <div id="kort-popup" style="display:none;position:absolute;z-index:20;background:#fff;border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,0.35);padding:14px 16px;min-width:200px;max-width:260px;pointer-events:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
+        <span style="font-weight:700;font-size:0.9rem;color:#D20014;">● AKTIV LÅS</span>
+        <button id="kort-popup-close" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#63666A;line-height:1;padding:0;">✕</button>
+      </div>
+      <div id="kort-popup-body" style="font-size:0.82rem;display:flex;flex-direction:column;gap:5px;"></div>
     </div>
   </div>
 
   <script>
   (function(){
     let scale = 1, minScale = 0.2, maxScale = 8;
-    let originX = 0, originY = 0; // translation
+    let originX = 0, originY = 0;
     let isDragging = false, lastX = 0, lastY = 0;
     let lastPinchDist = null;
-    let imgNaturalW = 0, imgNaturalH = 0;
-    let vpW = 0, vpH = 0;
+    let imgW = 0, imgH = 0;
+    let imgReady = false;
+    let locksReady = false;
+    let activeLocks = [];
 
-    const overlay  = document.getElementById('kort-overlay');
-    const viewport = document.getElementById('kort-viewport');
-    const img      = document.getElementById('kort-img');
+    const overlay   = document.getElementById('kort-overlay');
+    const viewport  = document.getElementById('kort-viewport');
+    const kortCanvas = document.getElementById('kort-canvas');
+    const img       = document.getElementById('kort-img');
+    const svg       = document.getElementById('kort-svg');
     const zoomLabel = document.getElementById('kort-zoom-reset');
+    const popup     = document.getElementById('kort-popup');
+    const popupBody = document.getElementById('kort-popup-body');
+
+    // Illustrative positions inside the marked area (as fraction of image size)
+    const POSITIONS = [
+      { rx:0.285, ry:0.28 }, { rx:0.335, ry:0.22 }, { rx:0.390, ry:0.26 },
+      { rx:0.445, ry:0.30 }, { rx:0.490, ry:0.24 }, { rx:0.520, ry:0.32 },
+      { rx:0.560, ry:0.28 }, { rx:0.500, ry:0.38 }, { rx:0.430, ry:0.40 },
+      { rx:0.360, ry:0.36 },
+    ];
 
     function applyTransform() {
-      img.style.transform = `translate(${originX}px,${originY}px) scale(${scale})`;
+      kortCanvas.style.transform = `translate(${originX}px,${originY}px) scale(${scale})`;
       zoomLabel.textContent = Math.round(scale * 100) + '%';
     }
 
     function fitToScreen() {
-      vpW = viewport.clientWidth;
-      vpH = viewport.clientHeight;
-      if(!imgNaturalW || !imgNaturalH) return;
-      const scaleX = vpW / imgNaturalW;
-      const scaleY = vpH / imgNaturalH;
-      scale = Math.min(scaleX, scaleY) * 0.95;
-      minScale = scale * 0.4;
-      originX = (vpW - imgNaturalW * scale) / 2;
-      originY = (vpH - imgNaturalH * scale) / 2;
+      const vpW = viewport.clientWidth  || window.innerWidth;
+      const vpH = viewport.clientHeight || (window.innerHeight - 60);
+      if(!imgW || !imgH) return;
+      const s = Math.min(vpW / imgW, vpH / imgH) * 0.95;
+      scale    = s;
+      minScale = s * 0.3;
+      originX  = (vpW - imgW * s) / 2;
+      originY  = (vpH - imgH * s) / 2;
       applyTransform();
     }
 
-    img.addEventListener('load', ()=>{
-      imgNaturalW = img.naturalWidth;
-      imgNaturalH = img.naturalHeight;
+    function initImage() {
+      imgW = img.naturalWidth;
+      imgH = img.naturalHeight;
+      if(!imgW || !imgH) return;
+      kortCanvas.style.width  = imgW + 'px';
+      kortCanvas.style.height = imgH + 'px';
+      svg.setAttribute('viewBox', `0 0 ${imgW} ${imgH}`);
+      svg.style.width  = imgW + 'px';
+      svg.style.height = imgH + 'px';
+      imgReady = true;
       fitToScreen();
-    });
-    // In case image is cached and already loaded
-    if(img.complete && img.naturalWidth) {
-      imgNaturalW = img.naturalWidth;
-      imgNaturalH = img.naturalHeight;
+      tryRender();
     }
 
-    // Open: fit to screen
-    document.getElementById('kort-btn').addEventListener('click', ()=>{}, false);
-    const origValidate = window._validateKortPin;
-
-    function onOverlayOpen() {
-      vpW = viewport.clientWidth;
-      vpH = viewport.clientHeight;
-      if(imgNaturalW) fitToScreen();
+    img.addEventListener('load', initImage);
+    // If already cached
+    if(img.complete && img.naturalWidth > 0) {
+      initImage();
+    } else {
+      // Force reload if stuck
+      img.src = img.src;
     }
 
-    // Observe overlay becoming visible
-    const observer = new MutationObserver(()=>{
-      if(overlay.style.display === 'flex') onOverlayOpen();
-    });
-    observer.observe(overlay, { attributes: true, attributeFilter: ['style'] });
+    // ── HOTSPOT RENDERING ──────────────────────────────────
+    function fmtTS(ts) {
+      if(!ts) return '—';
+      try {
+        const d = ts.toDate ? ts.toDate() : new Date(ts);
+        const p = n => String(n).padStart(2,'0');
+        return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+      } catch(e){ return '—'; }
+    }
+    function fmtDate(ts) {
+      if(!ts) return '—';
+      try {
+        const d = ts.toDate ? ts.toDate() : new Date(ts);
+        const p = n => String(n).padStart(2,'0');
+        return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
+      } catch(e){ return '—'; }
+    }
 
-    // ── MOUSE DRAG ────────────────────────────────────────────
+    function tryRender() {
+      if(!imgReady) return; // wait for image
+      renderHotspots();
+    }
+
+    function renderHotspots() {
+      // Clear existing hotspots (keep defs)
+      while(svg.lastChild) svg.removeChild(svg.lastChild);
+
+      // Add animation styles + gradient
+      const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+      defs.innerHTML = `
+        <radialGradient id="hg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#D20014" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#D20014" stop-opacity="0"/>
+        </radialGradient>
+        <style>
+          .hs-ring { animation: hsPulse 1.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+          .hs-dot  { animation: hsDot  1.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+          @keyframes hsPulse { 0%,100%{opacity:.6;r:36px} 50%{opacity:.12;r:56px} }
+          @keyframes hsDot   { 0%,100%{r:10px}            50%{r:14px} }
+        </style>`;
+      svg.appendChild(defs);
+
+      if(activeLocks.length === 0) return;
+
+      activeLocks.forEach((lock, i) => {
+        const pos = POSITIONS[i % POSITIONS.length];
+        const cx  = pos.rx * imgW;
+        const cy  = pos.ry * imgH;
+        const delay = (i * 0.25) + 's';
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        g.style.pointerEvents = 'all';
+        g.style.cursor = 'pointer';
+
+        // Glow
+        const glow = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        glow.setAttribute('cx', cx); glow.setAttribute('cy', cy); glow.setAttribute('r', 36);
+        glow.setAttribute('fill', 'url(#hg)'); glow.setAttribute('class', 'hs-ring');
+        glow.style.animationDelay = delay;
+
+        // Core
+        const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        dot.setAttribute('cx', cx); dot.setAttribute('cy', cy); dot.setAttribute('r', 10);
+        dot.setAttribute('fill', '#D20014'); dot.setAttribute('class', 'hs-dot');
+        dot.style.animationDelay = delay;
+
+        // White border ring
+        const border = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        border.setAttribute('cx', cx); border.setAttribute('cy', cy); border.setAttribute('r', 13);
+        border.setAttribute('fill', 'none'); border.setAttribute('stroke', '#fff');
+        border.setAttribute('stroke-width', '2.5');
+
+        g.appendChild(glow); g.appendChild(dot); g.appendChild(border);
+
+        g.addEventListener('click', e => { e.stopPropagation(); showPopup(lock, cx, cy); });
+        g.addEventListener('touchend', e => {
+          e.stopPropagation(); e.preventDefault(); showPopup(lock, cx, cy);
+        }, { passive:false });
+
+        svg.appendChild(g);
+      });
+    }
+
+    function showPopup(lock, svgX, svgY) {
+      const d = lock.data;
+      popupBody.innerHTML = `
+        <div><span style="color:#63666A;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Lås</span>
+             <div style="font-weight:600;">${d.lockNumber||'—'}</div></div>
+        <div><span style="color:#63666A;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Equipment</span>
+             <div style="font-weight:600;">${d.stickerData||'—'}</div></div>
+        ${d.equipmentDescription ? `<div><span style="color:#63666A;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Område</span>
+             <div style="font-weight:600;">${d.equipmentDescription}</div></div>` : ''}
+        <div><span style="color:#63666A;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Oprettet af</span>
+             <div style="font-weight:600;">${d.operatorName||d.createdByName||'—'}</div></div>
+        <div><span style="color:#63666A;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Oprettet</span>
+             <div style="font-weight:600;">${fmtTS(d.createdAt)}</div></div>
+        <div><span style="color:#63666A;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Slut dato</span>
+             <div style="font-weight:600;">${fmtDate(d.expectedEnd)}</div></div>`;
+
+      // Convert SVG canvas coords → screen coords
+      const screenX = originX + svgX * scale;
+      const screenY = originY + svgY * scale;
+      popup.style.display = 'block';
+
+      const vpW = viewport.clientWidth, vpH = viewport.clientHeight;
+      const pw = 250, ph = 220;
+      let left = screenX + 24;
+      let top  = screenY - 70;
+      if(left + pw > vpW - 10) left = screenX - pw - 24;
+      if(left < 10) left = 10;
+      if(top + ph > vpH - 10) top = vpH - ph - 10;
+      if(top < 10) top = 10;
+      popup.style.left = left + 'px';
+      popup.style.top  = top + 'px';
+    }
+
+    document.getElementById('kort-popup-close').addEventListener('click', ()=>{ popup.style.display='none'; });
+
+    // ── EXPOSE to Firestore listener ──────────────────────
+    window.kortUpdateLocks = function(locks) {
+      activeLocks = locks;
+      locksReady  = true;
+      tryRender();
+    };
+
+    // ── Watch overlay becoming visible → refit ────────────
+    new MutationObserver(()=>{
+      if(overlay.style.display === 'flex') {
+        popup.style.display = 'none';
+        setTimeout(()=>{ if(imgReady) fitToScreen(); }, 30);
+      }
+    }).observe(overlay, { attributes:true, attributeFilter:['style'] });
+
+    // ── MOUSE drag ────────────────────────────────────────
+    let dragMoved = false;
     viewport.addEventListener('mousedown', e=>{
-      isDragging = true; lastX = e.clientX; lastY = e.clientY;
-      viewport.style.cursor = 'grabbing';
-      e.preventDefault();
+      if(e.target.closest('#kort-popup')) return;
+      isDragging=true; dragMoved=false;
+      lastX=e.clientX; lastY=e.clientY;
+      viewport.style.cursor='grabbing'; e.preventDefault();
     });
     window.addEventListener('mousemove', e=>{
       if(!isDragging) return;
-      originX += e.clientX - lastX;
-      originY += e.clientY - lastY;
-      lastX = e.clientX; lastY = e.clientY;
-      applyTransform();
+      const dx=e.clientX-lastX, dy=e.clientY-lastY;
+      if(Math.abs(dx)+Math.abs(dy)>3) dragMoved=true;
+      originX+=dx; originY+=dy; lastX=e.clientX; lastY=e.clientY; applyTransform();
     });
-    window.addEventListener('mouseup', ()=>{ isDragging = false; viewport.style.cursor = 'grab'; });
+    window.addEventListener('mouseup', ()=>{ isDragging=false; viewport.style.cursor='grab'; });
+    viewport.addEventListener('click', e=>{
+      if(dragMoved) e.stopPropagation();
+      if(!e.target.closest('g') && !e.target.closest('#kort-popup')) popup.style.display='none';
+    });
 
-    // ── MOUSE WHEEL ZOOM ──────────────────────────────────────
+    // ── WHEEL zoom ───────────────────────────────────────
     viewport.addEventListener('wheel', e=>{
       e.preventDefault();
-      const rect = viewport.getBoundingClientRect();
-      const px = e.clientX - rect.left;
-      const py = e.clientY - rect.top;
-      const delta = e.deltaY < 0 ? 1.12 : 0.89;
-      const newScale = Math.min(maxScale, Math.max(minScale, scale * delta));
-      const factor = newScale / scale;
-      originX = px - factor * (px - originX);
-      originY = py - factor * (py - originY);
-      scale = newScale;
-      applyTransform();
-    }, { passive: false });
+      const rect=viewport.getBoundingClientRect();
+      const px=e.clientX-rect.left, py=e.clientY-rect.top;
+      const d=e.deltaY<0?1.12:0.89;
+      const ns=Math.min(maxScale,Math.max(minScale,scale*d));
+      const f=ns/scale;
+      originX=px-f*(px-originX); originY=py-f*(py-originY); scale=ns; applyTransform();
+    },{passive:false});
 
-    // ── TOUCH: DRAG + PINCH ───────────────────────────────────
-    function touchDist(touches) {
-      const dx = touches[0].clientX - touches[1].clientX;
-      const dy = touches[0].clientY - touches[1].clientY;
-      return Math.sqrt(dx*dx + dy*dy);
-    }
-    function touchMidpoint(touches, rect) {
-      return {
-        x: ((touches[0].clientX + touches[1].clientX)/2) - rect.left,
-        y: ((touches[0].clientY + touches[1].clientY)/2) - rect.top,
-      };
-    }
+    // ── TOUCH pinch+drag ─────────────────────────────────
+    function tDist(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.sqrt(dx*dx+dy*dy);}
+    function tMid(t,r){return{x:(t[0].clientX+t[1].clientX)/2-r.left,y:(t[0].clientY+t[1].clientY)/2-r.top};}
 
-    viewport.addEventListener('touchstart', e=>{
-      if(e.touches.length === 1) {
-        isDragging = true;
-        lastX = e.touches[0].clientX;
-        lastY = e.touches[0].clientY;
-        lastPinchDist = null;
-      } else if(e.touches.length === 2) {
-        isDragging = false;
-        lastPinchDist = touchDist(e.touches);
-      }
+    viewport.addEventListener('touchstart',e=>{
+      if(e.target.closest('#kort-popup')) return;
+      if(e.touches.length===1){isDragging=true;dragMoved=false;lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;lastPinchDist=null;}
+      else if(e.touches.length===2){isDragging=false;lastPinchDist=tDist(e.touches);}
       e.preventDefault();
-    }, { passive: false });
-
-    viewport.addEventListener('touchmove', e=>{
+    },{passive:false});
+    viewport.addEventListener('touchmove',e=>{
       e.preventDefault();
-      if(e.touches.length === 1 && isDragging) {
-        originX += e.touches[0].clientX - lastX;
-        originY += e.touches[0].clientY - lastY;
-        lastX = e.touches[0].clientX;
-        lastY = e.touches[0].clientY;
-        applyTransform();
-      } else if(e.touches.length === 2) {
-        const dist = touchDist(e.touches);
-        if(lastPinchDist !== null) {
-          const rect = viewport.getBoundingClientRect();
-          const mid = touchMidpoint(e.touches, rect);
-          const delta = dist / lastPinchDist;
-          const newScale = Math.min(maxScale, Math.max(minScale, scale * delta));
-          const factor = newScale / scale;
-          originX = mid.x - factor * (mid.x - originX);
-          originY = mid.y - factor * (mid.y - originY);
-          scale = newScale;
-          applyTransform();
-        }
-        lastPinchDist = dist;
+      if(e.touches.length===1&&isDragging){
+        const dx=e.touches[0].clientX-lastX,dy=e.touches[0].clientY-lastY;
+        if(Math.abs(dx)+Math.abs(dy)>3) dragMoved=true;
+        originX+=dx;originY+=dy;lastX=e.touches[0].clientX;lastY=e.touches[0].clientY;applyTransform();
+      } else if(e.touches.length===2&&lastPinchDist!==null){
+        const dist=tDist(e.touches);
+        const rect=viewport.getBoundingClientRect(),mid=tMid(e.touches,rect);
+        const ns=Math.min(maxScale,Math.max(minScale,scale*(dist/lastPinchDist)));
+        const f=ns/scale;
+        originX=mid.x-f*(mid.x-originX);originY=mid.y-f*(mid.y-originY);scale=ns;lastPinchDist=dist;applyTransform();
       }
-    }, { passive: false });
-
-    viewport.addEventListener('touchend', e=>{
-      if(e.touches.length < 2) lastPinchDist = null;
-      if(e.touches.length === 0) isDragging = false;
+    },{passive:false});
+    viewport.addEventListener('touchend',e=>{
+      if(e.touches.length<2)lastPinchDist=null;
+      if(e.touches.length===0)isDragging=false;
     });
 
-    // ── ZOOM BUTTONS ─────────────────────────────────────────
-    function zoomAt(factor) {
-      const cx = viewport.clientWidth / 2;
-      const cy = viewport.clientHeight / 2;
-      const newScale = Math.min(maxScale, Math.max(minScale, scale * factor));
-      const f = newScale / scale;
-      originX = cx - f * (cx - originX);
-      originY = cy - f * (cy - originY);
-      scale = newScale;
-      applyTransform();
+    // ── ZOOM buttons ─────────────────────────────────────
+    function zoomAt(f){
+      const cx=viewport.clientWidth/2,cy=viewport.clientHeight/2;
+      const ns=Math.min(maxScale,Math.max(minScale,scale*f));
+      const fac=ns/scale;
+      originX=cx-fac*(cx-originX);originY=cy-fac*(cy-originY);scale=ns;applyTransform();
     }
-    document.getElementById('kort-zoom-in').addEventListener('click', ()=> zoomAt(1.3));
-    document.getElementById('kort-zoom-out').addEventListener('click', ()=> zoomAt(1/1.3));
-    document.getElementById('kort-zoom-reset').addEventListener('click', ()=> fitToScreen());
-    document.getElementById('kort-close').addEventListener('click', ()=>{
-      overlay.style.display = 'none';
-    });
+    document.getElementById('kort-zoom-in').addEventListener('click',()=>zoomAt(1.3));
+    document.getElementById('kort-zoom-out').addEventListener('click',()=>zoomAt(1/1.3));
+    document.getElementById('kort-zoom-reset').addEventListener('click',()=>fitToScreen());
+    document.getElementById('kort-close').addEventListener('click',()=>{overlay.style.display='none';popup.style.display='none';});
   })();
   </script>
 
